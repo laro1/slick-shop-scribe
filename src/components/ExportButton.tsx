@@ -75,10 +75,12 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) =
     <Button 
       onClick={exportToExcel} 
       disabled={!hasData}
-      className="flex items-center gap-2"
+      className="flex items-center gap-2 text-sm px-3 py-2 sm:px-4 sm:py-2"
+      size="sm"
     >
-      <Download className="h-4 w-4" />
-      Exportar a Excel
+      <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+      <span className="hidden sm:inline">Exportar a Excel</span>
+      <span className="sm:hidden">Exportar</span>
     </Button>
   );
 };

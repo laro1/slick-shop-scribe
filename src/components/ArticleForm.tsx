@@ -34,70 +34,76 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Registrar Artículo</CardTitle>
+    <Card className="w-full">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg sm:text-xl">Registrar Artículo</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0">
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nombre del Artículo</Label>
+            <Label htmlFor="name" className="text-sm font-medium">Nombre del Artículo</Label>
             <Input
               id="name"
               {...register('name', { required: 'El nombre es requerido' })}
               placeholder="Ingrese el nombre del artículo"
+              className="text-sm"
             />
             {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
             <Input
               id="description"
               {...register('description', { required: 'La descripción es requerida' })}
               placeholder="Descripción del artículo"
+              className="text-sm"
             />
             {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
+              <p className="text-xs text-destructive">{errors.description.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="price">Precio</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              {...register('price', { 
-                required: 'El precio es requerido',
-                min: { value: 0, message: 'El precio debe ser mayor a 0' }
-              })}
-              placeholder="0.00"
-            />
-            {errors.price && (
-              <p className="text-sm text-destructive">{errors.price.message}</p>
-            )}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-sm font-medium">Precio</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                {...register('price', { 
+                  required: 'El precio es requerido',
+                  min: { value: 0, message: 'El precio debe ser mayor a 0' }
+                })}
+                placeholder="0.00"
+                className="text-sm"
+              />
+              {errors.price && (
+                <p className="text-xs text-destructive">{errors.price.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="stock" className="text-sm font-medium">Stock Inicial</Label>
+              <Input
+                id="stock"
+                type="number"
+                {...register('stock', { 
+                  required: 'El stock es requerido',
+                  min: { value: 0, message: 'El stock no puede ser negativo' }
+                })}
+                placeholder="0"
+                className="text-sm"
+              />
+              {errors.stock && (
+                <p className="text-xs text-destructive">{errors.stock.message}</p>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="stock">Stock Inicial</Label>
-            <Input
-              id="stock"
-              type="number"
-              {...register('stock', { 
-                required: 'El stock es requerido',
-                min: { value: 0, message: 'El stock no puede ser negativo' }
-              })}
-              placeholder="0"
-            />
-            {errors.stock && (
-              <p className="text-sm text-destructive">{errors.stock.message}</p>
-            )}
-          </div>
-
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full text-sm py-2">
             Registrar Artículo
           </Button>
         </form>

@@ -18,62 +18,62 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-center mb-2">Sistema de Inventario</h1>
-          <p className="text-muted-foreground text-center">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-center mb-2">Sistema de Inventario</h1>
+          <p className="text-muted-foreground text-center text-sm sm:text-base">
             Gestiona tu inventario y ventas de manera eficiente
           </p>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Artículos</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <Card className="p-2 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Artículos</CardTitle>
+              <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{articles.length}</div>
+            <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{articles.length}</div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ventas Totales</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          <Card className="p-2 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium truncate">Ventas Totales</CardTitle>
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{sales.length}</div>
+            <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-bold">{sales.length}</div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Valor Inventario</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          <Card className="p-2 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium truncate">Valor Inventario</CardTitle>
+              <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalInventoryValue.toFixed(2)}</div>
+            <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+              <div className="text-sm sm:text-2xl font-bold">${totalInventoryValue.toFixed(2)}</div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ingresos Totales</CardTitle>
-              <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+          <Card className="p-2 sm:p-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium truncate">Ingresos Totales</CardTitle>
+              <FileSpreadsheet className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalSalesValue.toFixed(2)}</div>
+            <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+              <div className="text-sm sm:text-2xl font-bold">${totalSalesValue.toFixed(2)}</div>
             </CardContent>
           </Card>
         </div>
 
         {lowStockItems > 0 && (
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <Card className="border-yellow-200 bg-yellow-50">
-              <CardContent className="pt-6">
-                <p className="text-yellow-800">
+              <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+                <p className="text-yellow-800 text-sm">
                   ⚠️ Tienes {lowStockItems} artículo(s) con stock bajo (≤5 unidades)
                 </p>
               </CardContent>
@@ -82,47 +82,49 @@ const Index = () => {
         )}
 
         <Tabs defaultValue="register" className="w-full">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <TabsList className="grid w-full sm:w-auto grid-cols-3">
-              <TabsTrigger value="register">Registrar</TabsTrigger>
-              <TabsTrigger value="sales">Ventas</TabsTrigger>
-              <TabsTrigger value="inventory">Inventario</TabsTrigger>
+          <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+            <TabsList className="grid w-full grid-cols-3 h-auto">
+              <TabsTrigger value="register" className="text-xs sm:text-sm py-2">Registrar</TabsTrigger>
+              <TabsTrigger value="sales" className="text-xs sm:text-sm py-2">Ventas</TabsTrigger>
+              <TabsTrigger value="inventory" className="text-xs sm:text-sm py-2">Inventario</TabsTrigger>
             </TabsList>
             
-            <ExportButton articles={articles} sales={sales} />
+            <div className="flex justify-center">
+              <ExportButton articles={articles} sales={sales} />
+            </div>
           </div>
 
-          <TabsContent value="register" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="register" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6">
               <ArticleForm onSubmit={addArticle} />
               <SaleForm articles={articles} onSubmit={addSale} />
             </div>
           </TabsContent>
 
-          <TabsContent value="sales" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="sales" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6">
               <SaleForm articles={articles} onSubmit={addSale} />
               <Card>
                 <CardHeader>
-                  <CardTitle>Ventas Recientes</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl">Ventas Recientes</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {sales.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-4">
+                    <p className="text-muted-foreground text-center py-4 text-sm">
                       No hay ventas registradas
                     </p>
                   ) : (
                     <div className="space-y-3">
                       {sales.slice(-5).reverse().map((sale) => (
                         <div key={sale.id} className="p-3 border rounded-lg">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-medium">{sale.articleName}</h4>
-                              <p className="text-sm text-muted-foreground">
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="min-w-0 flex-1">
+                              <h4 className="font-medium text-sm sm:text-base truncate">{sale.articleName}</h4>
+                              <p className="text-xs sm:text-sm text-muted-foreground">
                                 {sale.buyerName} - {sale.quantity} unidades
                               </p>
                             </div>
-                            <span className="font-bold text-green-600">
+                            <span className="font-bold text-green-600 text-sm sm:text-base whitespace-nowrap">
                               ${sale.totalPrice}
                             </span>
                           </div>
@@ -135,7 +137,7 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="inventory" className="space-y-6">
+          <TabsContent value="inventory" className="space-y-4 sm:space-y-6">
             <InventoryLists articles={articles} sales={sales} />
           </TabsContent>
         </Tabs>
