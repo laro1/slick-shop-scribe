@@ -10,7 +10,16 @@ import { useInventory } from '@/hooks/useInventory';
 import { Package, ShoppingCart, FileSpreadsheet, BarChart3 } from 'lucide-react';
 
 const Index = () => {
-  const { articles, sales, addArticle, addSale } = useInventory();
+  const { 
+    articles, 
+    sales, 
+    addArticle, 
+    updateArticle, 
+    deleteArticle, 
+    addSale, 
+    updateSale, 
+    deleteSale 
+  } = useInventory();
 
   const totalInventoryValue = articles.reduce((sum, article) => sum + (article.price * article.stock), 0);
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.totalPrice, 0);
@@ -139,7 +148,14 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="inventory" className="space-y-4 sm:space-y-6">
-            <InventoryLists articles={articles} sales={sales} />
+            <InventoryLists 
+              articles={articles} 
+              sales={sales} 
+              onUpdateArticle={updateArticle}
+              onDeleteArticle={deleteArticle}
+              onUpdateSale={updateSale}
+              onDeleteSale={deleteSale}
+            />
           </TabsContent>
         </Tabs>
       </div>

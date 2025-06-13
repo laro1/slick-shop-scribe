@@ -31,3 +31,18 @@ export interface ArticleFormData {
   price: number;
   stock: number;
 }
+
+export interface EditArticleData {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+}
+
+export interface EditSaleData {
+  id: string;
+  articleId: string;
+  quantity: number;
+  buyerName: string;
+}

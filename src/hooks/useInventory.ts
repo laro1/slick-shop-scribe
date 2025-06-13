@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Article, Sale, ArticleFormData, SaleFormData } from '@/types/inventory';
+import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
 
 export const useInventory = () => {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -41,6 +41,39 @@ export const useInventory = () => {
     return newArticle;
   };
 
+  const updateArticle = (updatedArticle: EditArticleData) => {
+    setArticles(prev => prev.map(article => 
+      article.id === updatedArticle.id 
+        ? { ...article, ...updatedArticle }
+        : article
+    ));
+    
+    // Update sales with new article name and price if changed
+    const article = articles.find(a => a.id === updatedArticle.id);
+    if (article && (article.name !== updatedArticle.name || article.price !== updatedArticle.price)) {
+      setSales(prev => prev.map(sale => 
+        sale.articleId === updatedArticle.id 
+          ? { 
+              ...sale, 
+              articleName: updatedArticle.name,
+              unitPrice: updatedArticle.price,
+              totalPrice: updatedArticle.price * sale.quantity
+            }
+          : sale
+      ));
+    }
+  };
+
+  const deleteArticle = (articleId: string) => {
+    // Check if article has associated sales
+    const relatedSales = sales.filter(sale => sale.articleId === articleId);
+    if (relatedSales.length > 0) {
+      throw new Error('No se puede eliminar un artículo que tiene ventas asociadas');
+    }
+    
+    setArticles(prev => prev.filter(article => article.id !== articleId));
+  };
+
   const updateArticleStock = (articleId: string, newStock: number) => {
     setArticles(prev => prev.map(article => 
       article.id === articleId 
@@ -76,10 +109,61 @@ export const useInventory = () => {
     return newSale;
   };
 
+  const updateSale = (updatedSale: EditSaleData) => {
+    const currentSale = sales.find(s => s.id === updatedSale.id);
+    const article = articles.find(a => a.id === updatedSale.articleId);
+    
+    if (!currentSale || !article) {
+      throw new Error('Venta o artículo no encontrado');
+    }
+
+    const quantityDifference = updatedSale.quantity - currentSale.quantity;
+    
+    if (quantityDifference > 0 && article.stock < quantityDifference) {
+      throw new Error('Stock insuficiente para la nueva cantidad');
+    }
+
+    // Update stock
+    updateArticleStock(article.id, article.stock - quantityDifference);
+
+    // Update sale
+    setSales(prev => prev.map(sale => 
+      sale.id === updatedSale.id 
+        ? { 
+            ...sale, 
+            articleId: updatedSale.articleId,
+            articleName: article.name,
+            quantity: updatedSale.quantity,
+            unitPrice: article.price,
+            totalPrice: article.price * updatedSale.quantity,
+            buyerName: updatedSale.buyerName
+          }
+        : sale
+    ));
+  };
+
+  const deleteSale = (saleId: string) => {
+    const sale = sales.find(s => s.id === saleId);
+    if (!sale) {
+      throw new Error('Venta no encontrada');
+    }
+
+    // Restore stock
+    updateArticleStock(sale.articleId, 
+      articles.find(a => a.id === sale.articleId)!.stock + sale.quantity
+    );
+
+    setSales(prev => prev.filter(sale => sale.id !== saleId));
+  };
+
   return {
     articles,
     sales,
     addArticle,
+    updateArticle,
+    deleteArticle,
     addSale,
+    updateSale,
+    deleteSale,
   };
 };

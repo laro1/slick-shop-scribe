@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Article, SaleFormData } from '@/types/inventory';
 import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle, Package } from 'lucide-react';
 
 interface SaleFormProps {
   articles: Article[];
@@ -24,6 +26,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
     try {
       onSubmit(data);
       reset();
+      setValue('articleId', ''); // Reset select value
       toast({
         title: "Venta registrada",
         description: "La venta se ha registrado correctamente.",
@@ -38,6 +41,26 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
   };
 
   const availableArticles = articles.filter(article => article.stock > 0);
+  const lowStockArticles = articles.filter(article => article.stock > 0 && article.stock <= 5);
+
+  if (articles.length === 0) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg sm:text-xl">Registrar Venta</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <Alert>
+            <Package className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>No hay artículos registrados.</strong><br />
+              Primero debe registrar artículos antes de poder realizar ventas.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (availableArticles.length === 0) {
     return (
@@ -46,10 +69,13 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
           <CardTitle className="text-lg sm:text-xl">Registrar Venta</CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          <p className="text-muted-foreground text-center py-4 text-sm">
-            No hay artículos disponibles para venta.
-            Registre artículos primero.
-          </p>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>No hay artículos disponibles para venta.</strong><br />
+              Todos los artículos están agotados. Actualice el stock de sus artículos.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     );
@@ -61,6 +87,15 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
         <CardTitle className="text-lg sm:text-xl">Registrar Venta</CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
+        {lowStockArticles.length > 0 && (
+          <Alert className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>Advertencia:</strong> {lowStockArticles.length} artículo(s) tienen stock bajo (≤5 unidades)
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="articleId" className="text-sm font-medium">Artículo</Label>
@@ -75,6 +110,9 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
                       <span className="font-medium">{article.name}</span>
                       <span className="text-xs text-muted-foreground">
                         Stock: {article.stock} - ${article.price}
+                        {article.stock <= 5 && (
+                          <span className="text-yellow-600 ml-1">⚠️ Stock bajo</span>
+                        )}
                       </span>
                     </div>
                   </SelectItem>
@@ -87,12 +125,15 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
           </div>
 
           {selectedArticle && (
-            <div className="p-3 bg-muted rounded-md">
+            <div className="p-3 bg-muted rounded-md border">
               <p className="text-sm font-medium">{selectedArticle.name}</p>
               <p className="text-xs text-muted-foreground mb-1">{selectedArticle.description}</p>
               <div className="flex justify-between text-xs">
                 <span>Precio: ${selectedArticle.price}</span>
-                <span>Stock: {selectedArticle.stock}</span>
+                <span className={selectedArticle.stock <= 5 ? "text-yellow-600 font-medium" : ""}>
+                  Stock: {selectedArticle.stock}
+                  {selectedArticle.stock <= 5 && " ⚠️"}
+                </span>
               </div>
             </div>
           )}
