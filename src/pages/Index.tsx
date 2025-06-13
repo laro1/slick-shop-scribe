@@ -81,10 +81,10 @@ const Index = () => {
           </div>
         )}
 
-        <Tabs defaultValue="register" className="w-full">
+        <Tabs defaultValue="articulo" className="w-full">
           <div className="flex flex-col gap-4 mb-4 sm:mb-6">
             <TabsList className="grid w-full grid-cols-3 h-auto">
-              <TabsTrigger value="register" className="text-xs sm:text-sm py-2">Registrar</TabsTrigger>
+              <TabsTrigger value="articulo" className="text-xs sm:text-sm py-2">Artículo</TabsTrigger>
               <TabsTrigger value="sales" className="text-xs sm:text-sm py-2">Ventas</TabsTrigger>
               <TabsTrigger value="inventory" className="text-xs sm:text-sm py-2">Inventario</TabsTrigger>
             </TabsList>
@@ -94,10 +94,11 @@ const Index = () => {
             </div>
           </div>
 
-          <TabsContent value="register" className="space-y-4 sm:space-y-6">
-            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6">
-              <ArticleForm onSubmit={addArticle} />
-              <SaleForm articles={articles} onSubmit={addSale} />
+          <TabsContent value="articulo" className="space-y-4 sm:space-y-6">
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ArticleForm onSubmit={addArticle} />
+              </div>
             </div>
           </TabsContent>
 
