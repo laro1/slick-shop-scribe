@@ -34,7 +34,7 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       reset({
         id: article.id,
         name: article.name,
-        description: article.description,
+        imageUrl: article.imageUrl,
         price: article.price,
         stock: article.stock,
       });
@@ -79,18 +79,6 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
-            <Input
-              id="description"
-              {...register('description', { required: 'La descripción es requerida' })}
-              className="text-sm"
-            />
-            {errors.description && (
-              <p className="text-xs text-destructive">{errors.description.message}</p>
-            )}
-          </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm font-medium">Precio</Label>
@@ -124,6 +112,18 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
                 <p className="text-xs text-destructive">{errors.stock.message}</p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl" className="text-sm font-medium">URL de la Imagen</Label>
+            <Input
+              id="imageUrl"
+              {...register('imageUrl', { required: 'La URL de la imagen es requerida' })}
+              className="text-sm"
+            />
+            {errors.imageUrl && (
+              <p className="text-xs text-destructive">{errors.imageUrl.message}</p>
+            )}
           </div>
 
           <div className="flex gap-2">

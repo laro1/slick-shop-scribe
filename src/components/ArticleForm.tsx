@@ -53,19 +53,6 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
-            <Input
-              id="description"
-              {...register('description', { required: 'La descripción es requerida' })}
-              placeholder="Descripción del artículo"
-              className="text-sm"
-            />
-            {errors.description && (
-              <p className="text-xs text-destructive">{errors.description.message}</p>
-            )}
-          </div>
-
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm font-medium">Precio</Label>
@@ -101,6 +88,19 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
                 <p className="text-xs text-destructive">{errors.stock.message}</p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl" className="text-sm font-medium">URL de la Imagen</Label>
+            <Input
+              id="imageUrl"
+              {...register('imageUrl', { required: 'La URL de la imagen es requerida' })}
+              placeholder="https://ejemplo.com/imagen.png"
+              className="text-sm"
+            />
+            {errors.imageUrl && (
+              <p className="text-xs text-destructive">{errors.imageUrl.message}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full text-sm py-2">

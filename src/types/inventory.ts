@@ -2,7 +2,7 @@
 export interface Article {
   id: string;
   name: string;
-  description: string;
+  imageUrl: string;
   price: number;
   stock: number;
   createdAt: Date;
@@ -27,7 +27,7 @@ export interface SaleFormData {
 
 export interface ArticleFormData {
   name: string;
-  description: string;
+  imageUrl: string;
   price: number;
   stock: number;
 }
@@ -35,7 +35,7 @@ export interface ArticleFormData {
 export interface EditArticleData {
   id: string;
   name: string;
-  description: string;
+  imageUrl: string;
   price: number;
   stock: number;
 }
