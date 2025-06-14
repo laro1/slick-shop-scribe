@@ -36,13 +36,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
         <SidebarMenu>
           {menuItems.map(item => (
             <SidebarMenuItem key={item.id}>
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 onClick={() => setActiveTab(item.id)}
                 isActive={activeTab === item.id}
                 tooltip={item.label}
               >
-                <item.icon className="h-5 w-5" />
-                {!collapsed && <span className="ml-2">{item.label}</span>}
+                <span className="flex items-center gap-2">
+                  <item.icon className="h-5 w-5" />
+                  {!collapsed && <span>{item.label}</span>}
+                </span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
@@ -51,4 +53,3 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
     </Sidebar>
   );
 };
-
