@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +20,7 @@ interface SaleFormProps {
 export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
   const { register, handleSubmit, reset, setValue, watch, control, formState: { errors } } = useForm<SaleFormData>({
     defaultValues: {
+      articleId: '',
       paymentMethod: 'efectivo',
       amountPaid: 0,
       bankName: ''
@@ -49,7 +51,6 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
       }
       onSubmit(data);
       reset();
-      setValue('articleId', ''); // Reset select value
       toast({
         title: "Venta registrada",
         description: "La venta se ha registrado correctamente.",
@@ -122,28 +123,35 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="articleId" className="text-sm font-medium">Artículo</Label>
-            <Select onValueChange={(value) => setValue('articleId', value)}>
-              <SelectTrigger className="text-sm">
-                <SelectValue placeholder="Seleccione un artículo" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableArticles.map((article) => (
-                  <SelectItem key={article.id} value={article.id} className="text-sm">
-                    <div className="flex flex-col">
-                      <span className="font-medium">{article.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        Stock: {article.stock} - ${article.price}
-                        {article.stock <= 5 && (
-                          <span className="text-yellow-600 ml-1">⚠️ Stock bajo</span>
-                        )}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="articleId"
+              control={control}
+              rules={{ required: 'Debe seleccionar un artículo' }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="Seleccione un artículo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableArticles.map((article) => (
+                      <SelectItem key={article.id} value={article.id} className="text-sm">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{article.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            Stock: {article.stock} - ${article.price}
+                            {article.stock <= 5 && (
+                              <span className="text-yellow-600 ml-1">⚠️ Stock bajo</span>
+                            )}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.articleId && (
-              <p className="text-xs text-destructive">Debe seleccionar un artículo</p>
+              <p className="text-xs text-destructive">{errors.articleId.message}</p>
             )}
           </div>
 
