@@ -1,5 +1,5 @@
+
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
 import { SaleForm } from '@/components/SaleForm';
@@ -12,7 +12,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState('articulo');
+  const [activeTab, setActiveTab] = useState('panel');
   const { 
     articles, 
     sales, 
@@ -28,6 +28,13 @@ const Index = () => {
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.totalPrice, 0);
   const lowStockItems = articles.filter(article => article.stock <= 5).length;
 
+  const pageTitles: { [key: string]: string } = {
+    panel: 'Panel de Control',
+    articulo: 'Gestión de Artículos',
+    sales: 'Gestión de Ventas',
+    inventory: 'Gestión de Inventario',
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-muted/40">
@@ -40,93 +47,95 @@ const Index = () => {
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SidebarTrigger>
+            <h1 className="flex-1 text-xl font-semibold tracking-tight">
+              {pageTitles[activeTab]}
+            </h1>
           </header>
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-              <div className="mb-6 sm:mb-8">
-                <h1 className="text-2xl sm:text-4xl font-bold text-center mb-2">Sistema de Inventario</h1>
-                <p className="text-muted-foreground text-center text-sm sm:text-base">
-                  Gestiona tu inventario y ventas de manera eficiente
-                </p>
-              </div>
+              
+              {activeTab === 'panel' && (
+                <>
+                  <div className="mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-4xl font-bold text-center mb-2">Sistema de Inventario</h1>
+                    <p className="text-muted-foreground text-center text-sm sm:text-base">
+                      Gestiona tu inventario y ventas de manera eficiente
+                    </p>
+                  </div>
 
-              {/* Statistics Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
-                <Card className="p-2 sm:p-4">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                    <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Artículos</CardTitle>
-                    <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                    <div className="text-lg sm:text-2xl font-bold">{articles.length}</div>
-                  </CardContent>
-                </Card>
+                  {/* Statistics Cards */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
+                    <Card className="p-2 sm:p-4">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Artículos</CardTitle>
+                        <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold">{articles.length}</div>
+                      </CardContent>
+                    </Card>
 
-                <Card className="p-2 sm:p-4">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                    <CardTitle className="text-xs sm:text-sm font-medium truncate">Ventas Totales</CardTitle>
-                    <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                    <div className="text-lg sm:text-2xl font-bold">{sales.length}</div>
-                  </CardContent>
-                </Card>
+                    <Card className="p-2 sm:p-4">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Ventas Totales</CardTitle>
+                        <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+                        <div className="text-lg sm:text-2xl font-bold">{sales.length}</div>
+                      </CardContent>
+                    </Card>
 
-                <Card className="p-2 sm:p-4">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                    <CardTitle className="text-xs sm:text-sm font-medium truncate">Valor Inventario</CardTitle>
-                    <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                    <div className="text-sm sm:text-2xl font-bold">${totalInventoryValue.toFixed(2)}</div>
-                  </CardContent>
-                </Card>
+                    <Card className="p-2 sm:p-4">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Valor Inventario</CardTitle>
+                        <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+                        <div className="text-sm sm:text-2xl font-bold">${totalInventoryValue.toFixed(2)}</div>
+                      </CardContent>
+                    </Card>
 
-                <Card className="p-2 sm:p-4">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                    <CardTitle className="text-xs sm:text-sm font-medium truncate">Ingresos Totales</CardTitle>
-                    <FileSpreadsheet className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                    <div className="text-sm sm:text-2xl font-bold">${totalSalesValue.toFixed(2)}</div>
-                  </CardContent>
-                </Card>
-              </div>
+                    <Card className="p-2 sm:p-4">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
+                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Ingresos Totales</CardTitle>
+                        <FileSpreadsheet className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
+                        <div className="text-sm sm:text-2xl font-bold">${totalSalesValue.toFixed(2)}</div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-              {lowStockItems > 0 && (
-                <div className="mb-4 sm:mb-6">
-                  <Card className="border-yellow-200 bg-yellow-50">
-                    <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
-                      <p className="text-yellow-800 text-sm">
-                        ⚠️ Tienes {lowStockItems} artículo(s) con stock bajo (≤5 unidades)
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="flex flex-col gap-4 mb-4 sm:mb-6">
-                  <TabsList className="grid w-full grid-cols-3 h-auto">
-                    <TabsTrigger value="articulo" className="text-xs sm:text-sm py-2">Artículo</TabsTrigger>
-                    <TabsTrigger value="sales" className="text-xs sm:text-sm py-2">Ventas</TabsTrigger>
-                    <TabsTrigger value="inventory" className="text-xs sm:text-sm py-2">Inventario</TabsTrigger>
-                  </TabsList>
+                  {lowStockItems > 0 && (
+                    <div className="mb-4 sm:mb-6">
+                      <Card className="border-yellow-200 bg-yellow-50">
+                        <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+                          <p className="text-yellow-800 text-sm">
+                            ⚠️ Tienes {lowStockItems} artículo(s) con stock bajo (≤5 unidades)
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
                   
-                  <div className="flex justify-center">
+                  <div className="flex justify-center mt-8">
                     <ExportButton articles={articles} sales={sales} />
                   </div>
-                </div>
+                </>
+              )}
 
-                <TabsContent value="articulo" className="space-y-4 sm:space-y-6">
+              {activeTab === 'articulo' && (
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex justify-center">
                     <div className="w-full max-w-md">
                       <ArticleForm onSubmit={addArticle} />
                     </div>
                   </div>
-                </TabsContent>
+                </div>
+              )}
 
-                <TabsContent value="sales" className="space-y-4 sm:space-y-6">
+              {activeTab === 'sales' && (
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6">
                     <SaleForm articles={articles} onSubmit={addSale} />
                     <Card>
@@ -160,9 +169,11 @@ const Index = () => {
                       </CardContent>
                     </Card>
                   </div>
-                </TabsContent>
+                </div>
+              )}
 
-                <TabsContent value="inventory" className="space-y-4 sm:space-y-6">
+              {activeTab === 'inventory' && (
+                <div className="space-y-4 sm:space-y-6">
                   <InventoryLists 
                     articles={articles} 
                     sales={sales} 
@@ -171,8 +182,8 @@ const Index = () => {
                     onUpdateSale={updateSale}
                     onDeleteSale={deleteSale}
                   />
-                </TabsContent>
-              </Tabs>
+                </div>
+              )}
             </div>
           </main>
         </div>

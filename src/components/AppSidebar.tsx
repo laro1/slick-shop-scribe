@@ -10,7 +10,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Package, ShoppingCart, List } from 'lucide-react';
+import { Package, ShoppingCart, List, BarChart3 } from 'lucide-react';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -22,6 +22,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
   const collapsed = state === 'collapsed';
 
   const menuItems = [
+    { id: 'panel', label: 'Panel', icon: BarChart3 },
     { id: 'articulo', label: 'Artículo', icon: Package },
     { id: 'sales', label: 'Ventas', icon: ShoppingCart },
     { id: 'inventory', label: 'Inventario', icon: List },
