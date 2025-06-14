@@ -97,12 +97,14 @@ export const EditSaleDialog: React.FC<EditSaleDialogProps> = ({
           </div>
 
           {selectedArticle && (
-            <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm font-medium">{selectedArticle.name}</p>
-              <p className="text-xs text-muted-foreground mb-1">{selectedArticle.description}</p>
-              <div className="flex justify-between text-xs">
-                <span>Precio: ${selectedArticle.price}</span>
-                <span>Stock disponible: {selectedArticle.id === sale.articleId ? maxQuantity : selectedArticle.stock}</span>
+            <div className="p-3 bg-muted rounded-md flex items-center gap-3">
+              <img src={selectedArticle.imageUrl} alt={selectedArticle.name} className="w-12 h-12 object-cover rounded" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">{selectedArticle.name}</p>
+                <div className="flex justify-between text-xs">
+                  <span>Precio: ${selectedArticle.price}</span>
+                  <span>Stock disponible: {selectedArticle.id === sale.articleId ? maxQuantity : selectedArticle.stock}</span>
+                </div>
               </div>
             </div>
           )}

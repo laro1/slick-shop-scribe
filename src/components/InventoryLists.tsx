@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -120,7 +119,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                             </Button>
                           </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-2">{article.description}</p>
+                        <img src={article.imageUrl} alt={article.name} className="w-full h-32 object-cover rounded-md mb-2" />
                         <div className="flex justify-between items-center">
                           <span className="font-medium text-sm sm:text-base">${article.price}</span>
                           <span className="text-xs text-muted-foreground">

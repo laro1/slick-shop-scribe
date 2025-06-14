@@ -23,7 +23,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) =
       const articlesData = articles.map(article => ({
         'ID': article.id,
         'Nombre': article.name,
-        'Descripción': article.description,
+        'URL Imagen': article.imageUrl,
         'Precio': article.price,
         'Stock': article.stock,
         'Fecha de Creación': new Date(article.createdAt).toLocaleDateString('es-ES')

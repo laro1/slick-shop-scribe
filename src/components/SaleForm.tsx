@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Article, SaleFormData } from '@/types/inventory';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Package } from 'lucide-react';
+import { AlertTriangle, Package, ImageIcon } from 'lucide-react';
 
 interface SaleFormProps {
   articles: Article[];
@@ -125,15 +124,17 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
           </div>
 
           {selectedArticle && (
-            <div className="p-3 bg-muted rounded-md border">
-              <p className="text-sm font-medium">{selectedArticle.name}</p>
-              <p className="text-xs text-muted-foreground mb-1">{selectedArticle.description}</p>
-              <div className="flex justify-between text-xs">
-                <span>Precio: ${selectedArticle.price}</span>
-                <span className={selectedArticle.stock <= 5 ? "text-yellow-600 font-medium" : ""}>
-                  Stock: {selectedArticle.stock}
-                  {selectedArticle.stock <= 5 && " ⚠️"}
-                </span>
+            <div className="p-3 bg-muted rounded-md border flex items-center gap-3">
+              <img src={selectedArticle.imageUrl} alt={selectedArticle.name} className="w-12 h-12 object-cover rounded" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">{selectedArticle.name}</p>
+                <div className="flex justify-between text-xs">
+                  <span>Precio: ${selectedArticle.price}</span>
+                  <span className={selectedArticle.stock <= 5 ? "text-yellow-600 font-medium" : ""}>
+                    Stock: {selectedArticle.stock}
+                    {selectedArticle.stock <= 5 && " ⚠️"}
+                  </span>
+                </div>
               </div>
             </div>
           )}
