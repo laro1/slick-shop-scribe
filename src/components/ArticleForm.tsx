@@ -12,13 +12,36 @@ interface ArticleFormProps {
   onSubmit: (data: ArticleFormData) => void;
 }
 
+type ArticleFormValues = {
+  name: string;
+  price: number;
+  stock: number;
+  imageUrl: FileList;
+};
+
 export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ArticleFormData>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ArticleFormValues>();
   const { toast } = useToast();
 
-  const handleFormSubmit = (data: ArticleFormData) => {
+  const handleFormSubmit = (data: ArticleFormValues) => {
+    const imageFile = data.imageUrl?.[0];
     try {
-      onSubmit(data);
+      if (!imageFile) {
+        toast({
+          title: "Error",
+          description: "Debe seleccionar una imagen.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      onSubmit({
+        name: data.name,
+        price: data.price,
+        stock: data.stock,
+        imageUrl: URL.createObjectURL(imageFile),
+      });
+
       reset();
       toast({
         title: "Artículo registrado",
@@ -62,6 +85,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
                 step="0.01"
                 {...register('price', { 
                   required: 'El precio es requerido',
+                  valueAsNumber: true,
                   min: { value: 0, message: 'El precio debe ser mayor a 0' }
                 })}
                 placeholder="0.00"
@@ -79,6 +103,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
                 type="number"
                 {...register('stock', { 
                   required: 'El stock es requerido',
+                  valueAsNumber: true,
                   min: { value: 0, message: 'El stock no puede ser negativo' }
                 })}
                 placeholder="0"
@@ -91,12 +116,13 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-sm font-medium">URL de la Imagen</Label>
+            <Label htmlFor="imageUrl" className="text-sm font-medium">Imagen del Artículo</Label>
             <Input
               id="imageUrl"
-              {...register('imageUrl', { required: 'La URL de la imagen es requerida' })}
-              placeholder="https://ejemplo.com/imagen.png"
-              className="text-sm"
+              type="file"
+              accept="image/*"
+              {...register('imageUrl', { required: 'La imagen es requerida' })}
+              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
             />
             {errors.imageUrl && (
               <p className="text-xs text-destructive">{errors.imageUrl.message}</p>

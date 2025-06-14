@@ -20,13 +20,21 @@ interface EditArticleDialogProps {
   onSubmit: (data: EditArticleData) => void;
 }
 
+type EditArticleFormValues = {
+    id: string;
+    name: string;
+    price: number;
+    stock: number;
+    imageUrl: FileList;
+};
+
 export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
   article,
   open,
   onOpenChange,
   onSubmit,
 }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<EditArticleData>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<EditArticleFormValues>();
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -34,16 +42,23 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
       reset({
         id: article.id,
         name: article.name,
-        imageUrl: article.imageUrl,
         price: article.price,
         stock: article.stock,
       });
     }
   }, [article, reset]);
 
-  const handleFormSubmit = (data: EditArticleData) => {
+  const handleFormSubmit = (data: EditArticleFormValues) => {
+    if (!article) return;
     try {
-      onSubmit(data);
+      const imageFile = data.imageUrl?.[0];
+      const newImageUrl = imageFile ? URL.createObjectURL(imageFile) : article.imageUrl;
+      
+      onSubmit({
+        ...data,
+        id: article.id,
+        imageUrl: newImageUrl,
+      });
       onOpenChange(false);
       toast({
         title: "Artículo actualizado",
@@ -88,6 +103,7 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
                 step="0.01"
                 {...register('price', { 
                   required: 'El precio es requerido',
+                  valueAsNumber: true,
                   min: { value: 0, message: 'El precio debe ser mayor a 0' }
                 })}
                 className="text-sm"
@@ -104,6 +120,7 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
                 type="number"
                 {...register('stock', { 
                   required: 'El stock es requerido',
+                  valueAsNumber: true,
                   min: { value: 0, message: 'El stock no puede ser negativo' }
                 })}
                 className="text-sm"
@@ -115,12 +132,20 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-sm font-medium">URL de la Imagen</Label>
+            <Label htmlFor="imageUrl" className="text-sm font-medium">Imagen del Artículo</Label>
+            {article.imageUrl && (
+                <img src={article.imageUrl} alt={article.name} className="w-full h-32 object-cover rounded-md mt-1 mb-2" />
+            )}
             <Input
               id="imageUrl"
-              {...register('imageUrl', { required: 'La URL de la imagen es requerida' })}
-              className="text-sm"
+              type="file"
+              accept="image/*"
+              {...register('imageUrl')}
+              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
             />
+            <p className="text-xs text-muted-foreground">
+              {article.imageUrl ? 'Sube una nueva imagen para reemplazar la actual (opcional).' : 'Sube una imagen para el artículo.'}
+            </p>
             {errors.imageUrl && (
               <p className="text-xs text-destructive">{errors.imageUrl.message}</p>
             )}
