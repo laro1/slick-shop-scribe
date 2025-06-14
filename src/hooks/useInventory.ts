@@ -101,6 +101,9 @@ export const useInventory = () => {
       totalPrice: article.price * saleData.quantity,
       buyerName: saleData.buyerName,
       saleDate: new Date(),
+      paymentMethod: saleData.paymentMethod,
+      amountPaid: saleData.paymentMethod === 'sinabono' ? 0 : saleData.amountPaid,
+      bankName: saleData.paymentMethod === 'transferencia' ? saleData.bankName : undefined,
     };
 
     setSales(prev => [...prev, newSale]);
@@ -111,32 +114,53 @@ export const useInventory = () => {
 
   const updateSale = (updatedSale: EditSaleData) => {
     const currentSale = sales.find(s => s.id === updatedSale.id);
-    const article = articles.find(a => a.id === updatedSale.articleId);
+    if (!currentSale) {
+      throw new Error('Venta no encontrada');
+    }
     
-    if (!currentSale || !article) {
-      throw new Error('Venta o artículo no encontrado');
+    const newArticle = articles.find(a => a.id === updatedSale.articleId);
+    if (!newArticle) {
+      throw new Error('Artículo no encontrado');
     }
 
-    const quantityDifference = updatedSale.quantity - currentSale.quantity;
-    
-    if (quantityDifference > 0 && article.stock < quantityDifference) {
-      throw new Error('Stock insuficiente para la nueva cantidad');
+    if (currentSale.articleId === updatedSale.articleId) {
+      // Article is the same, just quantity might have changed
+      const quantityDifference = updatedSale.quantity - currentSale.quantity;
+      if (quantityDifference > 0 && newArticle.stock < quantityDifference) {
+        throw new Error('Stock insuficiente para la nueva cantidad');
+      }
+      updateArticleStock(newArticle.id, newArticle.stock - quantityDifference);
+    } else {
+      // Article has been changed
+      const oldArticle = articles.find(a => a.id === currentSale.articleId);
+      if (!oldArticle) {
+        // This should not happen if data is consistent
+        throw new Error('Artículo original de la venta no encontrado');
+      }
+      // Check stock for new article
+      if (newArticle.stock < updatedSale.quantity) {
+        throw new Error('Stock insuficiente para el nuevo artículo');
+      }
+      // Restore stock for old article
+      updateArticleStock(oldArticle.id, oldArticle.stock + currentSale.quantity);
+      // Decrease stock for new article
+      updateArticleStock(newArticle.id, newArticle.stock - updatedSale.quantity);
     }
-
-    // Update stock
-    updateArticleStock(article.id, article.stock - quantityDifference);
-
-    // Update sale
+    
+    // Update sale details
     setSales(prev => prev.map(sale => 
       sale.id === updatedSale.id 
         ? { 
             ...sale, 
             articleId: updatedSale.articleId,
-            articleName: article.name,
+            articleName: newArticle.name,
             quantity: updatedSale.quantity,
-            unitPrice: article.price,
-            totalPrice: article.price * updatedSale.quantity,
-            buyerName: updatedSale.buyerName
+            unitPrice: newArticle.price,
+            totalPrice: newArticle.price * updatedSale.quantity,
+            buyerName: updatedSale.buyerName,
+            paymentMethod: updatedSale.paymentMethod,
+            amountPaid: updatedSale.paymentMethod === 'sinabono' ? 0 : updatedSale.amountPaid,
+            bankName: updatedSale.paymentMethod === 'transferencia' ? updatedSale.bankName : undefined,
           }
         : sale
     ));

@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Article, Sale, EditSaleData } from '@/types/inventory';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface EditSaleDialogProps {
   sale: Sale | null;
@@ -29,10 +29,12 @@ export const EditSaleDialog: React.FC<EditSaleDialogProps> = ({
   onOpenChange,
   onSubmit,
 }) => {
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<EditSaleData>();
+  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors } } = useForm<EditSaleData>();
   const { toast } = useToast();
   const selectedArticleId = watch('articleId');
   const selectedArticle = articles.find(a => a.id === selectedArticleId);
+  const paymentMethod = watch('paymentMethod');
+  const quantity = watch('quantity');
 
   React.useEffect(() => {
     if (sale) {
@@ -41,6 +43,9 @@ export const EditSaleDialog: React.FC<EditSaleDialogProps> = ({
         articleId: sale.articleId,
         quantity: sale.quantity,
         buyerName: sale.buyerName,
+        paymentMethod: sale.paymentMethod,
+        amountPaid: sale.amountPaid,
+        bankName: sale.bankName || '',
       });
       setValue('articleId', sale.articleId);
     }
@@ -48,6 +53,12 @@ export const EditSaleDialog: React.FC<EditSaleDialogProps> = ({
 
   const handleFormSubmit = (data: EditSaleData) => {
     try {
+      if (data.paymentMethod === 'sinabono') {
+        data.amountPaid = 0;
+      }
+      if (data.paymentMethod !== 'transferencia') {
+        data.bankName = '';
+      }
       onSubmit(data);
       onOpenChange(false);
       toast({
@@ -65,8 +76,7 @@ export const EditSaleDialog: React.FC<EditSaleDialogProps> = ({
 
   if (!sale) return null;
 
-  const currentArticle = articles.find(a => a.id === sale.articleId);
-  const maxQuantity = selectedArticle ? selectedArticle.stock + sale.quantity : sale.quantity;
+  const maxQuantity = selectedArticle ? (selectedArticle.id === sale.articleId ? selectedArticle.stock + sale.quantity : selectedArticle.stock) : sale.quantity;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -136,6 +146,90 @@ export const EditSaleDialog: React.FC<EditSaleDialogProps> = ({
               />
               {errors.buyerName && (
                 <p className="text-xs text-destructive">{errors.buyerName.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Tipo de pago</Label>
+            <Controller
+              name="paymentMethod"
+              control={control}
+              rules={{ required: 'Debe seleccionar un tipo de pago' }}
+              render={({ field }) => (
+                <RadioGroup
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    if (value === 'sinabono') {
+                      setValue('amountPaid', 0);
+                    }
+                  }}
+                  value={field.value}
+                  className="flex flex-wrap gap-x-4 gap-y-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="efectivo" id="edit-efectivo" />
+                    <Label htmlFor="edit-efectivo" className="text-sm font-normal">Efectivo</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="transferencia" id="edit-transferencia" />
+                    <Label htmlFor="edit-transferencia" className="text-sm font-normal">Transferencia</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="sinabono" id="edit-sinabono" />
+                    <Label htmlFor="edit-sinabono" className="text-sm font-normal">Sin abono</Label>
+                  </div>
+                </RadioGroup>
+              )}
+            />
+            {errors.paymentMethod && (
+              <p className="text-xs text-destructive">{errors.paymentMethod.message}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {paymentMethod === 'transferencia' && (
+              <div className="space-y-2 col-span-2 sm:col-span-1">
+                <Label htmlFor="edit-bankName" className="text-sm font-medium">Nombre del Banco</Label>
+                <Input
+                  id="edit-bankName"
+                  {...register('bankName', { required: paymentMethod === 'transferencia' ? 'El nombre del banco es requerido' : false })}
+                  className="text-sm"
+                />
+                {errors.bankName && (
+                  <p className="text-xs text-destructive">{errors.bankName.message}</p>
+                )}
+              </div>
+            )}
+            
+            <div className="space-y-2 col-span-2 sm:col-span-1">
+              <Label htmlFor="edit-amountPaid" className="text-sm font-medium">Monto Pagado</Label>
+              <Input
+                id="edit-amountPaid"
+                type="number"
+                step="0.01"
+                {...register('amountPaid', {
+                  valueAsNumber: true,
+                  required: paymentMethod !== 'sinabono' ? 'El monto es requerido' : false,
+                  min: { value: 0, message: 'El monto no puede ser negativo' },
+                  validate: (value) => {
+                    if (paymentMethod === 'sinabono' && value !== 0) {
+                      return 'Con "Sin abono", el monto debe ser 0';
+                    }
+                     if (selectedArticle && quantity > 0) {
+                      const totalPrice = selectedArticle.price * quantity;
+                      if (value > totalPrice) {
+                        return 'El monto no puede ser mayor al total';
+                      }
+                    }
+                    return true;
+                  }
+                })}
+                className="text-sm"
+                disabled={paymentMethod === 'sinabono'}
+              />
+              {errors.amountPaid && (
+                <p className="text-xs text-destructive">{errors.amountPaid.message}</p>
               )}
             </div>
           </div>

@@ -1,4 +1,3 @@
-
 export interface Article {
   id: string;
   name: string;
@@ -17,12 +16,18 @@ export interface Sale {
   totalPrice: number;
   buyerName: string;
   saleDate: Date;
+  paymentMethod: 'efectivo' | 'transferencia' | 'sinabono';
+  bankName?: string;
+  amountPaid: number;
 }
 
 export interface SaleFormData {
   articleId: string;
   quantity: number;
   buyerName: string;
+  paymentMethod: 'efectivo' | 'transferencia' | 'sinabono';
+  bankName?: string;
+  amountPaid: number;
 }
 
 export interface ArticleFormData {
@@ -45,4 +50,7 @@ export interface EditSaleData {
   articleId: string;
   quantity: number;
   buyerName: string;
+  paymentMethod: 'efectivo' | 'transferencia' | 'sinabono';
+  bankName?: string;
+  amountPaid: number;
 }
