@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -10,6 +9,7 @@ import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert 
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/utils';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('panel');
@@ -97,7 +97,7 @@ const Index = () => {
                         </span>
                       </CardHeader>
                       <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                        <div className="text-sm sm:text-2xl font-bold">${totalInventoryValue.toFixed(2)}</div>
+                        <div className="text-sm sm:text-2xl font-bold">{formatCurrency(totalInventoryValue)}</div>
                       </CardContent>
                     </Card>
 
@@ -109,7 +109,7 @@ const Index = () => {
                         </span>
                       </CardHeader>
                       <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                        <div className="text-sm sm:text-2xl font-bold">${totalSalesValue.toFixed(2)}</div>
+                        <div className="text-sm sm:text-2xl font-bold">{formatCurrency(totalSalesValue)}</div>
                       </CardContent>
                     </Card>
                   </div>
@@ -170,7 +170,7 @@ const Index = () => {
                                     </p>
                                   </div>
                                   <span className="font-bold text-green-600 text-sm sm:text-base whitespace-nowrap">
-                                    ${sale.totalPrice}
+                                    {formatCurrency(sale.totalPrice)}
                                   </span>
                                 </div>
                               </div>

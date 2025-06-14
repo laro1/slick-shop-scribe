@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Article, SaleFormData } from '@/types/inventory';
+import { formatCurrency } from '@/lib/utils';
 
 interface PaymentFieldsProps {
   control: Control<SaleFormData>;
@@ -78,7 +79,7 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({
           <Input
             id="amountPaid"
             type="number"
-            step="0.01"
+            step="1"
             {...register('amountPaid', {
               valueAsNumber: true,
               required: paymentMethod !== 'sinabono' ? 'El monto es requerido' : false,
@@ -90,13 +91,13 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({
                 if (selectedArticle && quantity > 0) {
                   const totalPrice = selectedArticle.price * quantity;
                   if (value > totalPrice) {
-                    return 'El monto no puede ser mayor al total';
+                    return `El monto no puede ser mayor al total (${formatCurrency(totalPrice)})`;
                   }
                 }
                 return true;
               }
             })}
-            placeholder="0.00"
+            placeholder="0"
             className="text-sm"
             disabled={paymentMethod === 'sinabono'}
           />

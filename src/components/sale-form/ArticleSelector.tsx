@@ -4,6 +4,7 @@ import { Controller, Control, FieldErrors } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Article, SaleFormData } from '@/types/inventory';
+import { formatCurrency } from '@/lib/utils';
 
 interface ArticleSelectorProps {
   control: Control<SaleFormData>;
@@ -30,7 +31,7 @@ export const ArticleSelector: React.FC<ArticleSelectorProps> = ({ control, error
                   <div className="flex flex-col">
                     <span className="font-medium">{article.name}</span>
                     <span className="text-xs text-muted-foreground">
-                      Stock: {article.stock} - ${article.price}
+                      Stock: {article.stock} - {formatCurrency(article.price)}
                       {article.stock <= 5 && (
                         <span className="text-yellow-600 ml-1">⚠️ Stock bajo</span>
                       )}

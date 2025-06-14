@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Article } from '@/types/inventory';
+import { formatCurrency } from '@/lib/utils';
 
 interface SelectedArticlePreviewProps {
   selectedArticle?: Article;
@@ -15,7 +16,7 @@ export const SelectedArticlePreview: React.FC<SelectedArticlePreviewProps> = ({ 
       <div className="flex-1">
         <p className="text-sm font-medium">{selectedArticle.name}</p>
         <div className="flex justify-between text-xs">
-          <span>Precio: ${selectedArticle.price}</span>
+          <span>Precio: {formatCurrency(selectedArticle.price)}</span>
           <span className={selectedArticle.stock <= 5 ? "text-yellow-600 font-medium" : ""}>
             Stock: {selectedArticle.stock}
             {selectedArticle.stock <= 5 && " ⚠️"}

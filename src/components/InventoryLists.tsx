@@ -9,6 +9,7 @@ import { EditArticleDialog } from '@/components/EditArticleDialog';
 import { EditSaleDialog } from '@/components/EditSaleDialog';
 import { Edit, Trash2, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/utils';
 
 interface InventoryListsProps {
   articles: Article[];
@@ -122,7 +123,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                         </div>
                         <img src={article.imageUrl} alt={article.name} className="w-full h-40 object-cover rounded-md mb-3" />
                         <div className="flex justify-between items-center">
-                          <span className="font-bold text-base sm:text-lg text-primary">${article.price}</span>
+                          <span className="font-bold text-base sm:text-lg text-primary">{formatCurrency(article.price)}</span>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(article.createdAt)}
                           </span>
@@ -158,7 +159,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                           <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{sale.articleName}</h4>
                           <div className="flex items-center gap-1.5">
                             <Badge variant="outline" className="border-primary/50 text-xs font-bold text-primary whitespace-nowrap">
-                              ${sale.totalPrice}
+                              {formatCurrency(sale.totalPrice)}
                             </Badge>
                             <Button
                               size="icon"
@@ -181,7 +182,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                         <div className="text-xs sm:text-sm text-muted-foreground space-y-1.5">
                           <p className="truncate">Comprador: <span className="font-medium text-foreground">{sale.buyerName}</span></p>
                           <div className="flex justify-between items-center">
-                            <span>Cantidad: {sale.quantity} × ${sale.unitPrice}</span>
+                            <span>Cantidad: {sale.quantity} × {formatCurrency(sale.unitPrice)}</span>
                             <span className="text-xs">{formatDate(sale.saleDate)}</span>
                           </div>
                         </div>
