@@ -6,7 +6,7 @@ import { SaleForm } from '@/components/SaleForm';
 import { InventoryLists } from '@/components/InventoryLists';
 import { ExportButton } from '@/components/ExportButton';
 import { useInventory } from '@/hooks/useInventory';
-import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu } from 'lucide-react';
+import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,7 @@ const Index = () => {
       <div className="flex min-h-screen w-full bg-muted/40">
         <AppSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:px-6">
             <SidebarTrigger asChild className="sm:hidden">
               <Button size="icon" variant="outline">
                 <Menu className="h-5 w-5" />
@@ -65,40 +65,48 @@ const Index = () => {
 
                   {/* Statistics Cards */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
-                    <Card className="p-2 sm:p-4">
+                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
                         <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Artículos</CardTitle>
-                        <Package className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                        <span className="p-2 bg-primary/10 rounded-lg">
+                          <Package className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        </span>
                       </CardHeader>
                       <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
                         <div className="text-lg sm:text-2xl font-bold">{articles.length}</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 sm:p-4">
+                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
                         <CardTitle className="text-xs sm:text-sm font-medium truncate">Ventas Totales</CardTitle>
-                        <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                        <span className="p-2 bg-primary/10 rounded-lg">
+                          <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        </span>
                       </CardHeader>
                       <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
                         <div className="text-lg sm:text-2xl font-bold">{sales.length}</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 sm:p-4">
+                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
                         <CardTitle className="text-xs sm:text-sm font-medium truncate">Valor Inventario</CardTitle>
-                        <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                        <span className="p-2 bg-primary/10 rounded-lg">
+                          <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        </span>
                       </CardHeader>
                       <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
                         <div className="text-sm sm:text-2xl font-bold">${totalInventoryValue.toFixed(2)}</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 sm:p-4">
+                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
                         <CardTitle className="text-xs sm:text-sm font-medium truncate">Ingresos Totales</CardTitle>
-                        <FileSpreadsheet className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                        <span className="p-2 bg-primary/10 rounded-lg">
+                          <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        </span>
                       </CardHeader>
                       <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
                         <div className="text-sm sm:text-2xl font-bold">${totalSalesValue.toFixed(2)}</div>
@@ -108,11 +116,14 @@ const Index = () => {
 
                   {lowStockItems > 0 && (
                     <div className="mb-4 sm:mb-6">
-                      <Card className="border-yellow-200 bg-yellow-50">
+                      <Card className="border-yellow-400 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-950/50">
                         <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
-                          <p className="text-yellow-800 text-sm">
-                            ⚠️ Tienes {lowStockItems} artículo(s) con stock bajo (≤5 unidades)
-                          </p>
+                          <div className="flex items-center gap-3">
+                            <TriangleAlert className="h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
+                            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                              Tienes {lowStockItems} artículo(s) con stock bajo (≤5 unidades).
+                            </p>
+                          </div>
                         </CardContent>
                       </Card>
                     </div>

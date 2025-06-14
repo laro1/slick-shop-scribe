@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -92,36 +93,36 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                     No hay artículos registrados
                   </p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {articles.map((article) => (
-                      <div key={article.id} className="p-3 border rounded-lg">
+                      <div key={article.id} className="p-3 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
                         <div className="flex justify-between items-start mb-2 gap-2">
-                          <h4 className="font-medium text-sm sm:text-base truncate flex-1">{article.name}</h4>
-                          <div className="flex items-center gap-1">
+                          <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{article.name}</h4>
+                          <div className="flex items-center gap-1.5">
                             <Badge variant={article.stock > 5 ? "default" : article.stock > 0 ? "secondary" : "destructive"} className="text-xs whitespace-nowrap">
                               Stock: {article.stock}
                             </Badge>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-6 w-6"
+                              className="h-7 w-7"
                               onClick={() => setEditingArticle(article)}
                             >
-                              <Edit className="h-3 w-3" />
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-6 w-6 text-destructive hover:text-destructive"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
                               onClick={() => handleDeleteArticle(article)}
                             >
-                              <Trash2 className="h-3 w-3" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
-                        <img src={article.imageUrl} alt={article.name} className="w-full h-32 object-cover rounded-md mb-2" />
+                        <img src={article.imageUrl} alt={article.name} className="w-full h-40 object-cover rounded-md mb-3" />
                         <div className="flex justify-between items-center">
-                          <span className="font-medium text-sm sm:text-base">${article.price}</span>
+                          <span className="font-bold text-base sm:text-lg text-primary">${article.price}</span>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(article.createdAt)}
                           </span>
@@ -150,35 +151,35 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                     No hay ventas registradas
                   </p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {sales.slice().reverse().map((sale) => (
-                      <div key={sale.id} className="p-3 border rounded-lg">
+                      <div key={sale.id} className="p-3 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
                         <div className="flex justify-between items-start mb-2 gap-2">
-                          <h4 className="font-medium text-sm sm:text-base truncate flex-1">{sale.articleName}</h4>
-                          <div className="flex items-center gap-1">
-                            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                          <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{sale.articleName}</h4>
+                          <div className="flex items-center gap-1.5">
+                            <Badge variant="outline" className="border-primary/50 text-xs font-bold text-primary whitespace-nowrap">
                               ${sale.totalPrice}
                             </Badge>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-6 w-6"
+                              className="h-7 w-7"
                               onClick={() => setEditingSale(sale)}
                             >
-                              <Edit className="h-3 w-3" />
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-6 w-6 text-destructive hover:text-destructive"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
                               onClick={() => handleDeleteSale(sale)}
                             >
-                              <Trash2 className="h-3 w-3" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
-                        <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
-                          <p className="truncate">Comprador: {sale.buyerName}</p>
+                        <div className="text-xs sm:text-sm text-muted-foreground space-y-1.5">
+                          <p className="truncate">Comprador: <span className="font-medium text-foreground">{sale.buyerName}</span></p>
                           <div className="flex justify-between items-center">
                             <span>Cantidad: {sale.quantity} × ${sale.unitPrice}</span>
                             <span className="text-xs">{formatDate(sale.saleDate)}</span>
