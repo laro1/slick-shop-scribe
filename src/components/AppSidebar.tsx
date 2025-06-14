@@ -18,7 +18,7 @@ interface AppSidebarProps {
 }
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab }) => {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpen, setOpenMobile } = useSidebar();
   const collapsed = state === 'collapsed';
 
   const menuItems = [
@@ -27,6 +27,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
     { id: 'sales', label: 'Ventas', icon: ShoppingCart },
     { id: 'inventory', label: 'Inventario', icon: List },
   ];
+
+  const handleItemClick = (id: string) => {
+    setActiveTab(id);
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+  };
 
   return (
     <Sidebar>
@@ -38,12 +47,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
           {menuItems.map(item => (
             <SidebarMenuItem key={item.id}>
               <SidebarMenuButton
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => handleItemClick(item.id)}
                 isActive={activeTab === item.id}
                 tooltip={item.label}
+                size="lg"
+                className="text-base [&_svg]:size-6"
               >
                 <span className="flex items-center gap-2">
-                  <item.icon className="h-5 w-5" />
+                  <item.icon />
                   {!collapsed && <span>{item.label}</span>}
                 </span>
               </SidebarMenuButton>
