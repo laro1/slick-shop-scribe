@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -40,8 +41,8 @@ const Index = () => {
       <div className="flex min-h-screen w-full bg-muted/40">
         <AppSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:px-6">
-            <SidebarTrigger asChild className="sm:hidden">
+          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <SidebarTrigger asChild>
               <Button size="icon" variant="outline">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle Menu</span>
@@ -52,72 +53,72 @@ const Index = () => {
             </h1>
           </header>
           <main className="flex-1 overflow-auto">
-            <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+            <div className="container mx-auto px-2 py-4">
               
               {activeTab === 'panel' && (
                 <>
-                  <div className="mb-6 sm:mb-8">
-                    <h1 className="text-2xl sm:text-4xl font-bold text-center mb-2">Sistema de Inventario</h1>
-                    <p className="text-muted-foreground text-center text-sm sm:text-base">
+                  <div className="mb-6">
+                    <h1 className="text-2xl font-bold text-center mb-2">Sistema de Inventario</h1>
+                    <p className="text-muted-foreground text-center text-sm">
                       Gestiona tu inventario y ventas de manera eficiente
                     </p>
                   </div>
 
                   {/* Statistics Cards */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
-                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Total Artículos</CardTitle>
+                  <div className="grid grid-cols-2 gap-2 mb-6">
+                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
+                        <CardTitle className="text-xs font-medium truncate">Total Artículos</CardTitle>
                         <span className="p-2 bg-primary/10 rounded-lg">
-                          <Package className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                          <Package className="h-4 w-4 text-primary" />
                         </span>
                       </CardHeader>
-                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                        <div className="text-lg sm:text-2xl font-bold">{articles.length}</div>
+                      <CardContent className="p-0 pt-1">
+                        <div className="text-lg font-bold">{articles.length}</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Ventas Totales</CardTitle>
+                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
+                        <CardTitle className="text-xs font-medium truncate">Ventas Totales</CardTitle>
                         <span className="p-2 bg-primary/10 rounded-lg">
-                          <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                          <ShoppingCart className="h-4 w-4 text-primary" />
                         </span>
                       </CardHeader>
-                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                        <div className="text-lg sm:text-2xl font-bold">{sales.length}</div>
+                      <CardContent className="p-0 pt-1">
+                        <div className="text-lg font-bold">{sales.length}</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Valor Inventario</CardTitle>
+                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
+                        <CardTitle className="text-xs font-medium truncate">Valor Inventario</CardTitle>
                         <span className="p-2 bg-primary/10 rounded-lg">
-                          <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                          <BarChart3 className="h-4 w-4 text-primary" />
                         </span>
                       </CardHeader>
-                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                        <div className="text-sm sm:text-2xl font-bold">{formatCurrency(totalInventoryValue)}</div>
+                      <CardContent className="p-0 pt-1">
+                        <div className="text-sm font-bold">{formatCurrency(totalInventoryValue)}</div>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-0 sm:p-6">
-                        <CardTitle className="text-xs sm:text-sm font-medium truncate">Ingresos Totales</CardTitle>
+                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
+                        <CardTitle className="text-xs font-medium truncate">Ingresos Totales</CardTitle>
                         <span className="p-2 bg-primary/10 rounded-lg">
-                          <FileSpreadsheet className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                          <FileSpreadsheet className="h-4 w-4 text-primary" />
                         </span>
                       </CardHeader>
-                      <CardContent className="p-0 sm:p-6 pt-1 sm:pt-0">
-                        <div className="text-sm sm:text-2xl font-bold">{formatCurrency(totalSalesValue)}</div>
+                      <CardContent className="p-0 pt-1">
+                        <div className="text-sm font-bold">{formatCurrency(totalSalesValue)}</div>
                       </CardContent>
                     </Card>
                   </div>
 
                   {lowStockItems > 0 && (
-                    <div className="mb-4 sm:mb-6">
+                    <div className="mb-4">
                       <Card className="border-yellow-400 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-950/50">
-                        <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
+                        <CardContent className="pt-4 p-3">
                           <div className="flex items-center gap-3">
                             <TriangleAlert className="h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
                             <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
@@ -136,7 +137,7 @@ const Index = () => {
               )}
 
               {activeTab === 'articulo' && (
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-4">
                   <div className="flex justify-center">
                     <div className="w-full max-w-md">
                       <ArticleForm onSubmit={addArticle} />
@@ -146,12 +147,12 @@ const Index = () => {
               )}
 
               {activeTab === 'sales' && (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-4">
                     <SaleForm articles={articles} onSubmit={addSale} />
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg sm:text-xl">Ventas Recientes</CardTitle>
+                        <CardTitle className="text-lg">Ventas Recientes</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {sales.length === 0 ? (
@@ -164,12 +165,12 @@ const Index = () => {
                               <div key={sale.id} className="p-3 border rounded-lg">
                                 <div className="flex justify-between items-start gap-2">
                                   <div className="min-w-0 flex-1">
-                                    <h4 className="font-medium text-sm sm:text-base truncate">{sale.articleName}</h4>
-                                    <p className="text-xs sm:text-sm text-muted-foreground">
+                                    <h4 className="font-medium text-sm truncate">{sale.articleName}</h4>
+                                    <p className="text-xs text-muted-foreground">
                                       {sale.buyerName} - {sale.quantity} unidades
                                     </p>
                                   </div>
-                                  <span className="font-bold text-green-600 text-sm sm:text-base whitespace-nowrap">
+                                  <span className="font-bold text-green-600 text-sm whitespace-nowrap">
                                     {formatCurrency(sale.totalPrice)}
                                   </span>
                                 </div>
@@ -184,7 +185,7 @@ const Index = () => {
               )}
 
               {activeTab === 'inventory' && (
-                <div className="space-y-4 sm:space-y-6">
+                <div className="space-y-4">
                   <InventoryLists 
                     articles={articles} 
                     sales={sales} 
