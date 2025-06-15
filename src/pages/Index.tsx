@@ -37,6 +37,10 @@ interface IndexProps {
   addSale: (data: SaleFormData) => void;
   updateSale: (data: EditSaleData) => void;
   deleteSale: (id: string) => void;
+  darkMode: boolean;
+  onSetDarkMode: (enabled: boolean) => void;
+  colorTheme: string;
+  onSetColorTheme: (theme: string) => void;
 }
 
 const Index: React.FC<IndexProps> = ({
@@ -51,6 +55,10 @@ const Index: React.FC<IndexProps> = ({
   addSale,
   updateSale,
   deleteSale,
+  darkMode,
+  onSetDarkMode,
+  colorTheme,
+  onSetColorTheme,
 }) => {
   const [activeTab, setActiveTab] = useState('panel');
   const { t } = useTranslation();
@@ -259,6 +267,10 @@ const Index: React.FC<IndexProps> = ({
                 <SettingsPage 
                   currentUser={currentUser} 
                   onUpdateUser={onUpdateUser}
+                  darkMode={darkMode}
+                  onSetDarkMode={onSetDarkMode}
+                  colorTheme={colorTheme}
+                  onSetColorTheme={onSetColorTheme}
                 />
               )}
             </div>

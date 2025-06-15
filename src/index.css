@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -84,6 +85,60 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Color themes */
+  .theme-red {
+    --primary: 0 65% 55%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 0 80% 96%;
+    --secondary-foreground: 0 80% 25%;
+    --accent: 0 80% 92%;
+    --accent-foreground: 0 80% 25%;
+    --ring: 0 65% 55%;
+  }
+  .dark.theme-red {
+    --primary: 0 55% 45%;
+    --secondary: 0 80% 10%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 0 80% 15%;
+    --accent-foreground: 210 40% 98%;
+  }
+
+  .theme-mint {
+    --primary: 160 40% 55%;
+    --primary-foreground: 160 100% 15%;
+    --secondary: 160 80% 96%;
+    --secondary-foreground: 160 80% 25%;
+    --accent: 160 80% 92%;
+    --accent-foreground: 160 80% 25%;
+    --ring: 160 40% 55%;
+  }
+  .dark.theme-mint {
+    --primary: 160 35% 45%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 160 80% 10%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 160 80% 15%;
+    --accent-foreground: 210 40% 98%;
+  }
+  
+  .theme-gray {
+    --primary: 210 10% 50%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 10% 96%;
+    --secondary-foreground: 210 10% 25%;
+    --accent: 210 10% 92%;
+    --accent-foreground: 210 10% 25%;
+    --ring: 210 10% 50%;
+  }
+  .dark.theme-gray {
+    --primary: 210 9% 40%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 10% 10%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 210 10% 15%;
+    --accent-foreground: 210 40% 98%;
   }
 }
 

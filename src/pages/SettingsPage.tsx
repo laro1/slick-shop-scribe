@@ -29,6 +29,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useTranslation } from 'react-i18next';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -41,9 +42,20 @@ const formSchema = z.object({
 interface SettingsPageProps {
   currentUser: User;
   onUpdateUser: (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => void;
+  darkMode: boolean;
+  onSetDarkMode: (enabled: boolean) => void;
+  colorTheme: string;
+  onSetColorTheme: (theme: string) => void;
 }
 
-export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdateUser }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({ 
+  currentUser, 
+  onUpdateUser,
+  darkMode,
+  onSetDarkMode,
+  colorTheme,
+  onSetColorTheme,
+}) => {
   const { t } = useTranslation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +81,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
-        <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="general-settings">
+        <Accordion type="multiple" className="w-full space-y-4" defaultValue={['general-settings']}>
           <AccordionItem value="general-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
             <AccordionTrigger className="p-6 hover:no-underline">
               <div className="text-left">
@@ -169,6 +181,47 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                   </div>
                 </form>
               </Form>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="appearance-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <AccordionTrigger className="p-6 hover:no-underline">
+              <div className="text-left">
+                <CardTitle>Apariencia</CardTitle>
+                <CardDescription className="mt-1.5">
+                  Personaliza el aspecto de la aplicación.
+                </CardDescription>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="space-y-6 px-6 pb-6">
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Modo Oscuro</FormLabel>
+                  <CardDescription>Activa el modo oscuro para una experiencia visual más cómoda en condiciones de poca luz.</CardDescription>
+                </div>
+                <Switch
+                  checked={darkMode}
+                  onCheckedChange={onSetDarkMode}
+                  aria-label="Toggle dark mode"
+                />
+              </div>
+              
+              <div className="space-y-3">
+                 <FormLabel className="text-base">Tema de Color</FormLabel>
+                 <CardDescription>Elige una paleta de colores para la interfaz.</CardDescription>
+                 <Select onValueChange={onSetColorTheme} defaultValue={colorTheme}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un tema" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="default">Predeterminado (Azul)</SelectItem>
+                      <SelectItem value="red">Rojo Suave</SelectItem>
+                      <SelectItem value="mint">Verde Menta</SelectItem>
+                      <SelectItem value="gray">Gris</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

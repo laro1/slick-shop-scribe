@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useInventory } from "@/hooks/useInventory";
 import { useUsers } from "@/hooks/useUsers";
@@ -43,6 +42,15 @@ export const useAppLogic = () => {
     return saved ? JSON.parse(saved) : 30; // Default 30 minutes
   });
 
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem("app-dark-mode");
+    if (saved !== null) return JSON.parse(saved);
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+  const [colorTheme, setColorTheme] = useState<string>(() => {
+    return localStorage.getItem("app-color-theme") || 'default';
+  });
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
@@ -71,6 +79,26 @@ export const useAppLogic = () => {
   useEffect(() => {
     localStorage.setItem("inventory_session_timeout", JSON.stringify(sessionTimeout));
   }, [sessionTimeout]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // color theme
+    const themes = ['theme-red', 'theme-mint', 'theme-gray'];
+    root.classList.remove(...themes);
+    if (colorTheme !== 'default') {
+      root.classList.add(`theme-${colorTheme}`);
+    }
+    localStorage.setItem("app-color-theme", colorTheme);
+
+    // dark mode
+    if (darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem("app-dark-mode", JSON.stringify(darkMode));
+  }, [darkMode, colorTheme]);
 
   const handleLogin = (user: User, pin: string) => {
     if (!user.isActive) {
@@ -207,6 +235,16 @@ export const useAppLogic = () => {
     }
   };
 
+  const handleSetDarkMode = (enabled: boolean) => {
+    setDarkMode(enabled);
+    toast.success("Modo oscuro actualizado");
+  };
+
+  const handleSetColorTheme = (theme: string) => {
+    setColorTheme(theme);
+    toast.success("Tema de color actualizado");
+  };
+
   const { articles, sales, addArticle, updateArticle, deleteArticle, addSale, updateSale, deleteSale, isLoading: isInventoryLoading } = useInventory();
 
   const inventoryActions = {
@@ -286,9 +324,13 @@ export const useAppLogic = () => {
     handleSetLowStockThreshold,
     handleSetEnableLotAndExpiry,
     handleSetSessionTimeout,
+    handleSetDarkMode,
+    handleSetColorTheme,
     articles,
     sales,
     isInventoryLoading,
-    inventoryActions
+    inventoryActions,
+    darkMode,
+    colorTheme,
   };
 };

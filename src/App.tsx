@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -44,6 +43,10 @@ const AppContent = () => {
     handleSetEnableLotAndExpiry,
     sessionTimeout,
     handleSetSessionTimeout,
+    darkMode,
+    colorTheme,
+    handleSetDarkMode,
+    handleSetColorTheme,
   } = useAppLogic();
 
   if (showSplash) {
@@ -66,6 +69,10 @@ const AppContent = () => {
                 articles={articles}
                 sales={sales}
                 {...inventoryActions}
+                darkMode={darkMode}
+                onSetDarkMode={handleSetDarkMode}
+                colorTheme={colorTheme}
+                onSetColorTheme={handleSetColorTheme}
               />
             : <UserAuth
                 users={users}
