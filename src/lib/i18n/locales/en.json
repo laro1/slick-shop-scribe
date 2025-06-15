@@ -127,6 +127,6 @@
   "excel_header_total": "Total",
   "excel_header_buyer": "Buyer",
   "excel_header_sale_date": "Sale Date",
+  "select_file_button": "Choose File",
   "inventory_filename_prefix": "inventory"
 }
-

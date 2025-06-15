@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ArticleFormData } from '@/types/inventory';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
+import { Upload } from 'lucide-react';
 
 interface ArticleFormProps {
   onSubmit: (data: ArticleFormData) => void;
@@ -21,9 +22,10 @@ type ArticleFormValues = {
 };
 
 export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ArticleFormValues>();
+  const { register, handleSubmit, reset, formState: { errors }, watch } = useForm<ArticleFormValues>();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const imageUrl = watch("imageUrl");
 
   const handleFormSubmit = (data: ArticleFormValues) => {
     const imageFile = data.imageUrl?.[0];
@@ -118,14 +120,26 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-sm font-medium">{t('article_image')}</Label>
-            <Input
-              id="imageUrl"
-              type="file"
-              accept="image/*"
-              {...register('imageUrl', { required: t('image_required') })}
-              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
-            />
+            <Label className="text-sm font-medium">{t('article_image')}</Label>
+            <div className="flex items-center gap-2">
+                <Input
+                  id="imageUrl"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  {...register('imageUrl', { required: t('image_required') })}
+                />
+                <Label
+                    htmlFor="imageUrl"
+                    className="inline-flex items-center gap-2 cursor-pointer rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                    <Upload className="h-4 w-4" />
+                    <span>{t('select_file_button')}</span>
+                </Label>
+                {imageUrl?.[0] && (
+                    <span className="text-sm text-muted-foreground truncate">{imageUrl[0].name}</span>
+                )}
+            </div>
             {errors.imageUrl && (
               <p className="text-xs text-destructive">{errors.imageUrl.message}</p>
             )}
