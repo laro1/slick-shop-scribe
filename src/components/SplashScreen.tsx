@@ -7,7 +7,7 @@ const SplashScreen: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background text-center p-4">
-      <img src="/placeholder.svg" alt="Logo" className="w-24 h-24 mb-6 animate-pulse" />
+      <img src="/lovable-uploads/0d56d64d-e6f6-4e51-b8f7-d8ef31ab6759.png" alt="Logo" className="w-24 h-24 mb-6 animate-pulse" />
       <h1 className="text-3xl font-bold tracking-tight text-primary">
         BDinventoryShell
       </h1>
