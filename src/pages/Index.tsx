@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -66,7 +67,7 @@ const Index: React.FC<IndexProps> = ({
     articulo: 'Gestión de Artículos',
     sales: 'Gestión de Ventas',
     inventory: 'Gestión de Inventario',
-    users: 'Gestión de Usuarios',
+    users: 'Usuarios',
     settings: 'Configuración',
   };
 
