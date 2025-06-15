@@ -5,6 +5,8 @@ import { Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { Article, Sale } from '@/types/inventory';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 
 interface ExportButtonProps {
   articles: Article[];
@@ -13,6 +15,9 @@ interface ExportButtonProps {
 
 export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
+  const currentLang = i18n.language;
+
 
   const exportToExcel = () => {
     try {
@@ -21,23 +26,23 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) =
 
       // Prepare articles data
       const articlesData = articles.map(article => ({
-        'ID': article.id,
-        'Nombre': article.name,
-        'URL Imagen': article.imageUrl,
-        'Precio': article.price,
-        'Stock': article.stock,
-        'Fecha de Creación': new Date(article.createdAt).toLocaleDateString('es-ES')
+        [t('excel_header_id')]: article.id,
+        [t('excel_header_name')]: article.name,
+        [t('excel_header_image_url')]: article.imageUrl,
+        [t('excel_header_price')]: article.price,
+        [t('excel_header_stock')]: article.stock,
+        [t('excel_header_created_at')]: new Date(article.createdAt).toLocaleDateString(currentLang === 'es' ? 'es-ES' : 'en-US')
       }));
 
       // Prepare sales data
       const salesData = sales.map(sale => ({
-        'ID Venta': sale.id,
-        'Artículo': sale.articleName,
-        'Cantidad': sale.quantity,
-        'Precio Unitario': sale.unitPrice,
-        'Total': sale.totalPrice,
-        'Comprador': sale.buyerName,
-        'Fecha de Venta': new Date(sale.saleDate).toLocaleDateString('es-ES')
+        [t('excel_header_sale_id')]: sale.id,
+        [t('excel_header_article')]: sale.articleName,
+        [t('excel_header_quantity')]: sale.quantity,
+        [t('excel_header_unit_price')]: sale.unitPrice,
+        [t('excel_header_total')]: sale.totalPrice,
+        [t('excel_header_buyer')]: sale.buyerName,
+        [t('excel_header_sale_date')]: new Date(sale.saleDate).toLocaleDateString(currentLang === 'es' ? 'es-ES' : 'en-US')
       }));
 
       // Create worksheets
@@ -45,25 +50,25 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) =
       const salesSheet = XLSX.utils.json_to_sheet(salesData);
 
       // Add worksheets to workbook
-      XLSX.utils.book_append_sheet(workbook, articlesSheet, 'Artículos');
-      XLSX.utils.book_append_sheet(workbook, salesSheet, 'Ventas');
+      XLSX.utils.book_append_sheet(workbook, articlesSheet, t('excel_sheet_articles'));
+      XLSX.utils.book_append_sheet(workbook, salesSheet, t('excel_sheet_sales'));
 
       // Generate filename with current date
       const currentDate = new Date().toISOString().split('T')[0];
-      const filename = `inventario_${currentDate}.xlsx`;
+      const filename = `${t('inventory_filename_prefix')}_${currentDate}.xlsx`;
 
       // Write file
       XLSX.writeFile(workbook, filename);
 
       toast({
-        title: "Exportación exitosa",
-        description: `Los datos se han exportado a ${filename}`,
+        title: t('export_success_title'),
+        description: t('export_success_description', { filename }),
       });
 
     } catch (error) {
       toast({
-        title: "Error en la exportación",
-        description: "Hubo un problema al exportar los datos.",
+        title: t('export_error_title'),
+        description: t('export_error_description'),
         variant: "destructive",
       });
     }
@@ -77,7 +82,8 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) =
       disabled={!hasData}
     >
       <Download className="h-4 w-4 mr-2" />
-      <span>Exportar Datos</span>
+      <span>{t('export_data')}</span>
     </Button>
   );
 };
+

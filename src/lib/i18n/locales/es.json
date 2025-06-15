@@ -106,5 +106,27 @@
   "enter_4_digit_pin": "Introduce tu PIN de 4 dígitos para acceder.",
   "pin_must_be_4_digits": "El PIN debe tener 4 dígitos.",
   "incorrect_pin_try_again": "PIN incorrecto. Inténtalo de nuevo.",
-  "login_button": "Entrar"
+  "login_button": "Entrar",
+  "export_data": "Exportar Datos",
+  "export_success_title": "Exportación exitosa",
+  "export_success_description": "Los datos se han exportado a {filename}",
+  "export_error_title": "Error en la exportación",
+  "export_error_description": "Hubo un problema al exportar los datos.",
+  "excel_sheet_articles": "Artículos",
+  "excel_sheet_sales": "Ventas",
+  "excel_header_id": "ID",
+  "excel_header_name": "Nombre",
+  "excel_header_image_url": "URL Imagen",
+  "excel_header_price": "Precio",
+  "excel_header_stock": "Stock",
+  "excel_header_created_at": "Fecha de Creación",
+  "excel_header_sale_id": "ID Venta",
+  "excel_header_article": "Artículo",
+  "excel_header_quantity": "Cantidad",
+  "excel_header_unit_price": "Precio Unitario",
+  "excel_header_total": "Total",
+  "excel_header_buyer": "Comprador",
+  "excel_header_sale_date": "Fecha de Venta",
+  "inventory_filename_prefix": "inventario"
 }
+
