@@ -205,12 +205,12 @@ const Index: React.FC<IndexProps> = ({
                     <SaleForm articles={articles} onSubmit={addSale} />
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Ventas Recientes</CardTitle>
+                        <CardTitle className="text-lg">{t('recent_sales')}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {sales.length === 0 ? (
                           <p className="text-muted-foreground text-center py-4 text-sm">
-                            No hay ventas registradas
+                            {t('no_sales_recorded')}
                           </p>
                         ) : (
                           <div className="space-y-3">
@@ -220,11 +220,11 @@ const Index: React.FC<IndexProps> = ({
                                   <div className="min-w-0 flex-1">
                                     <h4 className="font-medium text-sm truncate">{sale.articleName}</h4>
                                     <p className="text-xs text-muted-foreground">
-                                      {sale.buyerName} - {sale.quantity} unidades
+                                      {sale.buyerName} - {sale.quantity} {t('units')}
                                     </p>
                                     {sale.totalPrice > sale.amountPaid && (
                                       <p className="text-xs text-orange-600 font-medium">
-                                        Pendiente: {formatCurrencyLocalized(sale.totalPrice - sale.amountPaid, currentUser.currency, currentUser.language)}
+                                        {t('pending_payment')}: {formatCurrencyLocalized(sale.totalPrice - sale.amountPaid, currentUser.currency, currentUser.language)}
                                       </p>
                                     )}
                                   </div>

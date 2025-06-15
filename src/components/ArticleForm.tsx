@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArticleFormData } from '@/types/inventory';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface ArticleFormProps {
   onSubmit: (data: ArticleFormData) => void;
@@ -22,14 +23,15 @@ type ArticleFormValues = {
 export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ArticleFormValues>();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleFormSubmit = (data: ArticleFormValues) => {
     const imageFile = data.imageUrl?.[0];
     try {
       if (!imageFile) {
         toast({
-          title: "Error",
-          description: "Debe seleccionar una imagen.",
+          title: t('error'),
+          description: t('image_selection_error'),
           variant: "destructive",
         });
         return;
@@ -44,13 +46,13 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
 
       reset();
       toast({
-        title: "Artículo registrado",
-        description: "El artículo se ha agregado correctamente al inventario.",
+        title: t('article_registered_success_title'),
+        description: t('article_registered_success_description'),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Hubo un problema al registrar el artículo.",
+        title: t('error'),
+        description: t('article_registration_error_description'),
         variant: "destructive",
       });
     }
@@ -59,16 +61,16 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
   return (
     <Card className="w-full">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg sm:text-xl">Registrar Artículo</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">{t('register_article')}</CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0">
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">Nombre del Artículo</Label>
+            <Label htmlFor="name" className="text-sm font-medium">{t('article_name')}</Label>
             <Input
               id="name"
-              {...register('name', { required: 'El nombre es requerido' })}
-              placeholder="Ingrese el nombre del artículo"
+              {...register('name', { required: t('name_required') })}
+              placeholder={t('article_name_placeholder')}
               className="text-sm"
             />
             {errors.name && (
@@ -78,15 +80,15 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="price" className="text-sm font-medium">Precio</Label>
+              <Label htmlFor="price" className="text-sm font-medium">{t('price')}</Label>
               <Input
                 id="price"
                 type="number"
                 step="0.01"
                 {...register('price', { 
-                  required: 'El precio es requerido',
+                  required: t('price_required'),
                   valueAsNumber: true,
-                  min: { value: 0, message: 'El precio debe ser mayor a 0' }
+                  min: { value: 0.01, message: t('price_positive') }
                 })}
                 placeholder="0.00"
                 className="text-sm"
@@ -97,14 +99,14 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stock" className="text-sm font-medium">Stock Inicial</Label>
+              <Label htmlFor="stock" className="text-sm font-medium">{t('initial_stock')}</Label>
               <Input
                 id="stock"
                 type="number"
                 {...register('stock', { 
-                  required: 'El stock es requerido',
+                  required: t('stock_required'),
                   valueAsNumber: true,
-                  min: { value: 0, message: 'El stock no puede ser negativo' }
+                  min: { value: 0, message: t('stock_not_negative') }
                 })}
                 placeholder="0"
                 className="text-sm"
@@ -116,12 +118,12 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="imageUrl" className="text-sm font-medium">Imagen del Artículo</Label>
+            <Label htmlFor="imageUrl" className="text-sm font-medium">{t('article_image')}</Label>
             <Input
               id="imageUrl"
               type="file"
               accept="image/*"
-              {...register('imageUrl', { required: 'La imagen es requerida' })}
+              {...register('imageUrl', { required: t('image_required') })}
               className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
             />
             {errors.imageUrl && (
@@ -130,7 +132,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
           </div>
 
           <Button type="submit" className="w-full text-sm py-2">
-            Registrar Artículo
+            {t('register_article')}
           </Button>
         </form>
       </CardContent>

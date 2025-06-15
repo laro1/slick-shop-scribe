@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Article, SaleFormData } from '@/types/inventory';
 import { formatCurrency } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface ArticleSelectorProps {
   control: Control<SaleFormData>;
@@ -13,17 +14,18 @@ interface ArticleSelectorProps {
 }
 
 export const ArticleSelector: React.FC<ArticleSelectorProps> = ({ control, errors, availableArticles }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      <Label htmlFor="articleId" className="text-sm font-medium">Artículo</Label>
+      <Label htmlFor="articleId" className="text-sm font-medium">{t('article')}</Label>
       <Controller
         name="articleId"
         control={control}
-        rules={{ required: 'Debe seleccionar un artículo' }}
+        rules={{ required: t('article_selection_required') }}
         render={({ field }) => (
           <Select onValueChange={field.onChange} value={field.value || ''}>
             <SelectTrigger className="text-sm">
-              <SelectValue placeholder="Seleccione un artículo" />
+              <SelectValue placeholder={t('select_article_placeholder')} />
             </SelectTrigger>
             <SelectContent>
               {availableArticles.map((article) => (
@@ -31,9 +33,9 @@ export const ArticleSelector: React.FC<ArticleSelectorProps> = ({ control, error
                   <div className="flex flex-col">
                     <span className="font-medium">{article.name}</span>
                     <span className="text-xs text-muted-foreground">
-                      Stock: {article.stock} - {formatCurrency(article.price)}
+                      {t('stock_label')}{article.stock} - {formatCurrency(article.price)}
                       {article.stock <= 5 && (
-                        <span className="text-yellow-600 ml-1">⚠️ Stock bajo</span>
+                        <span className="text-yellow-600 ml-1">{t('low_stock_label')}</span>
                       )}
                     </span>
                   </div>

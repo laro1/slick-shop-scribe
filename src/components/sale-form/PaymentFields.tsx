@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Article, SaleFormData } from '@/types/inventory';
 import { formatCurrency } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface PaymentFieldsProps {
   control: Control<SaleFormData>;
@@ -24,14 +25,15 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({
   selectedArticle,
   quantity,
 }) => {
+  const { t } = useTranslation();
   return (
     <>
       <div className="space-y-2">
-        <Label className="text-sm font-medium">Tipo de pago</Label>
+        <Label className="text-sm font-medium">{t('payment_type')}</Label>
         <Controller
           name="paymentMethod"
           control={control}
-          rules={{ required: 'Debe seleccionar un tipo de pago' }}
+          rules={{ required: t('payment_type_required') }}
           render={({ field }) => (
             <RadioGroup
               onValueChange={field.onChange}
@@ -40,15 +42,15 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="efectivo" id="efectivo" />
-                <Label htmlFor="efectivo" className="text-sm font-normal">Efectivo</Label>
+                <Label htmlFor="efectivo" className="text-sm font-normal">{t('cash')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="transferencia" id="transferencia" />
-                <Label htmlFor="transferencia" className="text-sm font-normal">Transferencia</Label>
+                <Label htmlFor="transferencia" className="text-sm font-normal">{t('transfer')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="sinabono" id="sinabono" />
-                <Label htmlFor="sinabono" className="text-sm font-normal">Sin abono</Label>
+                <Label htmlFor="sinabono" className="text-sm font-normal">{t('no_payment')}</Label>
               </div>
             </RadioGroup>
           )}
@@ -61,11 +63,11 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({
       <div className="grid grid-cols-2 gap-3">
         {paymentMethod === 'transferencia' && (
           <div className="space-y-2 col-span-2 sm:col-span-1">
-            <Label htmlFor="bankName" className="text-sm font-medium">Nombre del Banco</Label>
+            <Label htmlFor="bankName" className="text-sm font-medium">{t('bank_name')}</Label>
             <Input
               id="bankName"
-              {...register('bankName', { required: paymentMethod === 'transferencia' ? 'El nombre del banco es requerido' : false })}
-              placeholder="Ingrese el banco"
+              {...register('bankName', { required: paymentMethod === 'transferencia' ? t('bank_name_required') : false })}
+              placeholder={t('bank_name_placeholder')}
               className="text-sm"
             />
             {errors.bankName && (
@@ -75,23 +77,23 @@ export const PaymentFields: React.FC<PaymentFieldsProps> = ({
         )}
 
         <div className="space-y-2 col-span-2 sm:col-span-1">
-          <Label htmlFor="amountPaid" className="text-sm font-medium">Monto Pagado</Label>
+          <Label htmlFor="amountPaid" className="text-sm font-medium">{t('amount_paid')}</Label>
           <Input
             id="amountPaid"
             type="number"
             step="1"
             {...register('amountPaid', {
               valueAsNumber: true,
-              required: paymentMethod !== 'sinabono' ? 'El monto es requerido' : false,
-              min: { value: 0, message: 'El monto no puede ser negativo' },
+              required: paymentMethod !== 'sinabono' ? t('amount_paid_required') : false,
+              min: { value: 0, message: t('amount_paid_not_negative') },
               validate: (value) => {
                 if (paymentMethod === 'sinabono' && value !== 0) {
-                  return 'Con "Sin abono", el monto debe ser 0';
+                  return t('amount_paid_must_be_zero');
                 }
                 if (selectedArticle && quantity > 0) {
                   const totalPrice = selectedArticle.price * quantity;
                   if (value > totalPrice) {
-                    return `El monto no puede ser mayor al total (${formatCurrency(totalPrice)})`;
+                    return t('amount_paid_too_high', { totalPrice: formatCurrency(totalPrice) });
                   }
                 }
                 return true;

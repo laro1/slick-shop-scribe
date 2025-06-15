@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Article } from '@/types/inventory';
 import { AlertTriangle, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface SaleFormAlertsProps {
   articles: Article[];
@@ -12,6 +13,7 @@ interface SaleFormAlertsProps {
 }
 
 export const SaleFormAlerts: React.FC<SaleFormAlertsProps> = ({ articles, availableArticles, lowStockArticles }) => {
+  const { t } = useTranslation();
   const lowStockThreshold = localStorage.getItem("inventory_low_stock_threshold")
     ? JSON.parse(localStorage.getItem("inventory_low_stock_threshold")!)
     : 5;
@@ -20,14 +22,14 @@ export const SaleFormAlerts: React.FC<SaleFormAlertsProps> = ({ articles, availa
     return (
       <Card className="w-full">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg sm:text-xl">Registrar Venta</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{t('register_sale')}</CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           <Alert>
             <Package className="h-4 w-4" />
             <AlertDescription className="text-sm">
-              <strong>No hay artículos registrados.</strong><br />
-              Primero debe registrar artículos antes de poder realizar ventas.
+              <strong>{t('no_articles_registered_title')}</strong><br />
+              {t('no_articles_registered_text')}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -39,14 +41,14 @@ export const SaleFormAlerts: React.FC<SaleFormAlertsProps> = ({ articles, availa
     return (
       <Card className="w-full">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg sm:text-xl">Registrar Venta</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{t('register_sale')}</CardTitle>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="text-sm">
-              <strong>No hay artículos disponibles para venta.</strong><br />
-              Todos los artículos están agotados. Actualice el stock de sus artículos.
+              <strong>{t('no_articles_for_sale_title')}</strong><br />
+              {t('no_articles_for_sale_text')}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -59,7 +61,7 @@ export const SaleFormAlerts: React.FC<SaleFormAlertsProps> = ({ articles, availa
       <Alert className="mb-4">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          <strong>Advertencia:</strong> {lowStockArticles.length} artículo(s) tienen stock bajo (≤{lowStockThreshold} unidades)
+          <strong>{t('warning_title')}</strong> {t('low_stock_warning_articles', { count: lowStockArticles.length, threshold: lowStockThreshold })}
         </AlertDescription>
       </Alert>
     );

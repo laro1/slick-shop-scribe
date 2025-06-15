@@ -3,12 +3,14 @@ import React from 'react';
 import { Article } from '@/types/inventory';
 import { formatCurrency } from '@/lib/utils';
 import { Capacitor } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
 
 interface SelectedArticlePreviewProps {
   selectedArticle?: Article;
 }
 
 export const SelectedArticlePreview: React.FC<SelectedArticlePreviewProps> = ({ selectedArticle }) => {
+  const { t } = useTranslation();
   if (!selectedArticle) return null;
 
   const getImageSrc = (path: string) => {
@@ -33,15 +35,15 @@ export const SelectedArticlePreview: React.FC<SelectedArticlePreviewProps> = ({ 
         />
       ) : (
         <div className="w-12 h-12 bg-secondary rounded flex items-center justify-center">
-          <span className="text-xs text-muted-foreground">Sin img</span>
+          <span className="text-xs text-muted-foreground">{t('no_image')}</span>
         </div>
       )}
       <div className="flex-1">
         <p className="text-sm font-medium">{selectedArticle.name}</p>
         <div className="flex justify-between text-xs">
-          <span>Precio: {formatCurrency(selectedArticle.price)}</span>
+          <span>{t('price_label')}{formatCurrency(selectedArticle.price)}</span>
           <span className={selectedArticle.stock <= 5 ? "text-yellow-600 font-medium" : ""}>
-            Stock: {selectedArticle.stock}
+            {t('stock_label')}{selectedArticle.stock}
             {selectedArticle.stock <= 5 && " ⚠️"}
           </span>
         </div>
