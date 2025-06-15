@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { UserAuth } from "./pages/UserAuth";
 import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
+import SplashScreen from "./components/SplashScreen";
 import { useInventory } from "@/hooks/useInventory";
 import { useUsers } from "@/hooks/useUsers";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -26,6 +27,7 @@ const AppContent = () => {
   
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   const [productCategories, setProductCategories] = useState<string[]>(() => {
     const savedCategories = localStorage.getItem("inventory_product_categories");
@@ -52,6 +54,13 @@ const AppContent = () => {
     const saved = localStorage.getItem("inventory_session_timeout");
     return saved ? JSON.parse(saved) : 30; // Default 30 minutes
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (activeUser?.language && i18n.language !== activeUser.language) {
@@ -262,6 +271,10 @@ const AppContent = () => {
       }
     },
   };
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   if (isInventoryLoading || isUsersLoading || isAdminPinLoading) {
     return <div className="flex h-screen items-center justify-center">{t('loading_data')}</div>;
