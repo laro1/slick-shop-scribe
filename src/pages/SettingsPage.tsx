@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +29,7 @@ import {
 } from "@/components/ui/accordion";
 import { useTranslation } from 'react-i18next';
 import { Switch } from '@/components/ui/switch';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -205,23 +205,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 />
               </div>
               
-              <div className="space-y-3">
-                 <FormLabel className="text-base">Tema de Color</FormLabel>
-                 <CardDescription>Elige una paleta de colores para la interfaz.</CardDescription>
-                 <Select onValueChange={onSetColorTheme} defaultValue={colorTheme}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un tema" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="default">Predeterminado (Azul)</SelectItem>
-                      <SelectItem value="red">Rojo Suave</SelectItem>
-                      <SelectItem value="mint">Verde Menta</SelectItem>
-                      <SelectItem value="gray">Gris</SelectItem>
-                    </SelectContent>
-                  </Select>
-              </div>
+              <ThemeSwitcher 
+                variant="inline"
+                colorTheme={colorTheme}
+                onSetColorTheme={onSetColorTheme}
+              />
             </AccordionContent>
           </AccordionItem>
         </Accordion>

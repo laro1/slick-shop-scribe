@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import { UserAuth } from "./pages/UserAuth";
 import { AdminPanel } from "./pages/AdminPanel";
 import SplashScreen from "./components/SplashScreen";
 import { useAppLogic } from "./hooks/useAppLogic";
+import { ThemeSwitcher } from "./components/ThemeSwitcher";
 
 const queryClient = new QueryClient();
 
@@ -74,12 +76,20 @@ const AppContent = () => {
                 colorTheme={colorTheme}
                 onSetColorTheme={handleSetColorTheme}
               />
-            : <UserAuth
-                users={users}
-                onLogin={handleLogin}
-                onCreateUser={handleCreateUser}
-                onAdminLogin={handleAdminLogin}
-              />
+            : <>
+                <UserAuth
+                  users={users}
+                  onLogin={handleLogin}
+                  onCreateUser={handleCreateUser}
+                  onAdminLogin={handleAdminLogin}
+                />
+                <ThemeSwitcher
+                  colorTheme={colorTheme}
+                  onSetColorTheme={handleSetColorTheme}
+                  className="absolute bottom-5 right-5"
+                  variant="popover"
+                />
+              </>
         } />
         <Route path="/admin" element={
           isAdmin
