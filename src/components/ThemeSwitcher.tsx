@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Settings, Sun, Moon } from 'lucide-react';
+import { Brush, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { CardDescription } from '@/components/ui/card';
@@ -89,7 +89,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({ colorTheme, onSetC
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="icon" className={className}>
-          <Settings className="h-5 w-5" />
+          <Brush className="h-5 w-5" />
           <span className="sr-only">Cambiar tema</span>
         </Button>
       </PopoverTrigger>
