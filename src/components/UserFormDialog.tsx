@@ -39,7 +39,7 @@ const formSchema = z.object({
   status: z.enum(['active', 'inactive']),
 });
 
-type UserFormValues = z.infer<typeof formSchema>;
+export type UserFormValues = z.infer<typeof formSchema>;
 
 const defaultFormValues: UserFormValues = {
   name: '',
@@ -50,7 +50,7 @@ const defaultFormValues: UserFormValues = {
 interface UserFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (values: Omit<SubUser, 'id'> | SubUser) => void;
+  onSubmit: (values: UserFormValues | (UserFormValues & { id: string })) => void;
   user: SubUser | null;
 }
 
@@ -76,7 +76,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({ isOpen, onOpenCh
 
   const handleSubmit = (values: UserFormValues) => {
     if (user) {
-      onSubmit({ ...user, ...values });
+      onSubmit({ ...values, id: user.id });
     } else {
       onSubmit(values);
     }
