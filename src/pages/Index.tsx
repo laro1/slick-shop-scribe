@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -65,52 +64,44 @@ const Index = () => {
                   </div>
 
                   {/* Statistics Cards */}
-                  <div className="grid grid-cols-2 gap-2 mb-6">
-                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
-                        <CardTitle className="text-xs font-medium truncate">Total Artículos</CardTitle>
-                        <span className="p-2 bg-primary/10 rounded-lg">
-                          <Package className="h-4 w-4 text-primary" />
-                        </span>
-                      </CardHeader>
-                      <CardContent className="p-0 pt-1">
-                        <div className="text-lg font-bold">{articles.length}</div>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+                      <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-primary/10 rounded-full">
+                          <Package className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-2xl font-bold">{articles.length}</div>
+                        <p className="text-sm font-medium text-muted-foreground">Total Artículos</p>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
-                        <CardTitle className="text-xs font-medium truncate">Ventas Totales</CardTitle>
-                        <span className="p-2 bg-primary/10 rounded-lg">
-                          <ShoppingCart className="h-4 w-4 text-primary" />
-                        </span>
-                      </CardHeader>
-                      <CardContent className="p-0 pt-1">
-                        <div className="text-lg font-bold">{sales.length}</div>
+                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+                       <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-primary/10 rounded-full">
+                          <ShoppingCart className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-2xl font-bold">{sales.length}</div>
+                        <p className="text-sm font-medium text-muted-foreground">Ventas Totales</p>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
-                        <CardTitle className="text-xs font-medium truncate">Valor Inventario</CardTitle>
-                        <span className="p-2 bg-primary/10 rounded-lg">
-                          <BarChart3 className="h-4 w-4 text-primary" />
-                        </span>
-                      </CardHeader>
-                      <CardContent className="p-0 pt-1">
-                        <div className="text-sm font-bold">{formatCurrency(totalInventoryValue)}</div>
+                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+                       <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-primary/10 rounded-full">
+                          <BarChart3 className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-xl font-bold">{formatCurrency(totalInventoryValue)}</div>
+                        <p className="text-sm font-medium text-muted-foreground">Valor Inventario</p>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-2 transition-all duration-200 hover:shadow-lg hover:-translate-y-1">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-0">
-                        <CardTitle className="text-xs font-medium truncate">Ingresos Totales</CardTitle>
-                        <span className="p-2 bg-primary/10 rounded-lg">
-                          <FileSpreadsheet className="h-4 w-4 text-primary" />
-                        </span>
-                      </CardHeader>
-                      <CardContent className="p-0 pt-1">
-                        <div className="text-sm font-bold">{formatCurrency(totalSalesValue)}</div>
+                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
+                      <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-primary/10 rounded-full">
+                          <FileSpreadsheet className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-xl font-bold">{formatCurrency(totalSalesValue)}</div>
+                        <p className="text-sm font-medium text-muted-foreground">Ingresos Totales</p>
                       </CardContent>
                     </Card>
                   </div>
