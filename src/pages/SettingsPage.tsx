@@ -21,7 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import type { User } from '@/App';
+import type { User } from '@/types/user';
 import {
   Accordion,
   AccordionContent,

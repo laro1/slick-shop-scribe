@@ -10,7 +10,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
-import type { User } from '@/App';
+import type { User } from '@/types/user';
 import type { Article, Sale, ArticleFormData, EditArticleData, SaleFormData, EditSaleData } from '@/types/inventory';
 import {
   DropdownMenu,
