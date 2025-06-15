@@ -1,28 +1,51 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
 import { SaleForm } from '@/components/SaleForm';
 import { InventoryLists } from '@/components/InventoryLists';
 import { ExportButton } from '@/components/ExportButton';
-import { useInventory } from '@/hooks/useInventory';
-import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert } from 'lucide-react';
+import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert, LogOut, User as UserIcon } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
+import type { User, UserData } from '@/App';
+import type { Article, Sale } from '@/types/inventory';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-const Index = () => {
+interface IndexProps extends UserData {
+  currentUser: User;
+  onLogout: () => void;
+  addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => void;
+  updateArticle: (updatedArticle: Article) => void;
+  deleteArticle: (articleId: string) => void;
+  addSale: (sale: Omit<Sale, 'id'>) => void;
+  updateSale: (updatedSale: Sale) => void;
+  deleteSale: (saleId: string) => void;
+}
+
+const Index: React.FC<IndexProps> = ({
+  currentUser,
+  onLogout,
+  articles,
+  sales,
+  addArticle,
+  updateArticle,
+  deleteArticle,
+  addSale,
+  updateSale,
+  deleteSale
+}) => {
   const [activeTab, setActiveTab] = useState('panel');
-  const { 
-    articles, 
-    sales, 
-    addArticle, 
-    updateArticle, 
-    deleteArticle, 
-    addSale, 
-    updateSale, 
-    deleteSale 
-  } = useInventory();
 
   const totalInventoryValue = articles.reduce((sum, article) => sum + (article.price * article.stock), 0);
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.amountPaid, 0);
@@ -40,9 +63,9 @@ const Index = () => {
       <div className="flex min-h-screen w-full bg-muted/40">
         <AppSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <SidebarTrigger asChild>
-              <Button size="icon" variant="outline">
+              <Button size="icon" variant="outline" className="sm:hidden">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle Menu</span>
               </Button>
@@ -50,8 +73,34 @@ const Index = () => {
             <h1 className="flex-1 text-xl font-semibold tracking-tight">
               {pageTitles[activeTab]}
             </h1>
+            <div className="ml-auto flex items-center gap-4">
+               <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="overflow-hidden rounded-full"
+                  >
+                     <Avatar>
+                        <AvatarImage src={currentUser.logoUrl} alt={currentUser.businessName} />
+                        <AvatarFallback>{currentUser.businessName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>{currentUser.businessName}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem disabled>{currentUser.name}</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Cerrar Sesión
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto p-4">
             <div className="container mx-auto px-2 py-4">
               
               {activeTab === 'panel' && (
