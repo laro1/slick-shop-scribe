@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner, toast } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
 import { useInventory } from "@/hooks/useInventory";
 import { useUsers } from "@/hooks/useUsers";
+import { useAdmin } from "@/hooks/useAdmin";
 import type { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from "@/types/inventory";
 import type { User, UserFormData } from "@/types/user";
 
@@ -20,6 +20,7 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { users, isUsersLoading, addUser, updateUser, deleteUser, toggleUserStatus } = useUsers();
+  const { adminPin, isAdminPinLoading } = useAdmin();
   
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -143,8 +144,15 @@ const AppContent = () => {
   };
 
   const handleAdminLogin = (pin: string) => {
-    const ADMIN_PIN = '2607';
-    if (pin === ADMIN_PIN) {
+    if (isAdminPinLoading) {
+      toast.info("Verificando PIN...");
+      return false;
+    }
+    if (!adminPin) {
+      toast.error("La configuración de administrador no está disponible.");
+      return false;
+    }
+    if (pin === adminPin) {
       setIsAdmin(true);
       toast.success("Acceso de administrador concedido.");
       return true;
@@ -247,7 +255,7 @@ const AppContent = () => {
     },
   };
 
-  if (isInventoryLoading || isUsersLoading) {
+  if (isInventoryLoading || isUsersLoading || isAdminPinLoading) {
     return <div className="flex h-screen items-center justify-center">Cargando datos desde Supabase...</div>;
   }
 

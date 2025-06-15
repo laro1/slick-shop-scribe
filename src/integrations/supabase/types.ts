@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_config: {
+        Row: {
+          id: number
+          pin: string
+        }
+        Insert: {
+          id?: number
+          pin: string
+        }
+        Update: {
+          id?: number
+          pin?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           created_at: string
