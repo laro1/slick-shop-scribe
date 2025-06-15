@@ -7,6 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Form,
   FormControl,
   FormField,
@@ -20,6 +27,8 @@ const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   businessName: z.string().min(2, { message: "El nombre del negocio debe tener al menos 2 caracteres." }),
   logoUrl: z.string().url({ message: "Por favor, introduce una URL válida." }).optional().or(z.literal('')),
+  currency: z.string().optional(),
+  language: z.string().optional(),
 });
 
 interface SettingsPageProps {
@@ -34,6 +43,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
       name: currentUser.name,
       businessName: currentUser.businessName,
       logoUrl: currentUser.logoUrl || '',
+      currency: currentUser.currency || 'COP',
+      language: currentUser.language || 'es',
     },
   });
 
@@ -42,6 +53,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
       name: values.name,
       businessName: values.businessName,
       logoUrl: values.logoUrl || undefined,
+      currency: values.currency,
+      language: values.language,
     });
   };
 
@@ -97,6 +110,49 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="currency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Moneda Predeterminada</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una moneda" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="COP">COP - Peso Colombiano</SelectItem>
+                          <SelectItem value="USD">USD - Dólar Americano</SelectItem>
+                          <SelectItem value="EUR">EUR - Euro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="language"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Idioma del Sistema</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un idioma" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="es">Español</SelectItem>
+                          <SelectItem value="en">Inglés</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end pt-4">
                   <Button type="submit">Guardar Cambios</Button>
                 </div>
@@ -115,7 +171,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
           <CardContent>
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
               <li>Gestión de roles y permisos de usuario.</li>
-              <li>Configuración de moneda e idioma.</li>
               <li>Ajustes de notificaciones y alertas.</li>
               <li>Y mucho más...</li>
             </ul>

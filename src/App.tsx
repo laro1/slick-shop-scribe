@@ -15,6 +15,8 @@ export interface User {
   businessName: string;
   pin: string;
   logoUrl?: string;
+  currency?: string;
+  language?: string;
 }
 
 export interface UserData {
@@ -78,7 +80,7 @@ const App = () => {
       toast.error("Ya existe un negocio con ese nombre.");
       return;
     }
-    const userWithId = { ...newUser, id: crypto.randomUUID() };
+    const userWithId = { ...newUser, id: crypto.randomUUID(), currency: 'COP', language: 'es' };
     setUsers(prev => [...prev, userWithId]);
     setData(prev => ({ ...prev, [userWithId.id]: { articles: [], sales: [] } }));
     toast.success("Usuario creado con éxito!");
