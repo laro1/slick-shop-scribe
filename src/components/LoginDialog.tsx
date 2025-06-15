@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import type { User } from '@/App';
+import type { User } from '@/types/user';
 import { toast } from 'sonner';
 
 interface LoginDialogProps {

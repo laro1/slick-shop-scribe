@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import type { User } from '@/App';
+import type { User } from '@/types/user';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { EditUserDialog } from '@/components/EditUserDialog';
 import { DeleteUserDialog } from '@/components/DeleteUserDialog';
@@ -14,7 +15,7 @@ import { SecuritySettings } from '@/components/admin/SecuritySettings';
 interface AdminPanelProps {
   users: User[];
   onCreateUser: (user: Omit<User, 'id' | 'role' | 'isActive'>) => void;
-  onEditUser: (userId: string, pin: string, data: Partial<Omit<User, 'id' | 'pin'>>) => boolean;
+  onEditUser: (userId: string, pin: string, data: Partial<Omit<User, 'id' | 'pin'>>) => Promise<boolean>;
   onDeleteUser: (userId: string, pin: string) => boolean;
   onAdminLogout: () => void;
   onToggleUserStatus: (userId: string) => void;

@@ -9,21 +9,9 @@ import { UserAuth } from "./pages/UserAuth";
 import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
 import { useInventory } from "@/hooks/useInventory";
+import { useUsers } from "@/hooks/useUsers";
 import type { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from "@/types/inventory";
-
-export type UserRole = 'Administrador' | 'Vendedor' | 'Inventarista' | 'Consultor';
-
-export interface User {
-  id: string;
-  name: string;
-  businessName: string;
-  pin: string;
-  logoUrl?: string;
-  currency?: string;
-  language?: string;
-  role: UserRole;
-  isActive: boolean;
-}
+import type { User, UserFormData } from "@/types/user";
 
 const queryClient = new QueryClient();
 
@@ -49,8 +37,9 @@ const AppContent = ({
   handleSetEnableLotAndExpiry,
   sessionTimeout,
   handleSetSessionTimeout,
+  isUsersLoading,
 }: any) => {
-  const { articles, sales, addArticle, updateArticle, deleteArticle, addSale, updateSale, deleteSale, isLoading } = useInventory();
+  const { articles, sales, addArticle, updateArticle, deleteArticle, addSale, updateSale, deleteSale, isLoading: isInventoryLoading } = useInventory();
 
   const inventoryActions = {
     addArticle: async (articleData: ArticleFormData) => {
@@ -103,7 +92,7 @@ const AppContent = ({
     },
   };
 
-  if (isLoading) {
+  if (isInventoryLoading || isUsersLoading) {
     return <div className="flex h-screen items-center justify-center">Cargando datos desde Supabase...</div>;
   }
 
@@ -156,18 +145,7 @@ const AppContent = ({
 
 
 const App = () => {
-  const [users, setUsers] = useState<User[]>(() => {
-    const savedUsers = localStorage.getItem("inventory_users");
-    if (savedUsers) {
-      const parsedUsers = JSON.parse(savedUsers);
-      return parsedUsers.map((user: Omit<User, 'role' | 'isActive'> & Partial<User>) => ({
-        ...user,
-        role: user.role || 'Vendedor',
-        isActive: user.isActive !== undefined ? user.isActive : true,
-      }));
-    }
-    return [];
-  });
+  const { users, isUsersLoading, addUser, updateUser, deleteUser, toggleUserStatus } = useUsers();
   
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -197,10 +175,6 @@ const App = () => {
     const saved = localStorage.getItem("inventory_session_timeout");
     return saved ? JSON.parse(saved) : 30; // Default 30 minutes
   });
-
-  useEffect(() => {
-    localStorage.setItem("inventory_users", JSON.stringify(users));
-  }, [users]);
 
   useEffect(() => {
     localStorage.setItem("inventory_product_categories", JSON.stringify(productCategories));
@@ -236,21 +210,8 @@ const App = () => {
     setActiveUser(null);
   };
 
-  const handleCreateUser = (newUser: Omit<User, "id" | "role" | "isActive">) => {
-    if (users.some(u => u.businessName.toLowerCase() === newUser.businessName.toLowerCase())) {
-      toast.error("Ya existe un negocio con ese nombre.");
-      return;
-    }
-    const userWithId: User = { 
-      ...newUser, 
-      id: crypto.randomUUID(), 
-      currency: 'COP', 
-      language: 'es',
-      role: 'Vendedor',
-      isActive: true,
-    };
-    setUsers(prev => [...prev, userWithId]);
-    toast.success("Usuario creado con éxito!");
+  const handleCreateUser = (newUser: UserFormData) => {
+    addUser(newUser);
   };
   
   const handleDeleteUser = (userId: string, pin: string) => {
@@ -265,17 +226,13 @@ const App = () => {
       return false;
     }
 
-    setUsers(prev => prev.filter(u => u.id !== userId));
+    deleteUser(userId);
     toast.success(`El negocio "${userToDelete.businessName}" ha sido eliminado.`);
     return true;
   };
 
-  const handleUpdateUser = (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
-    setUsers(prevUsers =>
-      prevUsers.map(user =>
-        user.id === userId ? { ...user, ...updatedData } : user
-      )
-    );
+  const handleUpdateUser = async (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
+    await updateUser({ userId, data: updatedData });
     setActiveUser(prevActiveUser => {
       if (prevActiveUser && prevActiveUser.id === userId) {
         return { ...prevActiveUser, ...updatedData };
@@ -285,7 +242,7 @@ const App = () => {
     toast.success("Los datos del negocio se han actualizado correctamente.");
   };
 
-  const handleEditUser = (userId: string, pin: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
+  const handleEditUser = async (userId: string, pin: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
     const userToEdit = users.find(u => u.id === userId);
     if (!userToEdit) {
       toast.error("Usuario no encontrado.");
@@ -296,30 +253,20 @@ const App = () => {
       toast.error("PIN incorrecto.");
       return false;
     }
-
-    setUsers(prevUsers =>
-      prevUsers.map(user =>
-        user.id === userId ? { ...user, ...updatedData } : user
-      )
-    );
-    toast.success("Los datos del negocio se han actualizado correctamente.");
-    return true;
+    
+    try {
+        await updateUser({ userId, data: updatedData });
+        return true;
+    } catch (e) {
+        return false;
+    }
   };
 
   const handleToggleUserStatus = (userId: string) => {
-    let userName = '';
-    let newStatus = false;
-    setUsers(prevUsers =>
-      prevUsers.map(user => {
-        if (user.id === userId) {
-          userName = user.name;
-          newStatus = !user.isActive;
-          return { ...user, isActive: !user.isActive };
-        }
-        return user;
-      })
-    );
-    toast.success(`La cuenta de ${userName} ha sido ${newStatus ? 'activada' : 'desactivada'}.`);
+    const user = users.find(u => u.id === userId);
+    if (user) {
+      toggleUserStatus({ userId, currentStatus: user.isActive, userName: user.name });
+    }
   };
 
   const handleAdminLogin = (pin: string) => {
@@ -381,6 +328,7 @@ const App = () => {
         <Sonner />
         <AppContent
           users={users}
+          isUsersLoading={isUsersLoading}
           activeUser={activeUser}
           isAdmin={isAdmin}
           handleLogin={handleLogin}

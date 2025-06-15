@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { User } from '@/App';
+import type { User } from '@/types/user';
 
 const ROLES = ['Administrador', 'Vendedor', 'Inventarista', 'Consultor'] as const;
 
@@ -46,7 +46,7 @@ interface EditUserDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   user: User;
-  onEditUser: (userId: string, pin: string, data: Partial<Omit<User, 'id' | 'pin'>>) => boolean;
+  onEditUser: (userId: string, pin: string, data: Partial<Omit<User, 'id' | 'pin'>>) => Promise<boolean>;
 }
 
 export const EditUserDialog: React.FC<EditUserDialogProps> = ({ isOpen, onOpenChange, user, onEditUser }) => {
@@ -73,8 +73,8 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({ isOpen, onOpenCh
     }
   }, [user, isOpen, form]);
 
-  const onSubmit = (values: FormValues) => {
-    const success = onEditUser(user.id, values.pin, {
+  const onSubmit = async (values: FormValues) => {
+    const success = await onEditUser(user.id, values.pin, {
       name: values.name,
       businessName: values.businessName,
       logoUrl: values.logoUrl || undefined,

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { LoginDialog } from '@/components/LoginDialog';
-import type { User as UserType } from '@/App';
+import type { User as UserType } from '@/types/user';
 import { Building, User as UserIcon } from 'lucide-react';
 import { AdminAuthDialog } from '@/components/AdminAuthDialog';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 interface UserAuthProps {
   users: UserType[];
   onLogin: (user: UserType, pin: string) => boolean;
-  onCreateUser: (user: Omit<UserType, 'id'>) => void;
+  onCreateUser: (user: Omit<UserType, 'id' | 'role' | 'isActive'>) => void;
   onAdminLogin: (pin: string) => boolean;
 }
 
