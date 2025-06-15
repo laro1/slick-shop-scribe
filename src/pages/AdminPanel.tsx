@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { User } from '@/App';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { EditUserDialog } from '@/components/EditUserDialog';
@@ -51,34 +51,65 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onE
           </div>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Gestión de Usuarios</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <UserManagement
-              users={users}
-              onToggleUserStatus={onToggleUserStatus}
-              onEditUserClick={setUserToEdit}
-              onDeleteUserClick={setUserToDelete}
-            />
-          </CardContent>
-        </Card>
+        <Accordion type="single" collapsible defaultValue="user-management" className="w-full space-y-6">
+          <Card>
+            <AccordionItem value="user-management" className="border-b-0">
+              <AccordionTrigger className="p-6 text-left hover:no-underline">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold">Gestión de Usuarios</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Activa, desactiva, edita o elimina usuarios del sistema.</p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6">
+                <UserManagement
+                  users={users}
+                  onToggleUserStatus={onToggleUserStatus}
+                  onEditUserClick={setUserToEdit}
+                  onDeleteUserClick={setUserToDelete}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Card>
 
-        <InventorySettings
-          productCategories={productCategories}
-          onAddCategory={onAddCategory}
-          onDeleteCategory={onDeleteCategory}
-          lowStockThreshold={lowStockThreshold}
-          onSetLowStockThreshold={onSetLowStockThreshold}
-          enableLotAndExpiry={enableLotAndExpiry}
-          onSetEnableLotAndExpiry={onSetEnableLotAndExpiry}
-        />
+          <Card>
+            <AccordionItem value="inventory-settings" className="border-b-0">
+              <AccordionTrigger className="p-6 text-left hover:no-underline">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold">Configuración de Inventario</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Gestiona las categorías, alertas de stock y control de lotes.</p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6">
+                <InventorySettings
+                  productCategories={productCategories}
+                  onAddCategory={onAddCategory}
+                  onDeleteCategory={onDeleteCategory}
+                  lowStockThreshold={lowStockThreshold}
+                  onSetLowStockThreshold={onSetLowStockThreshold}
+                  enableLotAndExpiry={enableLotAndExpiry}
+                  onSetEnableLotAndExpiry={onSetEnableLotAndExpiry}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Card>
 
-        <SecuritySettings 
-          sessionTimeout={sessionTimeout}
-          onSetSessionTimeout={onSetSessionTimeout}
-        />
+          <Card>
+            <AccordionItem value="security-settings" className="border-b-0">
+               <AccordionTrigger className="p-6 text-left hover:no-underline">
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold">Acceso y Seguridad</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Configura opciones de seguridad para las sesiones de los usuarios.</p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6">
+                <SecuritySettings 
+                  sessionTimeout={sessionTimeout}
+                  onSetSessionTimeout={onSetSessionTimeout}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Card>
+        </Accordion>
       </div>
 
       <CreateUserDialog
