@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { LoginDialog } from '@/components/LoginDialog';
-import type { User } from '@/App';
-import { Building, User as UserIcon, Trash2, MoreHorizontal } from 'lucide-react';
+import type { User as UserType } from '@/App';
+import { Building, User, Trash2, MoreHorizontal } from 'lucide-react';
 import { DeleteUserDialog } from '@/components/DeleteUserDialog';
 import { EditUserDialog } from '@/components/EditUserDialog';
 import {
@@ -13,37 +14,49 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { AdminAuthDialog } from '@/components/AdminAuthDialog';
 
 interface UserAuthProps {
-  users: User[];
-  onLogin: (user: User, pin: string) => boolean;
-  onCreateUser: (user: Omit<User, 'id'>) => void;
+  users: UserType[];
+  onLogin: (user: UserType, pin: string) => boolean;
+  onCreateUser: (user: Omit<UserType, 'id'>) => void;
   onDeleteUser: (userId: string, pin: string) => boolean;
-  onEditUser: (userId: string, pin: string, data: Partial<Omit<User, 'id' | 'pin'>>) => boolean;
+  onEditUser: (userId: string, pin: string, data: Partial<Omit<UserType, 'id' | 'pin'>>) => boolean;
 }
 
 export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser, onDeleteUser, onEditUser }) => {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
+  const [userToEdit, setUserToEdit] = useState<UserType | null>(null);
+  const [isAdminAuthOpen, setAdminAuthOpen] = useState(false);
 
-  const handleSelectUser = (user: User) => {
+  const handleSelectUser = (user: UserType) => {
     setSelectedUser(user);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, user: User) => {
+  const handleDeleteClick = (e: React.MouseEvent, user: UserType) => {
     e.stopPropagation();
     setUserToDelete(user);
   };
 
-  const handleEditClick = (e: React.MouseEvent, user: User) => {
+  const handleEditClick = (e: React.MouseEvent, user: UserType) => {
     e.stopPropagation();
     setUserToEdit(user);
   };
 
   return (
-    <div className="min-h-screen bg-muted/40 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-muted/40 flex flex-col items-center justify-center p-4 relative">
+      <div className="absolute top-4 left-4">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setAdminAuthOpen(true)}
+          aria-label="Configuración de Administrador"
+        >
+          <User className="h-6 w-6" />
+        </Button>
+      </div>
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold tracking-tight">Bienvenido</h1>
@@ -97,7 +110,7 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-center text-sm text-muted-foreground">
-                      <UserIcon className="w-4 h-4 mr-2" />
+                      <User className="w-4 h-4 mr-2" />
                       <span>{user.name}</span>
                     </div>
                   </CardContent>
@@ -149,6 +162,7 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           onEditUser={onEditUser}
         />
       )}
+      <AdminAuthDialog isOpen={isAdminAuthOpen} onOpenChange={setAdminAuthOpen} />
     </div>
   );
 };
