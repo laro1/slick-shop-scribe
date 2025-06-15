@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner, toast } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -108,6 +107,21 @@ const App = () => {
     return true;
   };
 
+  const handleUpdateUser = (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === userId ? { ...user, ...updatedData } : user
+      )
+    );
+    setActiveUser(prevActiveUser => {
+      if (prevActiveUser && prevActiveUser.id === userId) {
+        return { ...prevActiveUser, ...updatedData };
+      }
+      return prevActiveUser;
+    });
+    toast.success("Los datos del negocio se han actualizado correctamente.");
+  };
+
   const inventoryActions = {
     addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
       if (!activeUser) return;
@@ -186,6 +200,7 @@ const App = () => {
               <Index 
                 currentUser={activeUser}
                 onLogout={handleLogout}
+                onUpdateUser={handleUpdateUser}
                 articles={currentUserData.articles}
                 sales={currentUserData.sales}
                 addArticle={inventoryActions.addArticle}

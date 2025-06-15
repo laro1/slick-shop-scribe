@@ -21,10 +21,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SettingsPage } from '@/pages/SettingsPage';
 
 interface IndexProps extends UserData {
   currentUser: User;
   onLogout: () => void;
+  onUpdateUser: (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => void;
   addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => void;
   updateArticle: (updatedArticle: Article) => void;
   deleteArticle: (articleId: string) => void;
@@ -36,6 +38,7 @@ interface IndexProps extends UserData {
 const Index: React.FC<IndexProps> = ({
   currentUser,
   onLogout,
+  onUpdateUser,
   articles,
   sales,
   addArticle,
@@ -56,6 +59,7 @@ const Index: React.FC<IndexProps> = ({
     articulo: 'Gestión de Artículos',
     sales: 'Gestión de Ventas',
     inventory: 'Gestión de Inventario',
+    settings: 'Configuración',
   };
 
   return (
@@ -240,6 +244,13 @@ const Index: React.FC<IndexProps> = ({
                     onDeleteSale={deleteSale}
                   />
                 </div>
+              )}
+
+              {activeTab === 'settings' && (
+                <SettingsPage 
+                  currentUser={currentUser} 
+                  onUpdateUser={onUpdateUser}
+                />
               )}
             </div>
           </main>
