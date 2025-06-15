@@ -90,6 +90,16 @@ const App = () => {
     return 5; // Default threshold
   });
 
+  const [enableLotAndExpiry, setEnableLotAndExpiry] = useState<boolean>(() => {
+    const saved = localStorage.getItem("inventory_lot_expiry_enabled");
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const [sessionTimeout, setSessionTimeout] = useState<number>(() => {
+    const saved = localStorage.getItem("inventory_session_timeout");
+    return saved ? JSON.parse(saved) : 30; // Default 30 minutes
+  });
+
   useEffect(() => {
     localStorage.setItem("inventory_users", JSON.stringify(users));
   }, [users]);
@@ -105,6 +115,14 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("inventory_low_stock_threshold", JSON.stringify(lowStockThreshold));
   }, [lowStockThreshold]);
+
+  useEffect(() => {
+    localStorage.setItem("inventory_lot_expiry_enabled", JSON.stringify(enableLotAndExpiry));
+  }, [enableLotAndExpiry]);
+
+  useEffect(() => {
+    localStorage.setItem("inventory_session_timeout", JSON.stringify(sessionTimeout));
+  }, [sessionTimeout]);
 
   const handleLogin = (user: User, pin: string) => {
     if (!user.isActive) {
@@ -255,6 +273,20 @@ const App = () => {
     }
   };
 
+  const handleSetEnableLotAndExpiry = (enabled: boolean) => {
+    setEnableLotAndExpiry(enabled);
+    toast.success(`Seguimiento de lotes y caducidad ${enabled ? 'activado' : 'desactivado'}.`);
+  };
+
+  const handleSetSessionTimeout = (minutes: number) => {
+    if (minutes > 0) {
+      setSessionTimeout(minutes);
+      toast.success(`Tiempo de expiración de sesión configurado a ${minutes} minutos.`);
+    } else {
+      toast.error("El tiempo de expiración debe ser mayor a 0.");
+    }
+  };
+
   const inventoryActions = {
     addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
       if (!activeUser) return;
@@ -346,6 +378,10 @@ const App = () => {
                     onDeleteCategory={handleDeleteCategory}
                     lowStockThreshold={lowStockThreshold}
                     onSetLowStockThreshold={handleSetLowStockThreshold}
+                    enableLotAndExpiry={enableLotAndExpiry}
+                    onSetEnableLotAndExpiry={handleSetEnableLotAndExpiry}
+                    sessionTimeout={sessionTimeout}
+                    onSetSessionTimeout={handleSetSessionTimeout}
                   />
                 : <Navigate to="/" />
             } />

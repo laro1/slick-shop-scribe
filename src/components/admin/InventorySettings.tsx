@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface InventorySettingsProps {
   productCategories: string[];
@@ -11,9 +13,11 @@ interface InventorySettingsProps {
   onDeleteCategory: (category: string) => void;
   lowStockThreshold: number;
   onSetLowStockThreshold: (threshold: number) => void;
+  enableLotAndExpiry: boolean;
+  onSetEnableLotAndExpiry: (enabled: boolean) => void;
 }
 
-export const InventorySettings: React.FC<InventorySettingsProps> = ({ productCategories, onAddCategory, onDeleteCategory, lowStockThreshold, onSetLowStockThreshold }) => {
+export const InventorySettings: React.FC<InventorySettingsProps> = ({ productCategories, onAddCategory, onDeleteCategory, lowStockThreshold, onSetLowStockThreshold, enableLotAndExpiry, onSetEnableLotAndExpiry }) => {
   const [newCategory, setNewCategory] = useState('');
   const [threshold, setThreshold] = useState(lowStockThreshold.toString());
 
@@ -90,9 +94,17 @@ export const InventorySettings: React.FC<InventorySettingsProps> = ({ productCat
 
         <div className="border-t pt-6 mt-6">
           <h3 className="text-lg font-medium">Control de Lotes y Caducidad</h3>
-          <p className="text-sm text-muted-foreground">
-            Próximamente: Activa y gestiona el seguimiento de productos por lote o fecha de caducidad.
+          <p className="text-sm text-muted-foreground mb-4">
+            Activa esta opción para poder añadir lotes y fechas de caducidad a los productos. Esta función se aplicará al crear o editar artículos.
           </p>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="lot-expiry-switch"
+              checked={enableLotAndExpiry}
+              onCheckedChange={onSetEnableLotAndExpiry}
+            />
+            <Label htmlFor="lot-expiry-switch">Habilitar seguimiento de lotes y caducidad</Label>
+          </div>
         </div>
       </CardContent>
     </Card>

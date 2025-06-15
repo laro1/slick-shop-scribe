@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { EditUserDialog } from '@/components/EditUserDialog';
 import { DeleteUserDialog } from '@/components/DeleteUserDialog';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { InventorySettings } from '@/components/admin/InventorySettings';
+import { SecuritySettings } from '@/components/admin/SecuritySettings';
 
 interface AdminPanelProps {
   users: User[];
@@ -21,9 +23,13 @@ interface AdminPanelProps {
   onDeleteCategory: (category: string) => void;
   lowStockThreshold: number;
   onSetLowStockThreshold: (threshold: number) => void;
+  enableLotAndExpiry: boolean;
+  onSetEnableLotAndExpiry: (enabled: boolean) => void;
+  sessionTimeout: number;
+  onSetSessionTimeout: (minutes: number) => void;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onEditUser, onDeleteUser, onAdminLogout, onToggleUserStatus, productCategories, onAddCategory, onDeleteCategory, lowStockThreshold, onSetLowStockThreshold }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onEditUser, onDeleteUser, onAdminLogout, onToggleUserStatus, productCategories, onAddCategory, onDeleteCategory, lowStockThreshold, onSetLowStockThreshold, enableLotAndExpiry, onSetEnableLotAndExpiry, sessionTimeout, onSetSessionTimeout }) => {
   const navigate = useNavigate();
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
@@ -65,6 +71,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onE
           onDeleteCategory={onDeleteCategory}
           lowStockThreshold={lowStockThreshold}
           onSetLowStockThreshold={onSetLowStockThreshold}
+          enableLotAndExpiry={enableLotAndExpiry}
+          onSetEnableLotAndExpiry={onSetEnableLotAndExpiry}
+        />
+
+        <SecuritySettings 
+          sessionTimeout={sessionTimeout}
+          onSetSessionTimeout={onSetSessionTimeout}
         />
       </div>
 
