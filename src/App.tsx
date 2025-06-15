@@ -10,6 +10,8 @@ import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
 import type { Article, Sale } from "@/types/inventory";
 
+export type UserRole = 'Administrador' | 'Vendedor' | 'Inventarista' | 'Consultor';
+
 export interface User {
   id: string;
   name: string;
@@ -18,6 +20,8 @@ export interface User {
   logoUrl?: string;
   currency?: string;
   language?: string;
+  role: UserRole;
+  isActive: boolean;
 }
 
 export interface UserData {
@@ -30,7 +34,16 @@ const queryClient = new QueryClient();
 const App = () => {
   const [users, setUsers] = useState<User[]>(() => {
     const savedUsers = localStorage.getItem("inventory_users");
-    return savedUsers ? JSON.parse(savedUsers) : [];
+    if (savedUsers) {
+      const parsedUsers = JSON.parse(savedUsers);
+      // Add default role and isActive for existing users for migration
+      return parsedUsers.map((user: Omit<User, 'role' | 'isActive'> & Partial<User>) => ({
+        ...user,
+        role: user.role || 'Vendedor',
+        isActive: user.isActive !== undefined ? user.isActive : true,
+      }));
+    }
+    return [];
   });
 
   const [data, setData] = useState<Record<string, UserData>>(() => {
@@ -70,6 +83,10 @@ const App = () => {
   }, [data]);
 
   const handleLogin = (user: User, pin: string) => {
+    if (!user.isActive) {
+      toast.error("Esta cuenta está desactivada. Contacta al administrador.");
+      return false;
+    }
     if (user.pin === pin) {
       setActiveUser(user);
       toast.success(`Bienvenido, ${user.name}!`);
@@ -83,12 +100,19 @@ const App = () => {
     setActiveUser(null);
   };
 
-  const handleCreateUser = (newUser: Omit<User, "id">) => {
+  const handleCreateUser = (newUser: Omit<User, "id" | "role" | "isActive">) => {
     if (users.some(u => u.businessName.toLowerCase() === newUser.businessName.toLowerCase())) {
       toast.error("Ya existe un negocio con ese nombre.");
       return;
     }
-    const userWithId = { ...newUser, id: crypto.randomUUID(), currency: 'COP', language: 'es' };
+    const userWithId: User = { 
+      ...newUser, 
+      id: crypto.randomUUID(), 
+      currency: 'COP', 
+      language: 'es',
+      role: 'Vendedor',
+      isActive: true,
+    };
     setUsers(prev => [...prev, userWithId]);
     setData(prev => ({ ...prev, [userWithId.id]: { articles: [], sales: [] } }));
     toast.success("Usuario creado con éxito!");
@@ -151,6 +175,22 @@ const App = () => {
     );
     toast.success("Los datos del negocio se han actualizado correctamente.");
     return true;
+  };
+
+  const handleToggleUserStatus = (userId: string) => {
+    let userName = '';
+    let newStatus = false;
+    setUsers(prevUsers =>
+      prevUsers.map(user => {
+        if (user.id === userId) {
+          userName = user.name;
+          newStatus = !user.isActive;
+          return { ...user, isActive: !user.isActive };
+        }
+        return user;
+      })
+    );
+    toast.success(`La cuenta de ${userName} ha sido ${newStatus ? 'activada' : 'desactivada'}.`);
   };
 
   const handleAdminLogin = (pin: string) => {
@@ -253,6 +293,7 @@ const App = () => {
                     onEditUser={handleEditUser}
                     onDeleteUser={handleDeleteUser}
                     onAdminLogout={handleAdminLogout}
+                    onToggleUserStatus={handleToggleUserStatus}
                   />
                 : <Navigate to="/" />
             } />

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,13 +20,23 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import type { User } from '@/App';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { User, UserRole } from '@/App';
+
+const ROLES: UserRole[] = ['Administrador', 'Vendedor', 'Inventarista', 'Consultor'];
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   businessName: z.string().min(2, { message: "El nombre del negocio debe tener al menos 2 caracteres." }),
   logoUrl: z.string().url({ message: "Por favor, introduce una URL válida." }).optional().or(z.literal('')),
   pin: z.string().length(4, { message: "El PIN debe tener exactamente 4 dígitos." }).regex(/^\d+$/, "El PIN solo debe contener números."),
+  role: z.enum(ROLES),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,6 +56,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({ isOpen, onOpenCh
       businessName: '',
       logoUrl: '',
       pin: '',
+      role: 'Vendedor',
     },
   });
 
@@ -57,6 +67,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({ isOpen, onOpenCh
         businessName: user.businessName,
         logoUrl: user.logoUrl || '',
         pin: '',
+        role: user.role,
       });
     }
   }, [user, isOpen, form]);
@@ -66,6 +77,7 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({ isOpen, onOpenCh
       name: values.name,
       businessName: values.businessName,
       logoUrl: values.logoUrl || undefined,
+      role: values.role,
     });
     
     if (success) {
@@ -119,6 +131,28 @@ export const EditUserDialog: React.FC<EditUserDialogProps> = ({ isOpen, onOpenCh
                   <FormControl>
                     <Input placeholder="https://ejemplo.com/logo.png" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Rol del Usuario</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione un rol" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ROLES.map(role => (
+                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
