@@ -1,6 +1,33 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
+
+// --- Interfaces para la forma de los datos de Supabase ---
+// Esto es necesario porque los tipos autogenerados pueden estar desactualizados.
+interface SupabaseArticleRow {
+    id: string;
+    name: string;
+    image_url: string;
+    price: number;
+    stock: number;
+    created_at: string;
+}
+
+interface SupabaseSaleRow {
+    id: string;
+    item_id: string;
+    article_name: string;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+    buyer_name: string;
+    sale_date: string;
+    payment_method: 'efectivo' | 'transferencia' | 'sinabono';
+    bank_name: string | null;
+    amount_paid: number;
+}
+
 
 // --- Funciones auxiliares para Supabase ---
 
@@ -53,9 +80,14 @@ export const useInventory = () => {
               .select('id, name, image_url, price, stock, created_at')
               .order('created_at', { ascending: false });
             if (error) throw new Error(error.message);
-            return data.map(item => ({
-                ...item,
+            
+            // Forzar el tipo de dato para evitar errores con tipos autogenerados desactualizados
+            return (data as SupabaseArticleRow[]).map(item => ({
+                id: item.id,
+                name: item.name,
                 imageUrl: item.image_url,
+                price: item.price,
+                stock: item.stock,
                 createdAt: new Date(item.created_at),
             }));
         },
@@ -70,7 +102,9 @@ export const useInventory = () => {
               .select('id, item_id, article_name, quantity, unit_price, total_price, buyer_name, sale_date, payment_method, bank_name, amount_paid')
               .order('sale_date', { ascending: false });
             if (error) throw new Error(error.message);
-            return data.map(sale => ({
+            
+            // Forzar el tipo de dato para evitar errores con tipos autogenerados desactualizados
+            return (data as SupabaseSaleRow[]).map(sale => ({
                 id: sale.id,
                 articleId: sale.item_id,
                 articleName: sale.article_name,
@@ -79,7 +113,7 @@ export const useInventory = () => {
                 totalPrice: sale.total_price,
                 buyerName: sale.buyer_name,
                 saleDate: new Date(sale.sale_date),
-                paymentMethod: sale.payment_method as Sale['paymentMethod'],
+                paymentMethod: sale.payment_method,
                 bankName: sale.bank_name || undefined,
                 amountPaid: sale.amount_paid,
             }));
