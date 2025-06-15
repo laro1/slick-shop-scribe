@@ -1,4 +1,3 @@
-
 {
   "general_settings": "Configuración General",
   "update_business_data": "Actualiza los datos generales de tu negocio. El PIN no se puede cambiar desde aquí.",
@@ -95,5 +94,16 @@
   "amount_paid_required": "El monto es requerido",
   "amount_paid_not_negative": "El monto no puede ser negativo",
   "amount_paid_must_be_zero": "Con \"Sin abono\", el monto debe ser 0",
-  "amount_paid_too_high": "El monto no puede ser mayor al total ({totalPrice})"
+  "amount_paid_too_high": "El monto no puede ser mayor al total ({totalPrice})",
+  "welcome": "Bienvenido",
+  "select_or_create_business": "Selecciona tu negocio para continuar o crea uno nuevo.",
+  "admin_settings": "Configuración de Administrador",
+  "no_businesses_registered": "No hay negocios registrados",
+  "create_first_business_prompt": "Crea el primer negocio para empezar a gestionar tu inventario.",
+  "create_new_business": "Crear Nuevo Negocio",
+  "login_to_business": "Iniciar Sesión en {businessName}",
+  "enter_4_digit_pin": "Introduce tu PIN de 4 dígitos para acceder.",
+  "pin_must_be_4_digits": "El PIN debe tener 4 dígitos.",
+  "incorrect_pin_try_again": "PIN incorrecto. Inténtalo de nuevo.",
+  "login_button": "Entrar"
 }

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import type { User } from '@/types/user';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -23,11 +24,12 @@ interface LoginDialogProps {
 export const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onOpenChange, user, onLogin }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pin.length !== 4) {
-      setError("El PIN debe tener 4 dígitos.");
+      setError(t('pin_must_be_4_digits'));
       return;
     }
     const success = onLogin(user, pin);
@@ -36,7 +38,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onOpenChange, 
       setPin('');
       setError('');
     } else {
-       setError('PIN incorrecto. Inténtalo de nuevo.');
+       setError(t('incorrect_pin_try_again'));
     }
   };
   
@@ -52,9 +54,9 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onOpenChange, 
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Iniciar Sesión en {user.businessName}</DialogTitle>
+          <DialogTitle>{t('login_to_business', { businessName: user.businessName })}</DialogTitle>
           <DialogDescription>
-            Introduce tu PIN de 4 dígitos para acceder.
+            {t('enter_4_digit_pin')}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -72,7 +74,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onOpenChange, 
             {error && <p className="text-sm font-medium text-destructive text-center">{error}</p>}
           </div>
           <DialogFooter>
-            <Button type="submit">Entrar</Button>
+            <Button type="submit">{t('login_button')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

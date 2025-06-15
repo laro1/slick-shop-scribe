@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { LoginDialog } from '@/components/LoginDialog';
 import type { User as UserType } from '@/types/user';
-import { Building, User as UserIcon } from 'lucide-react';
+import { Building, User as UserIcon, Languages } from 'lucide-react';
 import { AdminAuthDialog } from '@/components/AdminAuthDialog';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface UserAuthProps {
   users: UserType[];
@@ -21,6 +23,11 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [isAdminAuthOpen, setAdminAuthOpen] = useState(false);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+  };
 
   const handleAdminVerify = (pin: string) => {
     const success = onAdminLogin(pin);
@@ -41,15 +48,27 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           variant="ghost" 
           size="icon" 
           onClick={() => setAdminAuthOpen(true)}
-          aria-label="Configuración de Administrador"
+          aria-label={t('admin_settings')}
         >
           <UserIcon className="h-6 w-6" />
         </Button>
       </div>
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <Languages className="h-5 w-5 text-muted-foreground" />
+        <Select onValueChange={handleLanguageChange} defaultValue={i18n.language}>
+          <SelectTrigger className="w-auto border-none bg-transparent shadow-none focus:ring-0">
+            <SelectValue placeholder={t('select_language')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="es">{t('language_es')}</SelectItem>
+            <SelectItem value="en">{t('language_en')}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">Bienvenido</h1>
-          <p className="text-muted-foreground mt-2">Selecciona tu negocio para continuar o crea uno nuevo.</p>
+          <h1 className="text-4xl font-bold tracking-tight">{t('welcome')}</h1>
+          <p className="text-muted-foreground mt-2">{t('select_or_create_business')}</p>
         </div>
 
         {users.length > 0 ? (
@@ -81,13 +100,13 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           </div>
         ) : (
           <div className="text-center py-10 border-2 border-dashed rounded-lg">
-             <h3 className="text-lg font-semibold">No hay negocios registrados</h3>
-             <p className="text-muted-foreground mt-1">Crea el primer negocio para empezar a gestionar tu inventario.</p>
+             <h3 className="text-lg font-semibold">{t('no_businesses_registered')}</h3>
+             <p className="text-muted-foreground mt-1">{t('create_first_business_prompt')}</p>
           </div>
         )}
 
         <div className="mt-10 text-center">
-          <Button onClick={() => setCreateOpen(true)}>Crear Nuevo Negocio</Button>
+          <Button onClick={() => setCreateOpen(true)}>{t('create_new_business')}</Button>
         </div>
       </div>
       
