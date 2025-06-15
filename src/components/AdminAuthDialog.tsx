@@ -36,9 +36,10 @@ const formSchema = z.object({
 interface AdminAuthDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  onSuccess: () => void;
 }
 
-export const AdminAuthDialog: React.FC<AdminAuthDialogProps> = ({ isOpen, onOpenChange }) => {
+export const AdminAuthDialog: React.FC<AdminAuthDialogProps> = ({ isOpen, onOpenChange, onSuccess }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,6 +50,7 @@ export const AdminAuthDialog: React.FC<AdminAuthDialogProps> = ({ isOpen, onOpen
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (values.pin === ADMIN_PIN) {
       toast.success('Acceso de administrador concedido.');
+      onSuccess();
       onOpenChange(false);
       form.reset();
     } else {

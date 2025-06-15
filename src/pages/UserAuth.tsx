@@ -30,6 +30,11 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
   const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
   const [userToEdit, setUserToEdit] = useState<UserType | null>(null);
   const [isAdminAuthOpen, setAdminAuthOpen] = useState(false);
+  const [isAdminMode, setAdminMode] = useState(false);
+
+  const handleAdminSuccess = () => {
+    setAdminMode(true);
+  };
 
   const handleSelectUser = (user: UserType) => {
     setSelectedUser(user);
@@ -68,34 +73,36 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
             {users.map((user) => (
               <Card 
                 key={user.id} 
-                className="text-center relative group"
+                className="text-center relative"
               >
-                <div className="absolute top-2 right-2 z-10">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Abrir menú</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e) => handleEditClick(e, user)}>
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        className="text-destructive focus:text-destructive" 
-                        onClick={(e) => handleDeleteClick(e, user)}
-                      >
-                        Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                {isAdminMode && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Abrir menú</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => handleEditClick(e, user)}>
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive focus:text-destructive" 
+                          onClick={(e) => handleDeleteClick(e, user)}
+                        >
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
 
                 <div className="cursor-pointer" onClick={() => handleSelectUser(user)}>
                   <CardHeader className="items-center pt-8">
@@ -162,7 +169,7 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           onEditUser={onEditUser}
         />
       )}
-      <AdminAuthDialog isOpen={isAdminAuthOpen} onOpenChange={setAdminAuthOpen} />
+      <AdminAuthDialog isOpen={isAdminAuthOpen} onOpenChange={setAdminAuthOpen} onSuccess={handleAdminSuccess} />
     </div>
   );
 };
