@@ -1,9 +1,8 @@
-
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'app.lovable.fb3315d3d0ef46bba75c5e0cb30159f1',
-  appName: 'BDinventoryShell',
+  appName: 'BDsale',
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
@@ -13,4 +12,3 @@ const config: CapacitorConfig = {
 };
 
 export default config;
-
