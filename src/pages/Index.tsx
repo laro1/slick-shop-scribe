@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -9,8 +10,8 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
-import type { User, UserData } from '@/App';
-import type { Article, Sale } from '@/types/inventory';
+import type { User } from '@/App';
+import type { Article, Sale, ArticleFormData, EditArticleData, SaleFormData, EditSaleData } from '@/types/inventory';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,16 +23,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SettingsPage } from '@/pages/SettingsPage';
 
-interface IndexProps extends UserData {
+interface IndexProps {
   currentUser: User;
   onLogout: () => void;
   onUpdateUser: (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => void;
-  addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => void;
-  updateArticle: (updatedArticle: Article) => void;
-  deleteArticle: (articleId: string) => void;
-  addSale: (sale: Omit<Sale, 'id'>) => void;
-  updateSale: (updatedSale: Sale) => void;
-  deleteSale: (saleId: string) => void;
+  articles: Article[];
+  sales: Sale[];
+  addArticle: (data: ArticleFormData) => void;
+  updateArticle: (data: EditArticleData) => void;
+  deleteArticle: (id: string) => void;
+  addSale: (data: SaleFormData) => void;
+  updateSale: (data: EditSaleData) => void;
+  deleteSale: (id: string) => void;
 }
 
 const Index: React.FC<IndexProps> = ({

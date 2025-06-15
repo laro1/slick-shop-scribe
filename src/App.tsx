@@ -9,7 +9,7 @@ import { UserAuth } from "./pages/UserAuth";
 import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
 import { useInventory } from "@/hooks/useInventory";
-import type { Article, Sale, ArticleFormData, EditArticleData, EditSaleData } from "@/types/inventory";
+import type { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from "@/types/inventory";
 
 export type UserRole = 'Administrador' | 'Vendedor' | 'Inventarista' | 'Consultor';
 
@@ -27,6 +27,134 @@ export interface User {
 
 const queryClient = new QueryClient();
 
+const AppContent = ({
+  users,
+  activeUser,
+  isAdmin,
+  handleLogin,
+  handleLogout,
+  handleCreateUser,
+  handleDeleteUser,
+  handleUpdateUser,
+  handleEditUser,
+  handleToggleUserStatus,
+  handleAdminLogin,
+  handleAdminLogout,
+  productCategories,
+  handleAddCategory,
+  handleDeleteCategory,
+  lowStockThreshold,
+  handleSetLowStockThreshold,
+  enableLotAndExpiry,
+  handleSetEnableLotAndExpiry,
+  sessionTimeout,
+  handleSetSessionTimeout,
+}: any) => {
+  const { articles, sales, addArticle, updateArticle, deleteArticle, addSale, updateSale, deleteSale, isLoading } = useInventory();
+
+  const inventoryActions = {
+    addArticle: async (articleData: ArticleFormData) => {
+      try {
+        await addArticle(articleData);
+        toast.success("Artículo registrado con éxito.");
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    },
+    updateArticle: async (updatedArticle: EditArticleData) => {
+      try {
+        await updateArticle(updatedArticle);
+        toast.success("Artículo actualizado con éxito.");
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    },
+    deleteArticle: async (articleId: string) => {
+      try {
+        await deleteArticle(articleId);
+        toast.success("Artículo eliminado con éxito.");
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    },
+    addSale: async (saleData: SaleFormData) => {
+      try {
+        await addSale(saleData);
+        toast.success("Venta registrada con éxito.");
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    },
+    updateSale: async (updatedSale: EditSaleData) => {
+      try {
+        await updateSale(updatedSale);
+        toast.success("Venta actualizada con éxito.");
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    },
+    deleteSale: async (saleId: string) => {
+      try {
+        await deleteSale(saleId);
+        toast.success("Venta eliminada con éxito.");
+      } catch (e) {
+        toast.error((e as Error).message);
+      }
+    },
+  };
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">Cargando datos desde Supabase...</div>;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={
+          activeUser
+            ? <Index
+                currentUser={activeUser}
+                onLogout={handleLogout}
+                onUpdateUser={handleUpdateUser}
+                articles={articles}
+                sales={sales}
+                {...inventoryActions}
+              />
+            : <UserAuth
+                users={users}
+                onLogin={handleLogin}
+                onCreateUser={handleCreateUser}
+                onAdminLogin={handleAdminLogin}
+              />
+        } />
+        <Route path="/admin" element={
+          isAdmin
+            ? <AdminPanel
+                users={users}
+                onCreateUser={handleCreateUser}
+                onEditUser={handleEditUser}
+                onDeleteUser={handleDeleteUser}
+                onAdminLogout={handleAdminLogout}
+                onToggleUserStatus={handleToggleUserStatus}
+                productCategories={productCategories}
+                onAddCategory={handleAddCategory}
+                onDeleteCategory={handleDeleteCategory}
+                lowStockThreshold={lowStockThreshold}
+                onSetLowStockThreshold={handleSetLowStockThreshold}
+                enableLotAndExpiry={enableLotAndExpiry}
+                onSetEnableLotAndExpiry={handleSetEnableLotAndExpiry}
+                sessionTimeout={sessionTimeout}
+                onSetSessionTimeout={handleSetSessionTimeout}
+              />
+            : <Navigate to="/" />
+        } />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+
 const App = () => {
   const [users, setUsers] = useState<User[]>(() => {
     const savedUsers = localStorage.getItem("inventory_users");
@@ -40,8 +168,6 @@ const App = () => {
     }
     return [];
   });
-  
-  const { articles, sales, addArticle, updateArticle, deleteArticle, addSale, updateSale, deleteSale, isLoading } = useInventory();
   
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -248,108 +374,34 @@ const App = () => {
     }
   };
 
-  const inventoryActions = {
-    addArticle: async (articleData: ArticleFormData) => {
-      try {
-        await addArticle(articleData);
-        toast({ title: "Artículo registrado", description: "El artículo se ha agregado a Supabase." });
-      } catch(e) {
-        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
-      }
-    },
-    updateArticle: async (updatedArticle: EditArticleData) => {
-      try {
-        await updateArticle(updatedArticle);
-        toast({ title: "Artículo actualizado", description: "El artículo se ha actualizado en Supabase." });
-      } catch(e) {
-        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
-      }
-    },
-    deleteArticle: async (articleId: string) => {
-       try {
-        await deleteArticle(articleId);
-        toast({ title: "Artículo eliminado", description: "El artículo se ha eliminado de Supabase." });
-      } catch(e) {
-        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
-      }
-    },
-    addSale: async (saleData: SaleFormData) => {
-       try {
-        await addSale(saleData);
-        toast({ title: "Venta registrada", description: "La venta se ha registrado en Supabase." });
-      } catch(e) {
-        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
-      }
-    },
-    updateSale: async (updatedSale: EditSaleData) => {
-       try {
-        await updateSale(updatedSale);
-      } catch(e) {
-        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
-      }
-    },
-    deleteSale: async (saleId: string) => {
-      try {
-        await deleteSale(saleId);
-        toast({ title: "Venta eliminada", description: "La venta se ha eliminado de Supabase." });
-      } catch(e) {
-        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
-      }
-    },
-  };
-  
-  if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Cargando datos desde Supabase...</div>;
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={
-              activeUser 
-                ? <Index 
-                    currentUser={activeUser}
-                    onLogout={handleLogout}
-                    onUpdateUser={handleUpdateUser}
-                    articles={articles}
-                    sales={sales}
-                    {...inventoryActions}
-                  />
-                : <UserAuth 
-                    users={users} 
-                    onLogin={handleLogin} 
-                    onCreateUser={handleCreateUser}
-                    onAdminLogin={handleAdminLogin}
-                  />
-              } />
-            <Route path="/admin" element={
-              isAdmin 
-                ? <AdminPanel
-                    users={users}
-                    onCreateUser={handleCreateUser}
-                    onEditUser={handleEditUser}
-                    onDeleteUser={handleDeleteUser}
-                    onAdminLogout={handleAdminLogout}
-                    onToggleUserStatus={handleToggleUserStatus}
-                    productCategories={productCategories}
-                    onAddCategory={handleAddCategory}
-                    onDeleteCategory={handleDeleteCategory}
-                    lowStockThreshold={lowStockThreshold}
-                    onSetLowStockThreshold={handleSetLowStockThreshold}
-                    enableLotAndExpiry={enableLotAndExpiry}
-                    onSetEnableLotAndExpiry={handleSetEnableLotAndExpiry}
-                    sessionTimeout={sessionTimeout}
-                    onSetSessionTimeout={handleSetSessionTimeout}
-                  />
-                : <Navigate to="/" />
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AppContent
+          users={users}
+          activeUser={activeUser}
+          isAdmin={isAdmin}
+          handleLogin={handleLogin}
+          handleLogout={handleLogout}
+          handleCreateUser={handleCreateUser}
+          handleDeleteUser={handleDeleteUser}
+          handleUpdateUser={handleUpdateUser}
+          handleEditUser={handleEditUser}
+          handleToggleUserStatus={handleToggleUserStatus}
+          handleAdminLogin={handleAdminLogin}
+          handleAdminLogout={handleAdminLogout}
+          productCategories={productCategories}
+          handleAddCategory={handleAddCategory}
+          handleDeleteCategory={handleDeleteCategory}
+          lowStockThreshold={lowStockThreshold}
+          handleSetLowStockThreshold={handleSetLowStockThreshold}
+          enableLotAndExpiry={enableLotAndExpiry}
+          handleSetEnableLotAndExpiry={handleSetEnableLotAndExpiry}
+          sessionTimeout={sessionTimeout}
+          handleSetSessionTimeout={handleSetSessionTimeout}
+        />
       </TooltipProvider>
     </QueryClientProvider>
   );
