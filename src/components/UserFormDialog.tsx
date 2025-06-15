@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,17 +32,13 @@ import {
 import { Switch } from '@/components/ui/switch';
 import type { SubUser } from '@/App';
 
-export type UserFormValues = {
-  name: string;
-  role: 'Administrador' | 'Vendedor' | 'Inventarista' | 'Consultor';
-  status: 'active' | 'inactive';
-};
-
-const formSchema: z.ZodType<UserFormValues> = z.object({
+const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  role: z.enum(['Administrador', 'Vendedor', 'Inventarista', 'Consultor'], { required_error: "Debes seleccionar un rol."}),
+  role: z.enum(['Administrador', 'Vendedor', 'Inventarista', 'Consultor']),
   status: z.enum(['active', 'inactive']),
 });
+
+export type UserFormValues = z.infer<typeof formSchema>;
 
 const defaultFormValues: UserFormValues = {
   name: '',
