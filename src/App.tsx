@@ -253,8 +253,8 @@ const App = () => {
                     currentUser={activeUser}
                     onLogout={handleLogout}
                     onUpdateUser={handleUpdateUser}
-                    articles={currentUserData.articles}
-                    sales={currentUserData.sales}
+                    articles={(data[activeUser.id] || { articles: [], sales: [] }).articles}
+                    sales={(data[activeUser.id] || { articles: [], sales: [] }).sales}
                     {...inventoryActions}
                   />
                 : <UserAuth 
