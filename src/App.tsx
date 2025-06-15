@@ -221,25 +221,6 @@ const App = () => {
     },
   };
 
-  if (!activeUser) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <UserAuth 
-            users={users} 
-            onLogin={handleLogin} 
-            onCreateUser={handleCreateUser} 
-            onAdminLogin={handleAdminLogin}
-          />
-        </TooltipProvider>
-      </QueryClientProvider>
-    );
-  }
-
-  const currentUserData = data[activeUser.id] || { articles: [], sales: [] };
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
