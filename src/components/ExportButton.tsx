@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
@@ -76,7 +77,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ articles, sales }) =
       disabled={!hasData}
     >
       <Download className="h-4 w-4 mr-2" />
-      <span>📤 Exportar Datos</span>
+      <span>Exportar Datos</span>
     </Button>
   );
 };
