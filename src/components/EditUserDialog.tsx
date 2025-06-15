@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,9 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { User, UserRole } from '@/App';
+import type { User } from '@/App';
 
-const ROLES: UserRole[] = ['Administrador', 'Vendedor', 'Inventarista', 'Consultor'];
+const ROLES = ['Administrador', 'Vendedor', 'Inventarista', 'Consultor'] as const;
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),

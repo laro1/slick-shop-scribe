@@ -33,7 +33,7 @@ const formSchema = z.object({
 interface CreateUserDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onCreateUser: (user: Omit<User, 'id'>) => void;
+  onCreateUser: (user: Omit<User, 'id' | 'role' | 'isActive'>) => void;
 }
 
 export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onOpenChange, onCreateUser }) => {
