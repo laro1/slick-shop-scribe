@@ -7,7 +7,7 @@ import { MoreHorizontal, UserPlus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { SubUser } from '@/App';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { UserFormDialog, type UserFormValues } from '@/components/UserFormDialog';
+import { UserFormDialog } from '@/components/UserFormDialog';
 
 interface UserManagementPageProps {
   subUsers: SubUser[];
@@ -30,7 +30,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = ({ subUsers
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = (values: UserFormValues | (UserFormValues & { id: string })) => {
+  const handleFormSubmit = (values: SubUser | Omit<SubUser, 'id'>) => {
     if ('id' in values) {
       updateSubUser(values);
     } else {

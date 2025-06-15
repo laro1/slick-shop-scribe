@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,7 +39,7 @@ const formSchema = z.object({
   status: z.enum(['active', 'inactive']),
 });
 
-export type UserFormValues = z.infer<typeof formSchema>;
+export type UserFormValues = Omit<SubUser, 'id'>;
 
 const defaultFormValues: UserFormValues = {
   name: '',
@@ -49,7 +50,7 @@ const defaultFormValues: UserFormValues = {
 interface UserFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (values: UserFormValues | (UserFormValues & { id: string })) => void;
+  onSubmit: (values: SubUser | Omit<SubUser, 'id'>) => void;
   user: SubUser | null;
 }
 
