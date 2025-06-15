@@ -58,11 +58,11 @@ const ThemePicker = ({ colorTheme, onSetColorTheme, darkMode, onSetDarkMode }: {
     <div>
         <Label className="text-sm font-medium text-foreground/80">Modo</Label>
         <div className="grid grid-cols-2 gap-2 mt-2">
-            <Button variant={!darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => onSetDarkMode(false)} className="justify-start gap-2 h-9 w-full px-4">
+            <Button variant={!darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => onSetDarkMode(false)} className="justify-start gap-2 h-9 w-full px-6">
                 <Sun className="h-4 w-4" />
                 Claro
             </Button>
-            <Button variant={darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => onSetDarkMode(true)} className="justify-start gap-2 h-9 w-full px-4">
+            <Button variant={darkMode ? 'secondary' : 'outline'} size="sm" onClick={() => onSetDarkMode(true)} className="justify-start gap-2 h-9 w-full px-6">
                 <Moon className="h-4 w-4" />
                 Oscuro
             </Button>
