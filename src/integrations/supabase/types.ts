@@ -11,22 +11,28 @@ export type Database = {
     Tables: {
       items: {
         Row: {
+          created_at: string
           description: string | null
           id: string
+          image_url: string | null
           name: string
           price: number
           stock: number
         }
         Insert: {
+          created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           name: string
           price: number
           stock?: number
         }
         Update: {
+          created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           name?: string
           price?: number
           stock?: number
@@ -35,28 +41,43 @@ export type Database = {
       }
       sales: {
         Row: {
+          amount_paid: number | null
+          article_name: string | null
+          bank_name: string | null
           buyer_name: string
           id: string
           item_id: string
+          payment_method: string | null
           quantity: number
           sale_date: string | null
           total_price: number
+          unit_price: number | null
         }
         Insert: {
+          amount_paid?: number | null
+          article_name?: string | null
+          bank_name?: string | null
           buyer_name: string
           id?: string
           item_id: string
+          payment_method?: string | null
           quantity: number
           sale_date?: string | null
           total_price: number
+          unit_price?: number | null
         }
         Update: {
+          amount_paid?: number | null
+          article_name?: string | null
+          bank_name?: string | null
           buyer_name?: string
           id?: string
           item_id?: string
+          payment_method?: string | null
           quantity?: number
           sale_date?: string | null
           total_price?: number
+          unit_price?: number | null
         }
         Relationships: [
           {

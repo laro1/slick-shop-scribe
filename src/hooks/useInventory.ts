@@ -82,7 +82,7 @@ export const useInventory = () => {
             if (error) throw new Error(error.message);
             
             // Forzar el tipo de dato para evitar errores con tipos autogenerados desactualizados
-            return (data as SupabaseArticleRow[]).map(item => ({
+            return (data as unknown as SupabaseArticleRow[]).map(item => ({
                 id: item.id,
                 name: item.name,
                 imageUrl: item.image_url,
@@ -104,7 +104,7 @@ export const useInventory = () => {
             if (error) throw new Error(error.message);
             
             // Forzar el tipo de dato para evitar errores con tipos autogenerados desactualizados
-            return (data as SupabaseSaleRow[]).map(sale => ({
+            return (data as unknown as SupabaseSaleRow[]).map(sale => ({
                 id: sale.id,
                 articleId: sale.item_id,
                 articleName: sale.article_name,
