@@ -4,10 +4,23 @@ import { supabase } from '@/integrations/supabase/client';
 import type { User, UserFormData } from '@/types/user';
 import { toast } from 'sonner';
 
+const fromSupabase = (data: any): User | null => {
+  if (!data) return null;
+  return {
+    id: data.id,
+    name: data.name,
+    businessName: data.business_name,
+    pin: data.pin,
+    logoUrl: data.logo_url,
+    role: data.role,
+    isActive: data.is_active,
+  };
+}
+
 const fetchUsers = async (): Promise<User[]> => {
   const { data, error } = await supabase.from('users').select('*').order('created_at');
   if (error) throw new Error(error.message);
-  return data as User[];
+  return data.map(fromSupabase).filter(Boolean) as User[];
 };
 
 export const useUsers = () => {
@@ -20,11 +33,16 @@ export const useUsers = () => {
 
   const addUserMutation = useMutation({
     mutationFn: async (newUser: UserFormData) => {
-      const { data: existing } = await supabase.from('users').select('id').eq('businessName', newUser.businessName).single();
+      const { data: existing } = await supabase.from('users').select('id').eq('business_name', newUser.businessName).single();
       if (existing) {
         throw new Error('Ya existe un negocio con ese nombre.');
       }
-      const { error } = await supabase.from('users').insert(newUser as any);
+      const { error } = await supabase.from('users').insert({
+          name: newUser.name,
+          business_name: newUser.businessName,
+          pin: newUser.pin,
+          logo_url: newUser.logoUrl
+      } as any);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -38,7 +56,16 @@ export const useUsers = () => {
 
   const updateUserMutation = useMutation({
     mutationFn: async ({ userId, data }: { userId: string, data: Partial<Omit<User, 'id' | 'pin'>> }) => {
-      const { error } = await supabase.from('users').update(data as any).eq('id', userId);
+      const dataToUpdate: { [key: string]: any } = {};
+      if (data.name !== undefined) dataToUpdate.name = data.name;
+      if (data.businessName !== undefined) dataToUpdate.business_name = data.businessName;
+      if (data.logoUrl !== undefined) dataToUpdate.logo_url = data.logoUrl;
+      if (data.role !== undefined) dataToUpdate.role = data.role;
+      if (data.isActive !== undefined) dataToUpdate.is_active = data.isActive;
+
+      if (Object.keys(dataToUpdate).length === 0) return;
+
+      const { error } = await supabase.from('users').update(dataToUpdate).eq('id', userId);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -65,7 +92,7 @@ export const useUsers = () => {
 
   const toggleUserStatusMutation = useMutation({
     mutationFn: async ({ userId, currentStatus, userName }: { userId: string, currentStatus: boolean, userName: string }) => {
-      const { error } = await supabase.from('users').update({ isActive: !currentStatus }).eq('id', userId);
+      const { error } = await supabase.from('users').update({ is_active: !currentStatus }).eq('id', userId);
       if (error) throw new Error(error.message);
       return { newStatus: !currentStatus, userName };
     },
