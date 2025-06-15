@@ -33,7 +33,21 @@ const App = () => {
 
   const [data, setData] = useState<Record<string, UserData>>(() => {
     const savedData = localStorage.getItem("inventory_data");
-    return savedData ? JSON.parse(savedData) : {};
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      Object.keys(parsedData).forEach(userId => {
+        const userData = parsedData[userId];
+        if (userData.articles) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          userData.articles = userData.articles.map((article: any) => ({
+            ...article,
+            createdAt: article.createdAt ? new Date(article.createdAt) : new Date(),
+          }));
+        }
+      });
+      return parsedData;
+    }
+    return {};
   });
 
   const [activeUser, setActiveUser] = useState<User | null>(null);
@@ -71,10 +85,33 @@ const App = () => {
     toast.success("Usuario creado con éxito!");
   };
   
+  const handleDeleteUser = (userId: string, pin: string) => {
+    const userToDelete = users.find(u => u.id === userId);
+    if (!userToDelete) {
+      toast.error("Usuario no encontrado.");
+      return false;
+    }
+
+    if (userToDelete.pin !== pin) {
+      toast.error("PIN incorrecto.");
+      return false;
+    }
+
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    setData(prev => {
+      const newData = { ...prev };
+      delete newData[userId];
+      return newData;
+    });
+
+    toast.success(`El negocio "${userToDelete.businessName}" ha sido eliminado.`);
+    return true;
+  };
+
   const inventoryActions = {
     addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
       if (!activeUser) return;
-      const newArticle = { ...article, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+      const newArticle = { ...article, id: crypto.randomUUID(), createdAt: new Date() };
       setData(prev => {
         const userData = prev[activeUser.id] || { articles: [], sales: [] };
         return { ...prev, [activeUser.id]: { ...userData, articles: [...userData.articles, newArticle] } };
@@ -130,7 +167,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <UserAuth users={users} onLogin={handleLogin} onCreateUser={handleCreateUser} />
+          <UserAuth users={users} onLogin={handleLogin} onCreateUser={handleCreateUser} onDeleteUser={handleDeleteUser} />
         </TooltipProvider>
       </QueryClientProvider>
     );

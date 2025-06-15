@@ -48,7 +48,12 @@ export const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onOp
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    onCreateUser(values);
+    onCreateUser({
+      name: values.name,
+      businessName: values.businessName,
+      pin: values.pin,
+      logoUrl: values.logoUrl || undefined,
+    });
     form.reset();
     onOpenChange(false);
   };

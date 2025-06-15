@@ -5,20 +5,28 @@ import { Button } from '@/components/ui/button';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { LoginDialog } from '@/components/LoginDialog';
 import type { User } from '@/App';
-import { Building, User as UserIcon } from 'lucide-react';
+import { Building, User as UserIcon, Trash2 } from 'lucide-react';
+import { DeleteUserDialog } from '@/components/DeleteUserDialog';
 
 interface UserAuthProps {
   users: User[];
   onLogin: (user: User, pin: string) => boolean;
   onCreateUser: (user: Omit<User, 'id'>) => void;
+  onDeleteUser: (userId: string, pin: string) => boolean;
 }
 
-export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser }) => {
+export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser, onDeleteUser }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const handleSelectUser = (user: User) => {
     setSelectedUser(user);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, user: User) => {
+    e.stopPropagation();
+    setUserToDelete(user);
   };
 
   return (
@@ -34,10 +42,20 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
             {users.map((user) => (
               <Card 
                 key={user.id} 
-                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-transform duration-200 text-center"
+                className="cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-transform duration-200 text-center relative group"
                 onClick={() => handleSelectUser(user)}
               >
-                <CardHeader className="items-center">
+                <Button 
+                  variant="destructive" 
+                  size="icon"
+                  className="absolute top-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  onClick={(e) => handleDeleteClick(e, user)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Eliminar</span>
+                </Button>
+
+                <CardHeader className="items-center pt-8">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-3">
                     {user.logoUrl ? (
                       <img src={user.logoUrl} alt={user.businessName} className="w-full h-full object-cover rounded-full" />
@@ -80,6 +98,15 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           onOpenChange={(isOpen) => !isOpen && setSelectedUser(null)}
           user={selectedUser}
           onLogin={onLogin}
+        />
+      )}
+
+      {userToDelete && (
+        <DeleteUserDialog
+          isOpen={!!userToDelete}
+          onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
+          user={userToDelete}
+          onDelete={onDeleteUser}
         />
       )}
     </div>
