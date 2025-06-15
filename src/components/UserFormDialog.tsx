@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,6 +57,7 @@ interface UserFormDialogProps {
 export const UserFormDialog: React.FC<UserFormDialogProps> = ({ isOpen, onOpenChange, onSubmit, user }) => {
   const form = useForm<UserFormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
