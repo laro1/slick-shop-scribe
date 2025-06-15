@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import { CardDescription, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -27,6 +28,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -42,6 +44,7 @@ interface SettingsPageProps {
 }
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdateUser }) => {
+  const { t } = useTranslation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -70,9 +73,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
           <AccordionItem value="general-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
             <AccordionTrigger className="p-6 hover:no-underline">
               <div className="text-left">
-                <CardTitle>Configuración General</CardTitle>
+                <CardTitle>{t('general_settings')}</CardTitle>
                 <CardDescription className="mt-1.5">
-                  Actualiza los datos generales de tu negocio. El PIN no se puede cambiar desde aquí.
+                  {t('update_business_data')}
                 </CardDescription>
               </div>
             </AccordionTrigger>
@@ -84,9 +87,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nombre del Usuario</FormLabel>
+                        <FormLabel>{t('user_name')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ej: Juan Pérez" {...field} />
+                          <Input placeholder={t('user_name_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -97,9 +100,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     name="businessName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nombre del Negocio</FormLabel>
+                        <FormLabel>{t('business_name')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ej: Mi Tiendita" {...field} />
+                          <Input placeholder={t('business_name_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -110,9 +113,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     name="logoUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL del Logo (Opcional)</FormLabel>
+                        <FormLabel>{t('logo_url')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="https://ejemplo.com/logo.png" {...field} />
+                          <Input placeholder={t('logo_url_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -123,17 +126,17 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     name="currency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Moneda Predeterminada</FormLabel>
+                        <FormLabel>{t('default_currency')}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecciona una moneda" />
+                              <SelectValue placeholder={t('select_currency')} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="COP">COP - Peso Colombiano</SelectItem>
-                            <SelectItem value="USD">USD - Dólar Americano</SelectItem>
-                            <SelectItem value="EUR">EUR - Euro</SelectItem>
+                            <SelectItem value="COP">{t('currency_cop')}</SelectItem>
+                            <SelectItem value="USD">{t('currency_usd')}</SelectItem>
+                            <SelectItem value="EUR">{t('currency_eur')}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -145,16 +148,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     name="language"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Idioma del Sistema</FormLabel>
+                        <FormLabel>{t('system_language')}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecciona un idioma" />
+                              <SelectValue placeholder={t('select_language')} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="es">Español</SelectItem>
-                            <SelectItem value="en">Inglés</SelectItem>
+                            <SelectItem value="es">{t('language_es')}</SelectItem>
+                            <SelectItem value="en">{t('language_en')}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -162,7 +165,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
                     )}
                   />
                   <div className="flex justify-end pt-4">
-                    <Button type="submit">Guardar Cambios</Button>
+                    <Button type="submit">{t('save_changes')}</Button>
                   </div>
                 </form>
               </Form>

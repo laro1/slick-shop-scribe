@@ -13,6 +13,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { useAdmin } from "@/hooks/useAdmin";
 import type { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from "@/types/inventory";
 import type { User, UserFormData } from "@/types/user";
+import { useTranslation } from "react-i18next";
 
 export type { User, UserFormData };
 
@@ -21,6 +22,7 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const { users, isUsersLoading, addUser, updateUser, deleteUser, toggleUserStatus } = useUsers();
   const { adminPin, isAdminPinLoading } = useAdmin();
+  const { t, i18n } = useTranslation();
   
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -52,6 +54,12 @@ const AppContent = () => {
   });
 
   useEffect(() => {
+    if (activeUser?.language && i18n.language !== activeUser.language) {
+      i18n.changeLanguage(activeUser.language);
+    }
+  }, [activeUser, i18n]);
+
+  useEffect(() => {
     localStorage.setItem("inventory_product_categories", JSON.stringify(productCategories));
   }, [productCategories]);
 
@@ -69,15 +77,15 @@ const AppContent = () => {
 
   const handleLogin = (user: User, pin: string) => {
     if (!user.isActive) {
-      toast.error("Esta cuenta está desactivada. Contacta al administrador.");
+      toast.error(t('account_deactivated'));
       return false;
     }
     if (user.pin === pin) {
       setActiveUser(user);
-      toast.success(`Bienvenido, ${user.name}!`);
+      toast.success(t('welcome_message', { name: user.name }));
       return true;
     }
-    toast.error("PIN incorrecto");
+    toast.error(t('incorrect_pin'));
     return false;
   };
 
@@ -92,17 +100,17 @@ const AppContent = () => {
   const handleDeleteUser = (userId: string, pin: string) => {
     const userToDelete = users.find(u => u.id === userId);
     if (!userToDelete) {
-      toast.error("Usuario no encontrado.");
+      toast.error(t('user_not_found'));
       return false;
     }
 
     if (userToDelete.pin !== pin) {
-      toast.error("PIN incorrecto.");
+      toast.error(t('incorrect_pin'));
       return false;
     }
 
     deleteUser(userId);
-    toast.success(`El negocio "${userToDelete.businessName}" ha sido eliminado.`);
+    toast.success(t('business_deleted', { businessName: userToDelete.businessName }));
     return true;
   };
 
@@ -119,12 +127,12 @@ const AppContent = () => {
   const handleEditUser = async (userId: string, pin: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
     const userToEdit = users.find(u => u.id === userId);
     if (!userToEdit) {
-      toast.error("Usuario no encontrado.");
+      toast.error(t('user_not_found'));
       return false;
     }
 
     if (userToEdit.pin !== pin) {
-      toast.error("PIN incorrecto.");
+      toast.error(t('incorrect_pin'));
       return false;
     }
     
@@ -145,19 +153,19 @@ const AppContent = () => {
 
   const handleAdminLogin = (pin: string) => {
     if (isAdminPinLoading) {
-      toast.info("Verificando PIN...");
+      toast.info(t('verifying_pin'));
       return false;
     }
     if (!adminPin) {
-      toast.error("La configuración de administrador no está disponible.");
+      toast.error(t('admin_config_unavailable'));
       return false;
     }
     if (pin === adminPin) {
       setIsAdmin(true);
-      toast.success("Acceso de administrador concedido.");
+      toast.success(t('admin_access_granted'));
       return true;
     }
-    toast.error("PIN de administrador incorrecto.");
+    toast.error(t('admin_pin_incorrect'));
     return false;
   };
 
@@ -167,38 +175,38 @@ const AppContent = () => {
 
   const handleAddCategory = (category: string) => {
     if (productCategories.map(c => c.toLowerCase()).includes(category.toLowerCase())) {
-      toast.error("Esa categoría ya existe.");
+      toast.error(t('category_exists'));
       return;
     }
     setProductCategories(prev => [...prev, category]);
-    toast.success(`Categoría "${category}" agregada.`);
+    toast.success(t('category_added', { category }));
   };
 
   const handleDeleteCategory = (category: string) => {
     setProductCategories(prev => prev.filter(c => c !== category));
-    toast.success(`Categoría "${category}" eliminada.`);
+    toast.success(t('category_deleted', { category }));
   };
 
   const handleSetLowStockThreshold = (threshold: number) => {
     if (threshold >= 0) {
       setLowStockThreshold(threshold);
-      toast.success(`Nivel de stock bajo configurado a ${threshold} unidades.`);
+      toast.success(t('low_stock_threshold_set', { threshold }));
     } else {
-      toast.error("El nivel de stock no puede ser negativo.");
+      toast.error(t('invalid_threshold'));
     }
   };
 
   const handleSetEnableLotAndExpiry = (enabled: boolean) => {
     setEnableLotAndExpiry(enabled);
-    toast.success(`Seguimiento de lotes y caducidad ${enabled ? 'activado' : 'desactivado'}.`);
+    toast.success(t('lot_expiry_tracking', { enabled }));
   };
 
   const handleSetSessionTimeout = (minutes: number) => {
     if (minutes > 0) {
       setSessionTimeout(minutes);
-      toast.success(`Tiempo de expiración de sesión configurado a ${minutes} minutos.`);
+      toast.success(t('session_timeout_set', { minutes }));
     } else {
-      toast.error("El tiempo de expiración debe ser mayor a 0.");
+      toast.error(t('invalid_session_timeout'));
     }
   };
 
@@ -208,7 +216,7 @@ const AppContent = () => {
     addArticle: async (articleData: ArticleFormData) => {
       try {
         await addArticle(articleData);
-        toast.success("Artículo registrado con éxito.");
+        toast.success(t('article_registered'));
       } catch (e) {
         toast.error((e as Error).message);
       }
@@ -216,7 +224,7 @@ const AppContent = () => {
     updateArticle: async (updatedArticle: EditArticleData) => {
       try {
         await updateArticle(updatedArticle);
-        toast.success("Artículo actualizado con éxito.");
+        toast.success(t('article_updated'));
       } catch (e) {
         toast.error((e as Error).message);
       }
@@ -224,7 +232,7 @@ const AppContent = () => {
     deleteArticle: async (articleId: string) => {
       try {
         await deleteArticle(articleId);
-        toast.success("Artículo eliminado con éxito.");
+        toast.success(t('article_deleted'));
       } catch (e) {
         toast.error((e as Error).message);
       }
@@ -232,7 +240,7 @@ const AppContent = () => {
     addSale: async (saleData: SaleFormData) => {
       try {
         await addSale(saleData);
-        toast.success("Venta registrada con éxito.");
+        toast.success(t('sale_registered'));
       } catch (e) {
         toast.error((e as Error).message);
       }
@@ -240,7 +248,7 @@ const AppContent = () => {
     updateSale: async (updatedSale: EditSaleData) => {
       try {
         await updateSale(updatedSale);
-        toast.success("Venta actualizada con éxito.");
+        toast.success(t('sale_updated'));
       } catch (e) {
         toast.error((e as Error).message);
       }
@@ -248,7 +256,7 @@ const AppContent = () => {
     deleteSale: async (saleId: string) => {
       try {
         await deleteSale(saleId);
-        toast.success("Venta eliminada con éxito.");
+        toast.success(t('sale_deleted'));
       } catch (e) {
         toast.error((e as Error).message);
       }
@@ -256,7 +264,7 @@ const AppContent = () => {
   };
 
   if (isInventoryLoading || isUsersLoading || isAdminPinLoading) {
-    return <div className="flex h-screen items-center justify-center">Cargando datos desde Supabase...</div>;
+    return <div className="flex h-screen items-center justify-center">{t('loading_data')}</div>;
   }
 
   return (

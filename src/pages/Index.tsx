@@ -5,7 +5,7 @@ import { ArticleForm } from '@/components/ArticleForm';
 import { SaleForm } from '@/components/SaleForm';
 import { InventoryLists } from '@/components/InventoryLists';
 import { ExportButton } from '@/components/ExportButton';
-import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert, LogOut } from 'lucide-react';
+import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert, LogOut, Settings } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SettingsPage } from '@/pages/SettingsPage';
+import { useTranslation } from 'react-i18next';
+import { formatCurrencyLocalized } from '@/lib/localization';
 
 interface IndexProps {
   currentUser: User;
@@ -51,17 +53,18 @@ const Index: React.FC<IndexProps> = ({
   deleteSale,
 }) => {
   const [activeTab, setActiveTab] = useState('panel');
+  const { t } = useTranslation();
 
   const totalInventoryValue = articles.reduce((sum, article) => sum + (article.price * article.stock), 0);
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.amountPaid, 0);
   const lowStockItems = articles.filter(article => article.stock <= 5).length;
 
   const pageTitles: { [key: string]: string } = {
-    panel: 'Panel de Control',
-    articulo: 'Gestión de Artículos',
-    sales: 'Gestión de Ventas',
-    inventory: 'Gestión de Inventario',
-    settings: 'Configuración',
+    panel: t('dashboard_title'),
+    articulo: t('article_management'),
+    sales: t('sales_management'),
+    inventory: t('inventory_management'),
+    settings: t('settings'),
   };
 
   return (
@@ -96,11 +99,15 @@ const Index: React.FC<IndexProps> = ({
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>{currentUser.businessName}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setActiveTab('settings')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    {t('settings')}
+                  </DropdownMenuItem>
                   <DropdownMenuItem disabled>{currentUser.name}</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={onLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    Cerrar Sesión
+                    {t('logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -112,9 +119,9 @@ const Index: React.FC<IndexProps> = ({
               {activeTab === 'panel' && (
                 <>
                   <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-center mb-2">Sistema de Inventario</h1>
+                    <h1 className="text-2xl font-bold text-center mb-2">{t('inventory_system')}</h1>
                     <p className="text-muted-foreground text-center text-sm">
-                      Gestiona tu inventario y ventas de manera eficiente
+                      {t('inventory_management_efficiently')}
                     </p>
                   </div>
 
@@ -126,7 +133,7 @@ const Index: React.FC<IndexProps> = ({
                           <Package className="h-6 w-6 text-primary" />
                         </div>
                         <div className="text-2xl font-bold">{articles.length}</div>
-                        <p className="text-sm font-medium text-muted-foreground">Total Artículos</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t('total_articles')}</p>
                       </CardContent>
                     </Card>
 
@@ -136,7 +143,7 @@ const Index: React.FC<IndexProps> = ({
                           <ShoppingCart className="h-6 w-6 text-primary" />
                         </div>
                         <div className="text-2xl font-bold">{sales.length}</div>
-                        <p className="text-sm font-medium text-muted-foreground">Ventas Totales</p>
+                        <p className="text-sm font-medium text-muted-foreground">{t('total_sales')}</p>
                       </CardContent>
                     </Card>
 
@@ -145,8 +152,8 @@ const Index: React.FC<IndexProps> = ({
                         <div className="p-3 bg-primary/10 rounded-full">
                           <BarChart3 className="h-6 w-6 text-primary" />
                         </div>
-                        <div className="text-xl font-bold">{formatCurrency(totalInventoryValue)}</div>
-                        <p className="text-sm font-medium text-muted-foreground">Valor Inventario</p>
+                        <div className="text-xl font-bold">{formatCurrencyLocalized(totalInventoryValue, currentUser.currency, currentUser.language)}</div>
+                        <p className="text-sm font-medium text-muted-foreground">{t('inventory_value')}</p>
                       </CardContent>
                     </Card>
 
@@ -155,8 +162,8 @@ const Index: React.FC<IndexProps> = ({
                         <div className="p-3 bg-primary/10 rounded-full">
                           <FileSpreadsheet className="h-6 w-6 text-primary" />
                         </div>
-                        <div className="text-xl font-bold">{formatCurrency(totalSalesValue)}</div>
-                        <p className="text-sm font-medium text-muted-foreground">Ingresos Totales</p>
+                        <div className="text-xl font-bold">{formatCurrencyLocalized(totalSalesValue, currentUser.currency, currentUser.language)}</div>
+                        <p className="text-sm font-medium text-muted-foreground">{t('total_revenue')}</p>
                       </CardContent>
                     </Card>
                   </div>
@@ -168,7 +175,7 @@ const Index: React.FC<IndexProps> = ({
                           <div className="flex items-center gap-3">
                             <TriangleAlert className="h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
                             <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                              Tienes {lowStockItems} artículo(s) con stock bajo (≤5 unidades).
+                              {t('low_stock_warning', { count: lowStockItems })}
                             </p>
                           </div>
                         </CardContent>
@@ -217,12 +224,12 @@ const Index: React.FC<IndexProps> = ({
                                     </p>
                                     {sale.totalPrice > sale.amountPaid && (
                                       <p className="text-xs text-orange-600 font-medium">
-                                        Pendiente: {formatCurrency(sale.totalPrice - sale.amountPaid)}
+                                        Pendiente: {formatCurrencyLocalized(sale.totalPrice - sale.amountPaid, currentUser.currency, currentUser.language)}
                                       </p>
                                     )}
                                   </div>
                                   <span className="font-bold text-green-600 text-sm whitespace-nowrap">
-                                    {formatCurrency(sale.amountPaid)}
+                                    {formatCurrencyLocalized(sale.amountPaid, currentUser.currency, currentUser.language)}
                                   </span>
                                 </div>
                               </div>

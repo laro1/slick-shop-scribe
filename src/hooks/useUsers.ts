@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, UserFormData } from '@/types/user';
 import { toast } from 'sonner';
+import i18next from '@/i18n';
 
 const fromSupabase = (data: any): User | null => {
   if (!data) return null;
@@ -36,7 +37,7 @@ export const useUsers = () => {
     mutationFn: async (newUser: UserFormData) => {
       const { data: existing } = await supabase.from('users').select('id').eq('business_name', newUser.businessName).single();
       if (existing) {
-        throw new Error('Ya existe un negocio con ese nombre.');
+        throw new Error(i18next.t('business_name_exists'));
       }
       const { error } = await supabase.from('users').insert({
           name: newUser.name,
@@ -50,7 +51,7 @@ export const useUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Usuario creado con éxito!');
+      toast.success(i18next.t('user_created_successfully'));
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -75,7 +76,7 @@ export const useUsers = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Los datos del negocio se han actualizado correctamente.');
+      toast.success(i18next.t('business_data_updated'));
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -103,7 +104,8 @@ export const useUsers = () => {
     },
     onSuccess: ({ newStatus, userName }) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success(`La cuenta de ${userName} ha sido ${newStatus ? 'activada' : 'desactivada'}.`);
+      const status = newStatus ? i18next.t('activated') : i18next.t('deactivated');
+      toast.success(i18next.t('user_status_updated', { userName, status }));
     },
     onError: (error: Error) => {
       toast.error(error.message);
