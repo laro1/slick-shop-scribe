@@ -1,3 +1,4 @@
+
 {
   "general_settings": "General Settings",
   "update_business_data": "Update your business's general data. The PIN cannot be changed from here.",
@@ -101,7 +102,7 @@
   "no_businesses_registered": "No businesses registered",
   "create_first_business_prompt": "Create the first business to start managing your inventory.",
   "create_new_business": "Create New Business",
-  "login_to_business": "Log in to {businessName}",
+  "login_to_business": "Log in to {{businessName}}",
   "enter_4_digit_pin": "Enter your 4-digit PIN to access.",
   "pin_must_be_4_digits": "The PIN must have 4 digits.",
   "incorrect_pin_try_again": "Incorrect PIN. Try again.",
