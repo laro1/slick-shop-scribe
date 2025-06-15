@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -10,7 +9,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
-import type { User, UserData } from '@/App';
+import type { User, UserData, SubUser } from '@/App';
 import type { Article, Sale } from '@/types/inventory';
 import {
   DropdownMenu,
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SettingsPage } from '@/pages/SettingsPage';
+import { UserManagementPage } from '@/pages/UserManagementPage';
 
 interface IndexProps extends UserData {
   currentUser: User;
@@ -33,6 +33,9 @@ interface IndexProps extends UserData {
   addSale: (sale: Omit<Sale, 'id'>) => void;
   updateSale: (updatedSale: Sale) => void;
   deleteSale: (saleId: string) => void;
+  addSubUser: (subUser: Omit<SubUser, 'id'>) => void;
+  updateSubUser: (subUser: SubUser) => void;
+  deleteSubUser: (subUserId: string) => void;
 }
 
 const Index: React.FC<IndexProps> = ({
@@ -41,12 +44,16 @@ const Index: React.FC<IndexProps> = ({
   onUpdateUser,
   articles,
   sales,
+  subUsers,
   addArticle,
   updateArticle,
   deleteArticle,
   addSale,
   updateSale,
-  deleteSale
+  deleteSale,
+  addSubUser,
+  updateSubUser,
+  deleteSubUser
 }) => {
   const [activeTab, setActiveTab] = useState('panel');
 
@@ -59,6 +66,7 @@ const Index: React.FC<IndexProps> = ({
     articulo: 'Gestión de Artículos',
     sales: 'Gestión de Ventas',
     inventory: 'Gestión de Inventario',
+    users: 'Gestión de Usuarios',
     settings: 'Configuración',
   };
 
@@ -244,6 +252,15 @@ const Index: React.FC<IndexProps> = ({
                     onDeleteSale={deleteSale}
                   />
                 </div>
+              )}
+
+              {activeTab === 'users' && (
+                <UserManagementPage
+                  subUsers={subUsers}
+                  addSubUser={addSubUser}
+                  updateSubUser={updateSubUser}
+                  deleteSubUser={deleteSubUser}
+                />
               )}
 
               {activeTab === 'settings' && (

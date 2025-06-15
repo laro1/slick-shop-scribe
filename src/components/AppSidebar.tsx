@@ -10,7 +10,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Package, ShoppingCart, List, BarChart3, SlidersHorizontal } from 'lucide-react';
+import { Package, ShoppingCart, List, BarChart3, SlidersHorizontal, User } from 'lucide-react';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -26,6 +26,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
     { id: 'articulo', label: 'Artículo', icon: Package },
     { id: 'sales', label: 'Ventas', icon: ShoppingCart },
     { id: 'inventory', label: 'Inventario', icon: List },
+    { id: 'users', label: 'Usuarios', icon: User },
     { id: 'settings', label: 'Configuración', icon: SlidersHorizontal },
   ];
 
