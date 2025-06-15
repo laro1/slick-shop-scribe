@@ -86,6 +86,8 @@ const AppContent = () => {
                 <ThemeSwitcher
                   colorTheme={colorTheme}
                   onSetColorTheme={handleSetColorTheme}
+                  darkMode={darkMode}
+                  onSetDarkMode={handleSetDarkMode}
                   className="absolute bottom-5 right-5"
                   variant="popover"
                 />

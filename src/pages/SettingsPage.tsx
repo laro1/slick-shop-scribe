@@ -28,7 +28,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useTranslation } from 'react-i18next';
-import { Switch } from '@/components/ui/switch';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 const formSchema = z.object({
@@ -192,23 +191,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 </CardDescription>
               </div>
             </AccordionTrigger>
-            <AccordionContent className="space-y-6 px-6 pb-6">
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">Modo Oscuro</FormLabel>
-                  <CardDescription>Activa el modo oscuro para una experiencia visual más cómoda en condiciones de poca luz.</CardDescription>
-                </div>
-                <Switch
-                  checked={darkMode}
-                  onCheckedChange={onSetDarkMode}
-                  aria-label="Toggle dark mode"
-                />
-              </div>
-              
+            <AccordionContent className="px-6 pb-6">
               <ThemeSwitcher 
                 variant="inline"
                 colorTheme={colorTheme}
                 onSetColorTheme={onSetColorTheme}
+                darkMode={darkMode}
+                onSetDarkMode={onSetDarkMode}
               />
             </AccordionContent>
           </AccordionItem>
