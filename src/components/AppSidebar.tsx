@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Sidebar,
@@ -26,7 +25,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
     { id: 'articulo', label: 'Artículo', icon: Package },
     { id: 'sales', label: 'Ventas', icon: ShoppingCart },
     { id: 'inventory', label: 'Inventario', icon: List },
-    { id: 'users', label: 'Usuarios', icon: Users },
     { id: 'settings', label: 'Configuración', icon: SlidersHorizontal },
   ];
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -24,7 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SettingsPage } from '@/pages/SettingsPage';
 import { UserManagementPage } from '@/pages/UserManagementPage';
 
-interface IndexProps extends UserData {
+interface IndexProps extends Omit<UserData, 'subUsers'> {
   currentUser: User;
   onLogout: () => void;
   onUpdateUser: (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => void;
@@ -34,9 +33,6 @@ interface IndexProps extends UserData {
   addSale: (sale: Omit<Sale, 'id'>) => void;
   updateSale: (updatedSale: Sale) => void;
   deleteSale: (saleId: string) => void;
-  addSubUser: (subUser: Omit<SubUser, 'id'>) => void;
-  updateSubUser: (subUser: SubUser) => void;
-  deleteSubUser: (subUserId: string) => void;
 }
 
 const Index: React.FC<IndexProps> = ({
@@ -45,16 +41,12 @@ const Index: React.FC<IndexProps> = ({
   onUpdateUser,
   articles,
   sales,
-  subUsers,
   addArticle,
   updateArticle,
   deleteArticle,
   addSale,
   updateSale,
   deleteSale,
-  addSubUser,
-  updateSubUser,
-  deleteSubUser
 }) => {
   const [activeTab, setActiveTab] = useState('panel');
 
@@ -67,7 +59,6 @@ const Index: React.FC<IndexProps> = ({
     articulo: 'Gestión de Artículos',
     sales: 'Gestión de Ventas',
     inventory: 'Gestión de Inventario',
-    users: 'Usuarios',
     settings: 'Configuración',
   };
 
@@ -253,15 +244,6 @@ const Index: React.FC<IndexProps> = ({
                     onDeleteSale={deleteSale}
                   />
                 </div>
-              )}
-
-              {activeTab === 'users' && (
-                <UserManagementPage
-                  subUsers={subUsers}
-                  addSubUser={addSubUser}
-                  updateSubUser={updateSubUser}
-                  deleteSubUser={deleteSubUser}
-                />
               )}
 
               {activeTab === 'settings' && (

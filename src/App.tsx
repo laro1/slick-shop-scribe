@@ -9,13 +9,6 @@ import { UserAuth } from "./pages/UserAuth";
 import { useState, useEffect } from "react";
 import type { Article, Sale } from "@/types/inventory";
 
-export interface SubUser {
-  id: string;
-  name: string;
-  role: 'Administrador' | 'Vendedor' | 'Inventarista' | 'Consultor';
-  status: 'active' | 'inactive';
-}
-
 export interface User {
   id: string;
   name: string;
@@ -29,7 +22,6 @@ export interface User {
 export interface UserData {
   articles: Article[];
   sales: Sale[];
-  subUsers: SubUser[];
 }
 
 const queryClient = new QueryClient();
@@ -44,8 +36,7 @@ const App = () => {
     const savedData = localStorage.getItem("inventory_data");
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      const userList = JSON.parse(localStorage.getItem("inventory_users") || "[]");
-
+      
       Object.keys(parsedData).forEach(userId => {
         const userData = parsedData[userId];
         // Migration for articles date
@@ -56,15 +47,9 @@ const App = () => {
             createdAt: article.createdAt ? new Date(article.createdAt) : new Date(),
           }));
         }
-        // Migration for subUsers
-        if (!userData.subUsers || userData.subUsers.length === 0) {
-           const ownerUser = userList.find((u: User) => u.id === userId);
-           userData.subUsers = ownerUser ? [{
-             id: crypto.randomUUID(),
-             name: ownerUser.name,
-             role: 'Administrador' as const,
-             status: 'active' as const,
-           }] : [];
+        // remove subUsers property if it exists from old data
+        if (userData.subUsers) {
+          delete userData.subUsers;
         }
       });
       return parsedData;
@@ -102,14 +87,8 @@ const App = () => {
       return;
     }
     const userWithId = { ...newUser, id: crypto.randomUUID(), currency: 'COP', language: 'es' };
-    const adminSubUser: SubUser = {
-      id: crypto.randomUUID(),
-      name: newUser.name,
-      role: 'Administrador',
-      status: 'active',
-    };
     setUsers(prev => [...prev, userWithId]);
-    setData(prev => ({ ...prev, [userWithId.id]: { articles: [], sales: [], subUsers: [adminSubUser] } }));
+    setData(prev => ({ ...prev, [userWithId.id]: { articles: [], sales: [] } }));
     toast.success("Usuario creado con éxito!");
   };
   
@@ -151,40 +130,25 @@ const App = () => {
     toast.success("Los datos del negocio se han actualizado correctamente.");
   };
 
-  const subUserActions = {
-    addSubUser: (subUser: Omit<SubUser, 'id'>) => {
-      if (!activeUser) return;
-      const newSubUser = { ...subUser, id: crypto.randomUUID() };
-      setData(prev => {
-        const userData = prev[activeUser.id] || { articles: [], sales: [], subUsers: [] };
-        return { ...prev, [activeUser.id]: { ...userData, subUsers: [...userData.subUsers, newSubUser] } };
-      });
-      toast.success("Usuario creado con éxito.");
-    },
-    updateSubUser: (updatedSubUser: SubUser) => {
-      if (!activeUser) return;
-      setData(prev => {
-        const userData = prev[activeUser.id];
-        return { ...prev, [activeUser.id]: { ...userData, subUsers: userData.subUsers.map(su => su.id === updatedSubUser.id ? updatedSubUser : su) } };
-      });
-      toast.success("Usuario actualizado con éxito.");
-    },
-    deleteSubUser: (subUserId: string) => {
-      if (!activeUser) return;
-      setData(prev => {
-        const userData = prev[activeUser.id];
-        if (userData.subUsers.length <= 1) {
-          toast.error("No se puede eliminar el último usuario.");
-          return prev;
-        }
-        if (userData.subUsers.find(su => su.id === subUserId)?.role === 'Administrador' && userData.subUsers.filter(su => su.role === 'Administrador').length === 1) {
-          toast.error("No se puede eliminar el último administrador.");
-          return prev;
-        }
-        return { ...prev, [activeUser.id]: { ...userData, subUsers: userData.subUsers.filter(su => su.id !== subUserId) } };
-      });
-      toast.success("Usuario eliminado con éxito.");
+  const handleEditUser = (userId: string, pin: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
+    const userToEdit = users.find(u => u.id === userId);
+    if (!userToEdit) {
+      toast.error("Usuario no encontrado.");
+      return false;
     }
+
+    if (userToEdit.pin !== pin) {
+      toast.error("PIN incorrecto.");
+      return false;
+    }
+
+    setUsers(prevUsers =>
+      prevUsers.map(user =>
+        user.id === userId ? { ...user, ...updatedData } : user
+      )
+    );
+    toast.success("Los datos del negocio se han actualizado correctamente.");
+    return true;
   };
 
   const inventoryActions = {
@@ -192,7 +156,7 @@ const App = () => {
       if (!activeUser) return;
       const newArticle = { ...article, id: crypto.randomUUID(), createdAt: new Date() };
       setData(prev => {
-        const userData = prev[activeUser.id] || { articles: [], sales: [], subUsers: [] };
+        const userData = prev[activeUser.id] || { articles: [], sales: [] };
         return { ...prev, [activeUser.id]: { ...userData, articles: [...userData.articles, newArticle] } };
       });
     },
@@ -246,13 +210,19 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <UserAuth users={users} onLogin={handleLogin} onCreateUser={handleCreateUser} onDeleteUser={handleDeleteUser} />
+          <UserAuth 
+            users={users} 
+            onLogin={handleLogin} 
+            onCreateUser={handleCreateUser} 
+            onDeleteUser={handleDeleteUser}
+            onEditUser={handleEditUser}
+          />
         </TooltipProvider>
       </QueryClientProvider>
     );
   }
 
-  const currentUserData = data[activeUser.id] || { articles: [], sales: [], subUsers: [] };
+  const currentUserData = data[activeUser.id] || { articles: [], sales: [] };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -268,9 +238,7 @@ const App = () => {
                 onUpdateUser={handleUpdateUser}
                 articles={currentUserData.articles}
                 sales={currentUserData.sales}
-                subUsers={currentUserData.subUsers}
                 {...inventoryActions}
-                {...subUserActions}
               />
             } />
             <Route path="*" element={<NotFound />} />
