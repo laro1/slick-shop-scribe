@@ -12,6 +12,10 @@ interface SaleFormAlertsProps {
 }
 
 export const SaleFormAlerts: React.FC<SaleFormAlertsProps> = ({ articles, availableArticles, lowStockArticles }) => {
+  const lowStockThreshold = localStorage.getItem("inventory_low_stock_threshold")
+    ? JSON.parse(localStorage.getItem("inventory_low_stock_threshold")!)
+    : 5;
+
   if (articles.length === 0) {
     return (
       <Card className="w-full">
@@ -55,7 +59,7 @@ export const SaleFormAlerts: React.FC<SaleFormAlertsProps> = ({ articles, availa
       <Alert className="mb-4">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          <strong>Advertencia:</strong> {lowStockArticles.length} artículo(s) tienen stock bajo (≤5 unidades)
+          <strong>Advertencia:</strong> {lowStockArticles.length} artículo(s) tienen stock bajo (≤{lowStockThreshold} unidades)
         </AlertDescription>
       </Alert>
     );

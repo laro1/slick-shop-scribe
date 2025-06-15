@@ -82,6 +82,14 @@ const App = () => {
     return ['General']; // Default category
   });
 
+  const [lowStockThreshold, setLowStockThreshold] = useState<number>(() => {
+    const savedThreshold = localStorage.getItem("inventory_low_stock_threshold");
+    if (savedThreshold) {
+      return JSON.parse(savedThreshold);
+    }
+    return 5; // Default threshold
+  });
+
   useEffect(() => {
     localStorage.setItem("inventory_users", JSON.stringify(users));
   }, [users]);
@@ -93,6 +101,10 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("inventory_product_categories", JSON.stringify(productCategories));
   }, [productCategories]);
+
+  useEffect(() => {
+    localStorage.setItem("inventory_low_stock_threshold", JSON.stringify(lowStockThreshold));
+  }, [lowStockThreshold]);
 
   const handleLogin = (user: User, pin: string) => {
     if (!user.isActive) {
@@ -234,6 +246,15 @@ const App = () => {
     toast.success(`Categoría "${category}" eliminada.`);
   };
 
+  const handleSetLowStockThreshold = (threshold: number) => {
+    if (threshold >= 0) {
+      setLowStockThreshold(threshold);
+      toast.success(`Nivel de stock bajo configurado a ${threshold} unidades.`);
+    } else {
+      toast.error("El nivel de stock no puede ser negativo.");
+    }
+  };
+
   const inventoryActions = {
     addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
       if (!activeUser) return;
@@ -323,6 +344,8 @@ const App = () => {
                     productCategories={productCategories}
                     onAddCategory={handleAddCategory}
                     onDeleteCategory={handleDeleteCategory}
+                    lowStockThreshold={lowStockThreshold}
+                    onSetLowStockThreshold={handleSetLowStockThreshold}
                   />
                 : <Navigate to="/" />
             } />

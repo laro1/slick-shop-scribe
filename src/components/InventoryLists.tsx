@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +32,10 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
   const [articlesOpen, setArticlesOpen] = useState(false);
   const [salesOpen, setSalesOpen] = useState(false);
   const { toast } = useToast();
+
+  const lowStockThreshold = localStorage.getItem("inventory_low_stock_threshold") 
+    ? JSON.parse(localStorage.getItem("inventory_low_stock_threshold")!) 
+    : 5;
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('es-ES', {
@@ -100,7 +103,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                         <div className="flex justify-between items-start mb-2 gap-2">
                           <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{article.name}</h4>
                           <div className="flex items-center gap-1.5">
-                            <Badge variant={article.stock > 5 ? "default" : article.stock > 0 ? "secondary" : "destructive"} className="text-xs whitespace-nowrap">
+                            <Badge variant={article.stock > lowStockThreshold ? "default" : article.stock > 0 ? "secondary" : "destructive"} className="text-xs whitespace-nowrap">
                               Stock: {article.stock}
                             </Badge>
                             <Button

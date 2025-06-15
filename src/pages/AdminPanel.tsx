@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,9 +19,11 @@ interface AdminPanelProps {
   productCategories: string[];
   onAddCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
+  lowStockThreshold: number;
+  onSetLowStockThreshold: (threshold: number) => void;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onEditUser, onDeleteUser, onAdminLogout, onToggleUserStatus, productCategories, onAddCategory, onDeleteCategory }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onEditUser, onDeleteUser, onAdminLogout, onToggleUserStatus, productCategories, onAddCategory, onDeleteCategory, lowStockThreshold, onSetLowStockThreshold }) => {
   const navigate = useNavigate();
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
@@ -62,6 +63,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onE
           productCategories={productCategories}
           onAddCategory={onAddCategory}
           onDeleteCategory={onDeleteCategory}
+          lowStockThreshold={lowStockThreshold}
+          onSetLowStockThreshold={onSetLowStockThreshold}
         />
       </div>
 

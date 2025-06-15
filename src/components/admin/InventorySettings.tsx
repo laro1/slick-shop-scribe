@@ -9,15 +9,25 @@ interface InventorySettingsProps {
   productCategories: string[];
   onAddCategory: (category: string) => void;
   onDeleteCategory: (category: string) => void;
+  lowStockThreshold: number;
+  onSetLowStockThreshold: (threshold: number) => void;
 }
 
-export const InventorySettings: React.FC<InventorySettingsProps> = ({ productCategories, onAddCategory, onDeleteCategory }) => {
+export const InventorySettings: React.FC<InventorySettingsProps> = ({ productCategories, onAddCategory, onDeleteCategory, lowStockThreshold, onSetLowStockThreshold }) => {
   const [newCategory, setNewCategory] = useState('');
+  const [threshold, setThreshold] = useState(lowStockThreshold.toString());
 
   const handleAddCategoryClick = () => {
     if (newCategory.trim()) {
       onAddCategory(newCategory.trim());
       setNewCategory('');
+    }
+  };
+
+  const handleSetThreshold = () => {
+    const newThreshold = parseInt(threshold, 10);
+    if (!isNaN(newThreshold) && newThreshold >= 0) {
+      onSetLowStockThreshold(newThreshold);
     }
   };
 
@@ -62,9 +72,20 @@ export const InventorySettings: React.FC<InventorySettingsProps> = ({ productCat
 
         <div className="border-t pt-6 mt-6">
           <h3 className="text-lg font-medium">Niveles de Stock y Alertas</h3>
-          <p className="text-sm text-muted-foreground">
-            Próximamente: Aquí podrás configurar los niveles de stock mínimo para generar alertas.
+          <p className="text-sm text-muted-foreground mb-4">
+            Configura el nivel de stock mínimo para mostrar una advertencia en los productos.
           </p>
+          <div className="flex w-full max-w-sm items-center space-x-2">
+            <Input
+              type="number"
+              placeholder="Ej: 5"
+              value={threshold}
+              onChange={(e) => setThreshold(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSetThreshold()}
+              min="0"
+            />
+            <Button onClick={handleSetThreshold}>Guardar</Button>
+          </div>
         </div>
 
         <div className="border-t pt-6 mt-6">
