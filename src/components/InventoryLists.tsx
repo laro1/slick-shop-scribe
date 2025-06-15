@@ -158,8 +158,8 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                         <div className="flex justify-between items-start mb-2 gap-2">
                           <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{sale.articleName}</h4>
                           <div className="flex items-center gap-1.5">
-                            <Badge variant="outline" className="border-primary/50 text-xs font-bold text-primary whitespace-nowrap">
-                              {formatCurrency(sale.totalPrice)}
+                            <Badge variant="outline" className="border-green-600/50 text-xs font-bold text-green-700 whitespace-nowrap">
+                              {formatCurrency(sale.amountPaid)}
                             </Badge>
                             <Button
                               size="icon"
@@ -185,6 +185,12 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                             <span>Cantidad: {sale.quantity} × {formatCurrency(sale.unitPrice)}</span>
                             <span className="text-xs">{formatDate(sale.saleDate)}</span>
                           </div>
+                          {sale.totalPrice > sale.amountPaid && (
+                            <div className="text-xs text-orange-600 font-medium border-t pt-1.5 mt-1.5 flex justify-between">
+                               <span>Total: {formatCurrency(sale.totalPrice)}</span>
+                               <span>Pendiente: {formatCurrency(sale.totalPrice - sale.amountPaid)}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

@@ -169,9 +169,14 @@ const Index = () => {
                                     <p className="text-xs text-muted-foreground">
                                       {sale.buyerName} - {sale.quantity} unidades
                                     </p>
+                                    {sale.totalPrice > sale.amountPaid && (
+                                      <p className="text-xs text-orange-600 font-medium">
+                                        Pendiente: {formatCurrency(sale.totalPrice - sale.amountPaid)}
+                                      </p>
+                                    )}
                                   </div>
                                   <span className="font-bold text-green-600 text-sm whitespace-nowrap">
-                                    {formatCurrency(sale.totalPrice)}
+                                    {formatCurrency(sale.amountPaid)}
                                   </span>
                                 </div>
                               </div>
