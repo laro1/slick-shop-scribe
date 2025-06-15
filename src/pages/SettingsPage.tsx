@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -22,6 +22,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import type { User } from '@/App';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -60,122 +66,150 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
 
   return (
     <div className="flex justify-center">
-      <div className="w-full max-w-2xl space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuración General</CardTitle>
-            <CardDescription>
-              Actualiza los datos generales de tu negocio. El PIN no se puede cambiar desde aquí.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre del Usuario</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: Juan Pérez" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="businessName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre del Negocio</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: Mi Tiendita" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="logoUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL del Logo (Opcional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://ejemplo.com/logo.png" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Moneda Predeterminada</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <div className="w-full max-w-2xl">
+        <Accordion type="multiple" className="w-full space-y-4" defaultValue={['general-settings']}>
+          <AccordionItem value="general-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <AccordionTrigger className="p-6 hover:no-underline">
+              <div className="text-left">
+                <CardTitle>Configuración General</CardTitle>
+                <CardDescription className="mt-1.5">
+                  Actualiza los datos generales de tu negocio. El PIN no se puede cambiar desde aquí.
+                </CardDescription>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre del Usuario</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona una moneda" />
-                          </SelectTrigger>
+                          <Input placeholder="Ej: Juan Pérez" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="COP">COP - Peso Colombiano</SelectItem>
-                          <SelectItem value="USD">USD - Dólar Americano</SelectItem>
-                          <SelectItem value="EUR">EUR - Euro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="language"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Idioma del Sistema</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="businessName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre del Negocio</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un idioma" />
-                          </SelectTrigger>
+                          <Input placeholder="Ej: Mi Tiendita" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="es">Español</SelectItem>
-                          <SelectItem value="en">Inglés</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end pt-4">
-                  <Button type="submit">Guardar Cambios</Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="logoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>URL del Logo (Opcional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://ejemplo.com/logo.png" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Moneda Predeterminada</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona una moneda" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="COP">COP - Peso Colombiano</SelectItem>
+                            <SelectItem value="USD">USD - Dólar Americano</SelectItem>
+                            <SelectItem value="EUR">EUR - Euro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="language"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Idioma del Sistema</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona un idioma" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="es">Español</SelectItem>
+                            <SelectItem value="en">Inglés</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex justify-end pt-4">
+                    <Button type="submit">Guardar Cambios</Button>
+                  </div>
+                </form>
+              </Form>
+            </AccordionContent>
+          </AccordionItem>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Próximamente</CardTitle>
-            <CardDescription>
-              Más opciones de configuración estarán disponibles pronto.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
-              <li>Gestión de roles y permisos de usuario.</li>
-              <li>Ajustes de notificaciones y alertas.</li>
-              <li>Y mucho más...</li>
-            </ul>
-          </CardContent>
-        </Card>
+          <AccordionItem value="user-management" className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <AccordionTrigger className="p-6 hover:no-underline">
+              <div className="text-left">
+                <CardTitle>Gestión de Usuarios y Permisos</CardTitle>
+                <CardDescription className="mt-1.5">
+                  Próximamente: Funciones para administrar usuarios y sus roles.
+                </CardDescription>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6">
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
+                <li>Crear/editar/eliminar usuarios</li>
+                <li>Asignar roles (Administrador, Vendedor, Inventarista, Consultor)</li>
+                <li>Definir permisos personalizados (ver, editar, eliminar, exportar)</li>
+                <li>Activar o desactivar cuentas</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="more-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <AccordionTrigger className="p-6 hover:no-underline">
+              <div className="text-left">
+                <CardTitle>Más Configuraciones (Próximamente)</CardTitle>
+                <CardDescription className="mt-1.5">
+                  Otras opciones de configuración que estarán disponibles pronto.
+                </CardDescription>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6">
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
+                <li>Configuración de Inventario (categorías, stock mínimo, etc.)</li>
+                <li>Configuración de Ventas y Facturación (formas de pago, etc.)</li>
+                <li>Ajustes de notificaciones y alertas.</li>
+                <li>Configuraciones de acceso y seguridad.</li>
+                <li>Y mucho más...</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+
+        </Accordion>
       </div>
     </div>
   );
