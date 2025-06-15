@@ -74,6 +74,14 @@ const App = () => {
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  const [productCategories, setProductCategories] = useState<string[]>(() => {
+    const savedCategories = localStorage.getItem("inventory_product_categories");
+    if (savedCategories) {
+      return JSON.parse(savedCategories);
+    }
+    return ['General']; // Default category
+  });
+
   useEffect(() => {
     localStorage.setItem("inventory_users", JSON.stringify(users));
   }, [users]);
@@ -81,6 +89,10 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("inventory_data", JSON.stringify(data));
   }, [data]);
+
+  useEffect(() => {
+    localStorage.setItem("inventory_product_categories", JSON.stringify(productCategories));
+  }, [productCategories]);
 
   const handleLogin = (user: User, pin: string) => {
     if (!user.isActive) {
@@ -208,6 +220,20 @@ const App = () => {
     setIsAdmin(false);
   };
 
+  const handleAddCategory = (category: string) => {
+    if (productCategories.map(c => c.toLowerCase()).includes(category.toLowerCase())) {
+      toast.error("Esa categoría ya existe.");
+      return;
+    }
+    setProductCategories(prev => [...prev, category]);
+    toast.success(`Categoría "${category}" agregada.`);
+  };
+
+  const handleDeleteCategory = (category: string) => {
+    setProductCategories(prev => prev.filter(c => c !== category));
+    toast.success(`Categoría "${category}" eliminada.`);
+  };
+
   const inventoryActions = {
     addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
       if (!activeUser) return;
@@ -294,6 +320,9 @@ const App = () => {
                     onDeleteUser={handleDeleteUser}
                     onAdminLogout={handleAdminLogout}
                     onToggleUserStatus={handleToggleUserStatus}
+                    productCategories={productCategories}
+                    onAddCategory={handleAddCategory}
+                    onDeleteCategory={handleDeleteCategory}
                   />
                 : <Navigate to="/" />
             } />

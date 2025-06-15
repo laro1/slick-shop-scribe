@@ -10,13 +10,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building, Edit, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Building, Edit, Trash2, X } from 'lucide-react';
 import type { User } from '@/App';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { EditUserDialog } from '@/components/EditUserDialog';
 import { DeleteUserDialog } from '@/components/DeleteUserDialog';
 import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 
 interface AdminPanelProps {
   users: User[];
@@ -25,17 +26,28 @@ interface AdminPanelProps {
   onDeleteUser: (userId: string, pin: string) => boolean;
   onAdminLogout: () => void;
   onToggleUserStatus: (userId: string) => void;
+  productCategories: string[];
+  onAddCategory: (category: string) => void;
+  onDeleteCategory: (category: string) => void;
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onEditUser, onDeleteUser, onAdminLogout, onToggleUserStatus }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onEditUser, onDeleteUser, onAdminLogout, onToggleUserStatus, productCategories, onAddCategory, onDeleteCategory }) => {
   const navigate = useNavigate();
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [newCategory, setNewCategory] = useState('');
 
   const handleLogout = () => {
     onAdminLogout();
     navigate('/');
+  };
+
+  const handleAddCategoryClick = () => {
+    if (newCategory.trim()) {
+      onAddCategory(newCategory.trim());
+      setNewCategory('');
+    }
   };
   
   return (
@@ -172,6 +184,60 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ users, onCreateUser, onE
                   <p className="text-muted-foreground">No hay usuarios registrados.</p>
                 </div>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Configuración de Inventario</CardTitle>
+            <CardDescription>
+              Gestiona las categorías de productos y otras configuraciones globales del inventario.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <h3 className="text-lg font-medium">Categorías de productos</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Crea y elimina las categorías que se usarán en los productos.
+              </p>
+              <div className="flex w-full max-w-sm items-center space-x-2 mb-4">
+                <Input
+                  type="text"
+                  placeholder="Ej: Bebidas"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddCategoryClick()}
+                />
+                <Button onClick={handleAddCategoryClick}>Agregar</Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {productCategories.length > 0 ? productCategories.map(category => (
+                  <div key={category} className="flex items-center gap-1 bg-muted rounded-full px-3 py-1 text-sm">
+                    <span>{category}</span>
+                    <button onClick={() => onDeleteCategory(category)} className="text-muted-foreground hover:text-destructive rounded-full -mr-1 p-0.5">
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Eliminar {category}</span>
+                    </button>
+                  </div>
+                )) : (
+                  <p className="text-sm text-muted-foreground">No hay categorías. Agrega la primera.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-medium">Niveles de Stock y Alertas</h3>
+              <p className="text-sm text-muted-foreground">
+                Próximamente: Aquí podrás configurar los niveles de stock mínimo para generar alertas.
+              </p>
+            </div>
+
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-medium">Control de Lotes y Caducidad</h3>
+              <p className="text-sm text-muted-foreground">
+                Próximamente: Activa y gestiona el seguimiento de productos por lote o fecha de caducidad.
+              </p>
             </div>
           </CardContent>
         </Card>
