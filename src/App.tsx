@@ -219,7 +219,7 @@ const App = () => {
         if (article) {
           const updatedArticle = { ...article, stock: article.stock - newSale.quantity };
           const newArticles = userData.articles.map(a => a.id === article.id ? updatedArticle : a);
-          return { ...prev, [activeUser.id]: { sales: [...userData.sales, newSale], articles: newArticles } };
+          return { ...prev, [activeUser.id]: { ...userData, sales: [...userData.sales, newSale], articles: newArticles } };
         }
         return prev;
       });

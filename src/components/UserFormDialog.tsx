@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,6 +41,12 @@ const formSchema = z.object({
 
 type UserFormValues = z.infer<typeof formSchema>;
 
+const defaultFormValues: UserFormValues = {
+  name: '',
+  role: 'Vendedor',
+  status: 'active',
+};
+
 interface UserFormDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -50,11 +57,11 @@ interface UserFormDialogProps {
 export const UserFormDialog: React.FC<UserFormDialogProps> = ({ isOpen, onOpenChange, onSubmit, user }) => {
   const form = useForm<UserFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      role: 'Vendedor',
-      status: 'active',
-    },
+    defaultValues: user ? {
+      name: user.name,
+      role: user.role,
+      status: user.status,
+    } : defaultFormValues,
   });
 
   useEffect(() => {
@@ -66,11 +73,7 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({ isOpen, onOpenCh
           status: user.status,
         });
       } else {
-        form.reset({
-          name: '',
-          role: 'Vendedor',
-          status: 'active',
-        });
+        form.reset(defaultFormValues);
       }
     }
   }, [user, form, isOpen]);

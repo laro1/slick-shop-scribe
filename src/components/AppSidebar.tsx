@@ -26,7 +26,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab 
     { id: 'articulo', label: 'Artículo', icon: Package },
     { id: 'sales', label: 'Ventas', icon: ShoppingCart },
     { id: 'inventory', label: 'Inventario', icon: List },
-    { id: 'users', label: 'Usuarios', icon: User },
+    { id: 'users', label: 'Administración', icon: User },
     { id: 'settings', label: 'Configuración', icon: SlidersHorizontal },
   ];
 
