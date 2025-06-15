@@ -93,8 +93,10 @@ export type Database = {
         Row: {
           business_name: string
           created_at: string
+          currency: string | null
           id: string
           is_active: boolean
+          language: string | null
           logo_url: string | null
           name: string
           pin: string
@@ -103,8 +105,10 @@ export type Database = {
         Insert: {
           business_name: string
           created_at?: string
+          currency?: string | null
           id?: string
           is_active?: boolean
+          language?: string | null
           logo_url?: string | null
           name: string
           pin: string
@@ -113,8 +117,10 @@ export type Database = {
         Update: {
           business_name?: string
           created_at?: string
+          currency?: string | null
           id?: string
           is_active?: boolean
+          language?: string | null
           logo_url?: string | null
           name?: string
           pin?: string

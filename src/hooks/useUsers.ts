@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, UserFormData } from '@/types/user';
@@ -14,6 +13,8 @@ const fromSupabase = (data: any): User | null => {
     logoUrl: data.logo_url,
     role: data.role,
     isActive: data.is_active,
+    currency: data.currency,
+    language: data.language,
   };
 }
 
@@ -41,7 +42,9 @@ export const useUsers = () => {
           name: newUser.name,
           business_name: newUser.businessName,
           pin: newUser.pin,
-          logo_url: newUser.logoUrl
+          logo_url: newUser.logoUrl,
+          currency: 'COP',
+          language: 'es'
       } as any);
       if (error) throw new Error(error.message);
     },
@@ -62,6 +65,8 @@ export const useUsers = () => {
       if (data.logoUrl !== undefined) dataToUpdate.logo_url = data.logoUrl;
       if (data.role !== undefined) dataToUpdate.role = data.role;
       if (data.isActive !== undefined) dataToUpdate.is_active = data.isActive;
+      if ('currency' in data) dataToUpdate.currency = data.currency;
+      if ('language' in data) dataToUpdate.language = data.language;
 
       if (Object.keys(dataToUpdate).length === 0) return;
 

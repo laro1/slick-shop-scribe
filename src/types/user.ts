@@ -9,6 +9,8 @@ export interface User {
   logoUrl?: string;
   role: UserRole;
   isActive: boolean;
+  currency?: string;
+  language?: string;
 }
 
 export type UserFormData = Omit<User, 'id' | 'role' | 'isActive'>;
