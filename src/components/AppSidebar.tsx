@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Sidebar,
@@ -9,7 +10,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Package, ShoppingCart, List, BarChart3, SlidersHorizontal, Users } from 'lucide-react';
+import { Package, ShoppingCart, List, BarChart3, SlidersHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -19,13 +21,14 @@ interface AppSidebarProps {
 export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, setActiveTab }) => {
   const { state, isMobile, setOpen, setOpenMobile } = useSidebar();
   const collapsed = state === 'collapsed';
+  const { t } = useTranslation();
 
   const menuItems = [
-    { id: 'panel', label: 'Panel', icon: BarChart3 },
-    { id: 'articulo', label: 'Artículo', icon: Package },
-    { id: 'sales', label: 'Ventas', icon: ShoppingCart },
-    { id: 'inventory', label: 'Inventario', icon: List },
-    { id: 'settings', label: 'Configuración', icon: SlidersHorizontal },
+    { id: 'panel', label: t('dashboard_title'), icon: BarChart3 },
+    { id: 'articulo', label: t('article_management'), icon: Package },
+    { id: 'sales', label: t('sales_management'), icon: ShoppingCart },
+    { id: 'inventory', label: t('inventory_management'), icon: List },
+    { id: 'settings', label: t('settings'), icon: SlidersHorizontal },
   ];
 
   const handleItemClick = (id: string) => {
