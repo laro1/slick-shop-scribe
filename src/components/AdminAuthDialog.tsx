@@ -1,9 +1,7 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -27,8 +25,6 @@ import {
 } from "@/components/ui/input-otp"
 import { Button } from '@/components/ui/button';
 
-const ADMIN_PIN = '2607';
-
 const formSchema = z.object({
   pin: z.string().length(4, { message: 'El PIN debe tener 4 dígitos.' }),
 });
@@ -36,10 +32,10 @@ const formSchema = z.object({
 interface AdminAuthDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSuccess: () => void;
+  onVerify: (pin: string) => boolean;
 }
 
-export const AdminAuthDialog: React.FC<AdminAuthDialogProps> = ({ isOpen, onOpenChange, onSuccess }) => {
+export const AdminAuthDialog: React.FC<AdminAuthDialogProps> = ({ isOpen, onOpenChange, onVerify }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,13 +44,11 @@ export const AdminAuthDialog: React.FC<AdminAuthDialogProps> = ({ isOpen, onOpen
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (values.pin === ADMIN_PIN) {
-      toast.success('Acceso de administrador concedido.');
-      onSuccess();
+    const success = onVerify(values.pin);
+    if (success) {
       onOpenChange(false);
       form.reset();
     } else {
-      toast.error('PIN de administrador incorrecto.');
       form.setError('pin', { type: 'manual', message: 'El PIN es incorrecto.' });
     }
   };

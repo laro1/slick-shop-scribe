@@ -5,49 +5,33 @@ import { Button } from '@/components/ui/button';
 import { CreateUserDialog } from '@/components/CreateUserDialog';
 import { LoginDialog } from '@/components/LoginDialog';
 import type { User as UserType } from '@/App';
-import { Building, User, Trash2, MoreHorizontal } from 'lucide-react';
-import { DeleteUserDialog } from '@/components/DeleteUserDialog';
-import { EditUserDialog } from '@/components/EditUserDialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Building, User as UserIcon } from 'lucide-react';
 import { AdminAuthDialog } from '@/components/AdminAuthDialog';
+import { useNavigate } from 'react-router-dom';
 
 interface UserAuthProps {
   users: UserType[];
   onLogin: (user: UserType, pin: string) => boolean;
   onCreateUser: (user: Omit<UserType, 'id'>) => void;
-  onDeleteUser: (userId: string, pin: string) => boolean;
-  onEditUser: (userId: string, pin: string, data: Partial<Omit<UserType, 'id' | 'pin'>>) => boolean;
+  onAdminLogin: (pin: string) => boolean;
 }
 
-export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser, onDeleteUser, onEditUser }) => {
+export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser, onAdminLogin }) => {
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<UserType | null>(null);
-  const [userToEdit, setUserToEdit] = useState<UserType | null>(null);
   const [isAdminAuthOpen, setAdminAuthOpen] = useState(false);
-  const [isAdminMode, setAdminMode] = useState(false);
+  const navigate = useNavigate();
 
-  const handleAdminSuccess = () => {
-    setAdminMode(true);
+  const handleAdminVerify = (pin: string) => {
+    const success = onAdminLogin(pin);
+    if (success) {
+      navigate('/admin');
+    }
+    return success;
   };
 
   const handleSelectUser = (user: UserType) => {
     setSelectedUser(user);
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent, user: UserType) => {
-    e.stopPropagation();
-    setUserToDelete(user);
-  };
-
-  const handleEditClick = (e: React.MouseEvent, user: UserType) => {
-    e.stopPropagation();
-    setUserToEdit(user);
   };
 
   return (
@@ -59,7 +43,7 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           onClick={() => setAdminAuthOpen(true)}
           aria-label="Configuración de Administrador"
         >
-          <User className="h-6 w-6" />
+          <UserIcon className="h-6 w-6" />
         </Button>
       </div>
       <div className="w-full max-w-4xl">
@@ -73,55 +57,25 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
             {users.map((user) => (
               <Card 
                 key={user.id} 
-                className="text-center relative"
+                className="text-center relative cursor-pointer"
+                onClick={() => handleSelectUser(user)}
               >
-                {isAdminMode && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="h-7 w-7"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Abrir menú</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={(e) => handleEditClick(e, user)}>
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive focus:text-destructive" 
-                          onClick={(e) => handleDeleteClick(e, user)}
-                        >
-                          Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                <CardHeader className="items-center pt-8">
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    {user.logoUrl ? (
+                      <img src={user.logoUrl} alt={user.businessName} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <Building className="w-10 h-10 text-primary" />
+                    )}
                   </div>
-                )}
-
-                <div className="cursor-pointer" onClick={() => handleSelectUser(user)}>
-                  <CardHeader className="items-center pt-8">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                      {user.logoUrl ? (
-                        <img src={user.logoUrl} alt={user.businessName} className="w-full h-full object-cover rounded-full" />
-                      ) : (
-                        <Building className="w-10 h-10 text-primary" />
-                      )}
-                    </div>
-                    <CardTitle className="text-lg">{user.businessName}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-center text-sm text-muted-foreground">
-                      <User className="w-4 h-4 mr-2" />
-                      <span>{user.name}</span>
-                    </div>
-                  </CardContent>
-                </div>
+                  <CardTitle className="text-lg">{user.businessName}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-center text-sm text-muted-foreground">
+                    <UserIcon className="w-4 h-4 mr-2" />
+                    <span>{user.name}</span>
+                  </div>
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -151,25 +105,11 @@ export const UserAuth: React.FC<UserAuthProps> = ({ users, onLogin, onCreateUser
           onLogin={onLogin}
         />
       )}
-
-      {userToDelete && (
-        <DeleteUserDialog
-          isOpen={!!userToDelete}
-          onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}
-          user={userToDelete}
-          onDelete={onDeleteUser}
-        />
-      )}
-
-      {userToEdit && (
-        <EditUserDialog
-          isOpen={!!userToEdit}
-          onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}
-          user={userToEdit}
-          onEditUser={onEditUser}
-        />
-      )}
-      <AdminAuthDialog isOpen={isAdminAuthOpen} onOpenChange={setAdminAuthOpen} onSuccess={handleAdminSuccess} />
+      <AdminAuthDialog 
+        isOpen={isAdminAuthOpen} 
+        onOpenChange={setAdminAuthOpen} 
+        onVerify={handleAdminVerify} 
+      />
     </div>
   );
 };

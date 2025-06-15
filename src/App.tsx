@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner, toast } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { UserAuth } from "./pages/UserAuth";
+import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
 import type { Article, Sale } from "@/types/inventory";
 
@@ -58,6 +59,7 @@ const App = () => {
   });
 
   const [activeUser, setActiveUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("inventory_users", JSON.stringify(users));
@@ -151,6 +153,21 @@ const App = () => {
     return true;
   };
 
+  const handleAdminLogin = (pin: string) => {
+    const ADMIN_PIN = '2607';
+    if (pin === ADMIN_PIN) {
+      setIsAdmin(true);
+      toast.success("Acceso de administrador concedido.");
+      return true;
+    }
+    toast.error("PIN de administrador incorrecto.");
+    return false;
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+  };
+
   const inventoryActions = {
     addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
       if (!activeUser) return;
@@ -216,6 +233,7 @@ const App = () => {
             onCreateUser={handleCreateUser} 
             onDeleteUser={handleDeleteUser}
             onEditUser={handleEditUser}
+            onAdminLogin={handleAdminLogin}
           />
         </TooltipProvider>
       </QueryClientProvider>
@@ -232,14 +250,32 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={
-              <Index 
-                currentUser={activeUser}
-                onLogout={handleLogout}
-                onUpdateUser={handleUpdateUser}
-                articles={currentUserData.articles}
-                sales={currentUserData.sales}
-                {...inventoryActions}
-              />
+              activeUser 
+                ? <Index 
+                    currentUser={activeUser}
+                    onLogout={handleLogout}
+                    onUpdateUser={handleUpdateUser}
+                    articles={data[activeUser.id] || { articles: [], sales: [] }.articles}
+                    sales={data[activeUser.id] || { articles: [], sales: [] }.sales}
+                    {...inventoryActions}
+                  />
+                : <UserAuth 
+                    users={users} 
+                    onLogin={handleLogin} 
+                    onCreateUser={handleCreateUser}
+                    onAdminLogin={handleAdminLogin}
+                  />
+              } />
+            <Route path="/admin" element={
+              isAdmin 
+                ? <AdminPanel
+                    users={users}
+                    onCreateUser={handleCreateUser}
+                    onEditUser={handleEditUser}
+                    onDeleteUser={handleDeleteUser}
+                    onAdminLogout={handleAdminLogout}
+                  />
+                : <Navigate to="/" />
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
