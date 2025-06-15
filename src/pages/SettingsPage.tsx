@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -67,7 +66,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-2xl">
-        <Accordion type="multiple" className="w-full space-y-4" defaultValue={['general-settings']}>
+        <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="general-settings">
           <AccordionItem value="general-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
             <AccordionTrigger className="p-6 hover:no-underline">
               <div className="text-left">
@@ -169,46 +168,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onUpdat
               </Form>
             </AccordionContent>
           </AccordionItem>
-
-          <AccordionItem value="user-management" className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <AccordionTrigger className="p-6 hover:no-underline">
-              <div className="text-left">
-                <CardTitle>Gestión de Usuarios y Permisos</CardTitle>
-                <CardDescription className="mt-1.5">
-                  Próximamente: Funciones para administrar usuarios y sus roles.
-                </CardDescription>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-6">
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
-                <li>Crear/editar/eliminar usuarios</li>
-                <li>Asignar roles (Administrador, Vendedor, Inventarista, Consultor)</li>
-                <li>Definir permisos personalizados (ver, editar, eliminar, exportar)</li>
-                <li>Activar o desactivar cuentas</li>
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="more-settings" className="rounded-lg border bg-card text-card-foreground shadow-sm">
-            <AccordionTrigger className="p-6 hover:no-underline">
-              <div className="text-left">
-                <CardTitle>Más Configuraciones (Próximamente)</CardTitle>
-                <CardDescription className="mt-1.5">
-                  Otras opciones de configuración que estarán disponibles pronto.
-                </CardDescription>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-6">
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
-                <li>Configuración de Inventario (categorías, stock mínimo, etc.)</li>
-                <li>Configuración de Ventas y Facturación (formas de pago, etc.)</li>
-                <li>Ajustes de notificaciones y alertas.</li>
-                <li>Configuraciones de acceso y seguridad.</li>
-                <li>Y mucho más...</li>
-              </ul>
-            </AccordionContent>
-          </AccordionItem>
-
         </Accordion>
       </div>
     </div>
