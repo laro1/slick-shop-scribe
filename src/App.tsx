@@ -8,7 +8,8 @@ import NotFound from "./pages/NotFound";
 import { UserAuth } from "./pages/UserAuth";
 import { AdminPanel } from "./pages/AdminPanel";
 import { useState, useEffect } from "react";
-import type { Article, Sale } from "@/types/inventory";
+import { useInventory } from "@/hooks/useInventory";
+import type { Article, Sale, ArticleFormData, EditArticleData, EditSaleData } from "@/types/inventory";
 
 export type UserRole = 'Administrador' | 'Vendedor' | 'Inventarista' | 'Consultor';
 
@@ -24,11 +25,6 @@ export interface User {
   isActive: boolean;
 }
 
-export interface UserData {
-  articles: Article[];
-  sales: Sale[];
-}
-
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -36,7 +32,6 @@ const App = () => {
     const savedUsers = localStorage.getItem("inventory_users");
     if (savedUsers) {
       const parsedUsers = JSON.parse(savedUsers);
-      // Add default role and isActive for existing users for migration
       return parsedUsers.map((user: Omit<User, 'role' | 'isActive'> & Partial<User>) => ({
         ...user,
         role: user.role || 'Vendedor',
@@ -45,32 +40,9 @@ const App = () => {
     }
     return [];
   });
-
-  const [data, setData] = useState<Record<string, UserData>>(() => {
-    const savedData = localStorage.getItem("inventory_data");
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      
-      Object.keys(parsedData).forEach(userId => {
-        const userData = parsedData[userId];
-        // Migration for articles date
-        if (userData.articles) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          userData.articles = userData.articles.map((article: any) => ({
-            ...article,
-            createdAt: article.createdAt ? new Date(article.createdAt) : new Date(),
-          }));
-        }
-        // remove subUsers property if it exists from old data
-        if (userData.subUsers) {
-          delete userData.subUsers;
-        }
-      });
-      return parsedData;
-    }
-    return {};
-  });
-
+  
+  const { articles, sales, addArticle, updateArticle, deleteArticle, addSale, updateSale, deleteSale, isLoading } = useInventory();
+  
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -103,10 +75,6 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("inventory_users", JSON.stringify(users));
   }, [users]);
-
-  useEffect(() => {
-    localStorage.setItem("inventory_data", JSON.stringify(data));
-  }, [data]);
 
   useEffect(() => {
     localStorage.setItem("inventory_product_categories", JSON.stringify(productCategories));
@@ -156,7 +124,6 @@ const App = () => {
       isActive: true,
     };
     setUsers(prev => [...prev, userWithId]);
-    setData(prev => ({ ...prev, [userWithId.id]: { articles: [], sales: [] } }));
     toast.success("Usuario creado con éxito!");
   };
   
@@ -173,12 +140,6 @@ const App = () => {
     }
 
     setUsers(prev => prev.filter(u => u.id !== userId));
-    setData(prev => {
-      const newData = { ...prev };
-      delete newData[userId];
-      return newData;
-    });
-
     toast.success(`El negocio "${userToDelete.businessName}" ha sido eliminado.`);
     return true;
   };
@@ -288,57 +249,58 @@ const App = () => {
   };
 
   const inventoryActions = {
-    addArticle: (article: Omit<Article, 'id' | 'createdAt'>) => {
-      if (!activeUser) return;
-      const newArticle = { ...article, id: crypto.randomUUID(), createdAt: new Date() };
-      setData(prev => {
-        const userData = prev[activeUser.id] || { articles: [], sales: [] };
-        return { ...prev, [activeUser.id]: { ...userData, articles: [...userData.articles, newArticle] } };
-      });
+    addArticle: async (articleData: ArticleFormData) => {
+      try {
+        await addArticle(articleData);
+        toast({ title: "Artículo registrado", description: "El artículo se ha agregado a Supabase." });
+      } catch(e) {
+        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
+      }
     },
-    updateArticle: (updatedArticle: Article) => {
-      if (!activeUser) return;
-      setData(prev => {
-        const userData = prev[activeUser.id];
-        return { ...prev, [activeUser.id]: { ...userData, articles: userData.articles.map(a => a.id === updatedArticle.id ? updatedArticle : a) } };
-      });
+    updateArticle: async (updatedArticle: EditArticleData) => {
+      try {
+        await updateArticle(updatedArticle);
+        toast({ title: "Artículo actualizado", description: "El artículo se ha actualizado en Supabase." });
+      } catch(e) {
+        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
+      }
     },
-    deleteArticle: (articleId: string) => {
-      if (!activeUser) return;
-      setData(prev => {
-        const userData = prev[activeUser.id];
-        return { ...prev, [activeUser.id]: { ...userData, articles: userData.articles.filter(a => a.id !== articleId) } };
-      });
+    deleteArticle: async (articleId: string) => {
+       try {
+        await deleteArticle(articleId);
+        toast({ title: "Artículo eliminado", description: "El artículo se ha eliminado de Supabase." });
+      } catch(e) {
+        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
+      }
     },
-    addSale: (sale: Omit<Sale, 'id'>) => {
-       if (!activeUser) return;
-      const newSale = { ...sale, id: crypto.randomUUID() };
-      setData(prev => {
-        const userData = prev[activeUser.id];
-        const article = userData.articles.find(a => a.name === newSale.articleName);
-        if (article) {
-          const updatedArticle = { ...article, stock: article.stock - newSale.quantity };
-          const newArticles = userData.articles.map(a => a.id === article.id ? updatedArticle : a);
-          return { ...prev, [activeUser.id]: { ...userData, sales: [...userData.sales, newSale], articles: newArticles } };
-        }
-        return prev;
-      });
+    addSale: async (saleData: SaleFormData) => {
+       try {
+        await addSale(saleData);
+        toast({ title: "Venta registrada", description: "La venta se ha registrado en Supabase." });
+      } catch(e) {
+        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
+      }
     },
-    updateSale: (updatedSale: Sale) => {
-       if (!activeUser) return;
-       setData(prev => {
-        const userData = prev[activeUser.id];
-        return { ...prev, [activeUser.id]: { ...userData, sales: userData.sales.map(s => s.id === updatedSale.id ? updatedSale : s) } };
-      });
+    updateSale: async (updatedSale: EditSaleData) => {
+       try {
+        await updateSale(updatedSale);
+      } catch(e) {
+        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
+      }
     },
-    deleteSale: (saleId: string) => {
-      if (!activeUser) return;
-      setData(prev => {
-        const userData = prev[activeUser.id];
-        return { ...prev, [activeUser.id]: { ...userData, sales: userData.sales.filter(s => s.id !== saleId) } };
-      });
+    deleteSale: async (saleId: string) => {
+      try {
+        await deleteSale(saleId);
+        toast({ title: "Venta eliminada", description: "La venta se ha eliminado de Supabase." });
+      } catch(e) {
+        toast({ title: "Error", description: (e as Error).message, variant: 'destructive' });
+      }
     },
   };
+  
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center">Cargando datos desde Supabase...</div>;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -353,8 +315,8 @@ const App = () => {
                     currentUser={activeUser}
                     onLogout={handleLogout}
                     onUpdateUser={handleUpdateUser}
-                    articles={(data[activeUser.id] || { articles: [], sales: [] }).articles}
-                    sales={(data[activeUser.id] || { articles: [], sales: [] }).sales}
+                    articles={articles}
+                    sales={sales}
                     {...inventoryActions}
                   />
                 : <UserAuth 

@@ -7,7 +7,6 @@ import { Article, Sale, EditArticleData, EditSaleData } from '@/types/inventory'
 import { EditArticleDialog } from '@/components/EditArticleDialog';
 import { EditSaleDialog } from '@/components/EditSaleDialog';
 import { Edit, Trash2, ChevronDown } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/utils';
 
 interface InventoryListsProps {
@@ -31,7 +30,6 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [articlesOpen, setArticlesOpen] = useState(false);
   const [salesOpen, setSalesOpen] = useState(false);
-  const { toast } = useToast();
 
   const lowStockThreshold = localStorage.getItem("inventory_low_stock_threshold") 
     ? JSON.parse(localStorage.getItem("inventory_low_stock_threshold")!) 
@@ -48,35 +46,11 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
   };
 
   const handleDeleteArticle = (article: Article) => {
-    try {
-      onDeleteArticle(article.id);
-      toast({
-        title: "Artículo eliminado",
-        description: "El artículo se ha eliminado correctamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "No se puede eliminar el artículo.",
-        variant: "destructive",
-      });
-    }
+    onDeleteArticle(article.id);
   };
 
   const handleDeleteSale = (sale: Sale) => {
-    try {
-      onDeleteSale(sale.id);
-      toast({
-        title: "Venta eliminada",
-        description: "La venta se ha eliminado correctamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Hubo un problema al eliminar la venta.",
-        variant: "destructive",
-      });
-    }
+    onDeleteSale(sale.id);
   };
 
   return (
