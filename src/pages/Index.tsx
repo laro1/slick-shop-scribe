@@ -4,12 +4,12 @@ import { ArticleForm } from '@/components/ArticleForm';
 import { SaleForm } from '@/components/SaleForm';
 import { InventoryLists } from '@/components/InventoryLists';
 import { ExportButton } from '@/components/ExportButton';
-import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert, LogOut, User as UserIcon } from 'lucide-react';
+import { Package, ShoppingCart, FileSpreadsheet, BarChart3, Menu, TriangleAlert, LogOut } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
-import type { User, UserData, SubUser } from '@/App';
+import type { User, UserData } from '@/App';
 import type { Article, Sale } from '@/types/inventory';
 import {
   DropdownMenu,
@@ -21,9 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SettingsPage } from '@/pages/SettingsPage';
-import { UserManagementPage } from '@/pages/UserManagementPage';
 
-interface IndexProps extends Omit<UserData, 'subUsers'> {
+interface IndexProps extends UserData {
   currentUser: User;
   onLogout: () => void;
   onUpdateUser: (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => void;
