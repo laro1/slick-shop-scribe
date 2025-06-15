@@ -231,8 +231,6 @@ const App = () => {
             users={users} 
             onLogin={handleLogin} 
             onCreateUser={handleCreateUser} 
-            onDeleteUser={handleDeleteUser}
-            onEditUser={handleEditUser}
             onAdminLogin={handleAdminLogin}
           />
         </TooltipProvider>
@@ -255,8 +253,8 @@ const App = () => {
                     currentUser={activeUser}
                     onLogout={handleLogout}
                     onUpdateUser={handleUpdateUser}
-                    articles={data[activeUser.id] || { articles: [], sales: [] }.articles}
-                    sales={data[activeUser.id] || { articles: [], sales: [] }.sales}
+                    articles={currentUserData.articles}
+                    sales={currentUserData.sales}
                     {...inventoryActions}
                   />
                 : <UserAuth 
