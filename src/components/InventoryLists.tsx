@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +64,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
           <Collapsible open={articlesOpen} onOpenChange={setArticlesOpen}>
             <CardHeader className="pb-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full hover:bg-muted/50 p-2 rounded-md transition-colors">
-                <CardTitle className="text-lg sm:text-xl text-left">{t('article_inventory')}</CardTitle>
+                <CardTitle className="text-lg sm:text-xl text-left">Inventario de Artículos</CardTitle>
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${articlesOpen ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
             </CardHeader>
@@ -79,7 +80,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                       <div key={article.id} className="p-3 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
                         <div className="flex justify-between items-start mb-2 gap-2">
                           <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{article.name}</h4>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
                             <Badge variant={article.stock > lowStockThreshold ? "default" : article.stock > 0 ? "secondary" : "destructive"} className="text-xs whitespace-nowrap">
                               Stock: {article.stock}
                             </Badge>
@@ -101,11 +102,11 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                             </Button>
                           </div>
                         </div>
-                        <div className="w-full h-40 mb-3 overflow-hidden rounded-md">
+                        <div className="w-full h-32 mb-3 overflow-hidden rounded-md bg-muted flex items-center justify-center">
                           <img 
                             src={article.imageUrl} 
                             alt={article.name} 
-                            className="w-full h-full object-cover"
+                            className="max-w-full max-h-full object-contain"
                             onError={(e) => {
                               console.error('Error loading image:', article.imageUrl);
                               e.currentTarget.src = '/placeholder.svg';
@@ -131,7 +132,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
           <Collapsible open={salesOpen} onOpenChange={setSalesOpen}>
             <CardHeader className="pb-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full hover:bg-muted/50 p-2 rounded-md transition-colors">
-                <CardTitle className="text-lg sm:text-xl text-left">{t('sales_history')}</CardTitle>
+                <CardTitle className="text-lg sm:text-xl text-left">Historial de Ventas</CardTitle>
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${salesOpen ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
             </CardHeader>
@@ -147,7 +148,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                       <div key={sale.id} className="p-3 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
                         <div className="flex justify-between items-start mb-2 gap-2">
                           <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{sale.articleName}</h4>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
                             <Badge variant="outline" className="border-green-600/50 text-xs font-bold text-green-700 whitespace-nowrap">
                               {formatCurrencyLocalized(sale.amountPaid, 'USD', 'es')}
                             </Badge>
