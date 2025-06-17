@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArticleForm } from '@/components/ArticleForm';
@@ -73,6 +72,31 @@ const Index: React.FC<IndexProps> = ({
     sales: t('sales_management'),
     inventory: t('inventory_management'),
     settings: t('settings'),
+  };
+
+  // Crear funciones async wrapper para manejar las operaciones
+  const handleAddArticle = async (data: ArticleFormData) => {
+    await addArticle(data);
+  };
+
+  const handleUpdateArticle = async (data: EditArticleData) => {
+    await updateArticle(data);
+  };
+
+  const handleDeleteArticle = async (id: string) => {
+    await deleteArticle(id);
+  };
+
+  const handleAddSale = async (data: SaleFormData) => {
+    await addSale(data);
+  };
+
+  const handleUpdateSale = async (data: EditSaleData) => {
+    await updateSale(data);
+  };
+
+  const handleDeleteSale = async (id: string) => {
+    await deleteSale(id);
   };
 
   return (
@@ -201,7 +225,7 @@ const Index: React.FC<IndexProps> = ({
                 <div className="space-y-4">
                   <div className="flex justify-center">
                     <div className="w-full max-w-md">
-                      <ArticleForm onSubmit={addArticle} />
+                      <ArticleForm onSubmit={handleAddArticle} />
                     </div>
                   </div>
                 </div>
@@ -210,7 +234,7 @@ const Index: React.FC<IndexProps> = ({
               {activeTab === 'sales' && (
                 <div className="space-y-4">
                   <div className="flex flex-col gap-4">
-                    <SaleForm articles={articles} onSubmit={addSale} />
+                    <SaleForm articles={articles} onSubmit={handleAddSale} />
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-lg">{t('recent_sales')}</CardTitle>
@@ -255,10 +279,10 @@ const Index: React.FC<IndexProps> = ({
                   <InventoryLists 
                     articles={articles} 
                     sales={sales} 
-                    onUpdateArticle={updateArticle}
-                    onDeleteArticle={deleteArticle}
-                    onUpdateSale={updateSale}
-                    onDeleteSale={deleteSale}
+                    onUpdateArticle={handleUpdateArticle}
+                    onDeleteArticle={handleDeleteArticle}
+                    onUpdateSale={handleUpdateSale}
+                    onDeleteSale={handleDeleteSale}
                   />
                 </div>
               )}
