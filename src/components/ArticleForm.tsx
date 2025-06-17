@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Upload } from 'lucide-react';
 
 interface ArticleFormProps {
-  onSubmit: (data: ArticleFormData) => void;
+  onSubmit: (data: ArticleFormData) => Promise<void>;
 }
 
 type ArticleFormValues = {
@@ -22,12 +22,12 @@ type ArticleFormValues = {
 };
 
 export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
-  const { register, handleSubmit, reset, formState: { errors }, watch } = useForm<ArticleFormValues>();
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting }, watch } = useForm<ArticleFormValues>();
   const { toast } = useToast();
   const { t } = useTranslation();
   const imageUrl = watch("imageUrl");
 
-  const handleFormSubmit = (data: ArticleFormValues) => {
+  const handleFormSubmit = async (data: ArticleFormValues) => {
     const imageFile = data.imageUrl?.[0];
     try {
       if (!imageFile) {
@@ -39,7 +39,14 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
         return;
       }
 
-      onSubmit({
+      console.log('Submitting article data:', {
+        name: data.name,
+        price: data.price,
+        stock: data.stock,
+        imageFile: imageFile.name
+      });
+
+      await onSubmit({
         name: data.name,
         price: data.price,
         stock: data.stock,
@@ -52,9 +59,10 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
         description: t('article_registered_success_description'),
       });
     } catch (error) {
+      console.error('Error submitting article:', error);
       toast({
         title: t('error'),
-        description: t('article_registration_error_description'),
+        description: error instanceof Error ? error.message : t('article_registration_error_description'),
         variant: "destructive",
       });
     }
@@ -80,7 +88,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="price" className="text-sm font-medium">{t('price')}</Label>
               <Input
@@ -137,7 +145,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
                     <span>{t('select_file_button')}</span>
                 </Label>
                 {imageUrl?.[0] && (
-                    <span className="text-sm text-muted-foreground truncate">{imageUrl[0].name}</span>
+                    <span className="text-sm text-muted-foreground truncate flex-1">{imageUrl[0].name}</span>
                 )}
             </div>
             {errors.imageUrl && (
@@ -145,8 +153,8 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
             )}
           </div>
 
-          <Button type="submit" className="w-full text-sm py-2">
-            {t('register_article')}
+          <Button type="submit" className="w-full text-sm py-2" disabled={isSubmitting}>
+            {isSubmitting ? 'Registrando...' : t('register_article')}
           </Button>
         </form>
       </CardContent>

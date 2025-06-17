@@ -14,11 +14,11 @@ import { PaymentFields } from './sale-form/PaymentFields';
 
 interface SaleFormProps {
   articles: Article[];
-  onSubmit: (data: SaleFormData) => void;
+  onSubmit: (data: SaleFormData) => Promise<void>;
 }
 
 export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
-  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors } } = useForm<SaleFormData>({
+  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors, isSubmitting } } = useForm<SaleFormData>({
     defaultValues: {
       articleId: '',
       paymentMethod: 'efectivo',
@@ -42,7 +42,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
     }
   }, [selectedArticle, quantity, paymentMethod, setValue]);
 
-  const handleFormSubmit = (data: SaleFormData) => {
+  const handleFormSubmit = async (data: SaleFormData) => {
     try {
       if (data.paymentMethod === 'sinabono') {
         data.amountPaid = 0;
@@ -50,13 +50,17 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
       if (data.paymentMethod !== 'transferencia') {
         data.bankName = '';
       }
-      onSubmit(data);
+      
+      console.log('Submitting sale data:', data);
+      await onSubmit(data);
+      
       reset();
       toast({
         title: "Venta registrada",
         description: "La venta se ha registrado correctamente.",
       });
     } catch (error) {
+      console.error('Error submitting sale:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Hubo un problema al registrar la venta.",
@@ -85,7 +89,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
 
           <SelectedArticlePreview selectedArticle={selectedArticle} />
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label htmlFor="quantity" className="text-sm font-medium">Cantidad</Label>
               <Input
@@ -94,7 +98,8 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
                 {...register('quantity', { 
                   required: 'La cantidad es requerida',
                   min: { value: 1, message: 'La cantidad debe ser mayor a 0' },
-                  max: selectedArticle ? { value: selectedArticle.stock, message: 'Cantidad excede el stock disponible' } : undefined
+                  max: selectedArticle ? { value: selectedArticle.stock, message: 'Cantidad excede el stock disponible' } : undefined,
+                  valueAsNumber: true
                 })}
                 placeholder="1"
                 className="text-sm"
@@ -104,7 +109,7 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
               )}
             </div>
 
-            <div className="space-y-2 col-span-2 sm:col-span-1">
+            <div className="space-y-2">
               <Label htmlFor="buyerName" className="text-sm font-medium">Nombre del Comprador</Label>
               <Input
                 id="buyerName"
@@ -127,8 +132,8 @@ export const SaleForm: React.FC<SaleFormProps> = ({ articles, onSubmit }) => {
             quantity={quantity}
           />
           
-          <Button type="submit" className="w-full text-sm py-2">
-            Registrar Venta
+          <Button type="submit" className="w-full text-sm py-2" disabled={isSubmitting}>
+            {isSubmitting ? 'Registrando...' : 'Registrar Venta'}
           </Button>
         </form>
       </CardContent>

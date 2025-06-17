@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
 
 // --- Interfaces para la forma de los datos de Supabase ---
-// Esto es necesario porque los tipos autogenerados pueden estar desactualizados.
 interface SupabaseArticleRow {
     id: string;
     name: string;
@@ -28,8 +27,7 @@ interface SupabaseSaleRow {
     amount_paid: number;
 }
 
-
-// --- Funciones auxiliares para Supabase ---
+// --- Funciones auxiliares para Supabase Storage ---
 
 // Sube una imagen a Supabase Storage y devuelve la URL pública.
 const uploadArticleImage = async (imageFile: File): Promise<string> => {
@@ -38,7 +36,10 @@ const uploadArticleImage = async (imageFile: File): Promise<string> => {
         .from('article_images')
         .upload(fileName, imageFile);
 
-    if (error) throw new Error(`Error al subir la imagen: ${error.message}`);
+    if (error) {
+        console.error('Error uploading image:', error);
+        throw new Error(`Error al subir la imagen: ${error.message}`);
+    }
 
     const { data: { publicUrl } } = supabase.storage
         .from('article_images')
@@ -49,13 +50,22 @@ const uploadArticleImage = async (imageFile: File): Promise<string> => {
 
 // Elimina una imagen de Supabase Storage.
 const deleteArticleImage = async (imageUrl: string) => {
-    const fileName = imageUrl.split('/').pop();
-    if (fileName) {
-        try {
-            await supabase.storage.from('article_images').remove([fileName]);
-        } catch (error) {
-            console.error("Error deleting image, it might not exist:", error);
+    try {
+        // Extraer el nombre del archivo de la URL
+        const urlParts = imageUrl.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        
+        if (fileName && imageUrl.includes('supabase')) {
+            const { error } = await supabase.storage
+                .from('article_images')
+                .remove([fileName]);
+            
+            if (error) {
+                console.error("Error deleting image:", error);
+            }
         }
+    } catch (error) {
+        console.error("Error deleting image, it might not exist:", error);
     }
 };
 
@@ -75,17 +85,22 @@ export const useInventory = () => {
     const { data: articles = [], isLoading: articlesLoading } = useQuery<Article[]>({
         queryKey: ['articles'],
         queryFn: async () => {
+            console.log('Fetching articles...');
             const { data, error } = await supabase
               .from('items')
               .select('id, name, image_url, price, stock, created_at')
               .order('created_at', { ascending: false });
-            if (error) throw new Error(error.message);
             
-            // Forzar el tipo de dato para evitar errores con tipos autogenerados desactualizados
+            if (error) {
+                console.error('Error fetching articles:', error);
+                throw new Error(error.message);
+            }
+            
+            console.log('Articles fetched:', data);
             return (data as unknown as SupabaseArticleRow[]).map(item => ({
                 id: item.id,
                 name: item.name,
-                imageUrl: item.image_url,
+                imageUrl: item.image_url || '',
                 price: item.price,
                 stock: item.stock,
                 createdAt: new Date(item.created_at),
@@ -97,13 +112,18 @@ export const useInventory = () => {
     const { data: sales = [], isLoading: salesLoading } = useQuery<Sale[]>({
         queryKey: ['sales'],
         queryFn: async () => {
+            console.log('Fetching sales...');
             const { data, error } = await supabase
               .from('sales')
               .select('id, item_id, article_name, quantity, unit_price, total_price, buyer_name, sale_date, payment_method, bank_name, amount_paid')
               .order('sale_date', { ascending: false });
-            if (error) throw new Error(error.message);
             
-            // Forzar el tipo de dato para evitar errores con tipos autogenerados desactualizados
+            if (error) {
+                console.error('Error fetching sales:', error);
+                throw new Error(error.message);
+            }
+            
+            console.log('Sales fetched:', data);
             return (data as unknown as SupabaseSaleRow[]).map(sale => ({
                 id: sale.id,
                 articleId: sale.item_id,
@@ -129,124 +149,312 @@ export const useInventory = () => {
     // CREAR artículo
     const { mutateAsync: addArticle } = useMutation({
         mutationFn: async (articleData: ArticleFormData) => {
-            const imageFile = await fileFromBlobUrl(articleData.imageUrl);
-            const publicUrl = await uploadArticleImage(imageFile);
+            console.log('Adding article:', articleData);
+            
+            let publicUrl = '';
+            
+            try {
+                // Convertir blob URL a File y subir imagen
+                const imageFile = await fileFromBlobUrl(articleData.imageUrl);
+                publicUrl = await uploadArticleImage(imageFile);
+                console.log('Image uploaded successfully:', publicUrl);
 
-            const { error } = await supabase.from('items').insert({
-                name: articleData.name,
-                price: articleData.price,
-                stock: articleData.stock,
-                image_url: publicUrl,
-            });
-            if (error) {
-                await deleteArticleImage(publicUrl); // Intenta borrar la imagen si falla la inserción
-                throw new Error(error.message);
+                // Insertar artículo en la base de datos
+                const { data, error } = await supabase.from('items').insert({
+                    name: articleData.name,
+                    price: articleData.price,
+                    stock: articleData.stock,
+                    image_url: publicUrl,
+                }).select().single();
+
+                if (error) {
+                    console.error('Error inserting article:', error);
+                    // Intentar borrar la imagen si falla la inserción
+                    await deleteArticleImage(publicUrl);
+                    throw new Error(error.message);
+                }
+                
+                console.log('Article added successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('Error in addArticle:', error);
+                // Limpiar imagen si algo falla
+                if (publicUrl) {
+                    await deleteArticleImage(publicUrl);
+                }
+                throw error;
             }
         },
-        onSuccess: invalidateQueries,
+        onSuccess: () => {
+            console.log('Article added, invalidating queries...');
+            invalidateQueries();
+        },
+        onError: (error) => {
+            console.error('Error adding article:', error);
+        }
     });
 
     // ACTUALIZAR artículo
     const { mutateAsync: updateArticle } = useMutation({
         mutationFn: async (updatedArticle: EditArticleData) => {
+            console.log('Updating article:', updatedArticle);
+            
             let newImageUrl = updatedArticle.imageUrl;
             
-            // Si la URL es un blob, es una nueva imagen para subir
-            if (updatedArticle.imageUrl.startsWith('blob:')) {
-                const imageFile = await fileFromBlobUrl(updatedArticle.imageUrl);
-                newImageUrl = await uploadArticleImage(imageFile);
-                
-                // Borrar la imagen antigua si es diferente a la nueva
-                const originalArticle = articles.find(a => a.id === updatedArticle.id);
-                if (originalArticle && originalArticle.imageUrl) {
-                    await deleteArticleImage(originalArticle.imageUrl);
+            try {
+                // Si la URL es un blob, es una nueva imagen para subir
+                if (updatedArticle.imageUrl.startsWith('blob:')) {
+                    const imageFile = await fileFromBlobUrl(updatedArticle.imageUrl);
+                    newImageUrl = await uploadArticleImage(imageFile);
+                    console.log('New image uploaded:', newImageUrl);
+                    
+                    // Borrar la imagen antigua si es diferente a la nueva
+                    const originalArticle = articles.find(a => a.id === updatedArticle.id);
+                    if (originalArticle && originalArticle.imageUrl && originalArticle.imageUrl !== newImageUrl) {
+                        await deleteArticleImage(originalArticle.imageUrl);
+                    }
                 }
-            }
-            
-            const { error } = await supabase.from('items').update({
-                name: updatedArticle.name,
-                price: updatedArticle.price,
-                stock: updatedArticle.stock,
-                image_url: newImageUrl,
-            }).eq('id', updatedArticle.id);
+                
+                const { data, error } = await supabase.from('items').update({
+                    name: updatedArticle.name,
+                    price: updatedArticle.price,
+                    stock: updatedArticle.stock,
+                    image_url: newImageUrl,
+                }).eq('id', updatedArticle.id).select().single();
 
-            if (error) throw new Error(error.message);
+                if (error) {
+                    console.error('Error updating article:', error);
+                    throw new Error(error.message);
+                }
+                
+                console.log('Article updated successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('Error in updateArticle:', error);
+                throw error;
+            }
         },
-        onSuccess: invalidateQueries,
+        onSuccess: () => {
+            console.log('Article updated, invalidating queries...');
+            invalidateQueries();
+        },
+        onError: (error) => {
+            console.error('Error updating article:', error);
+        }
     });
 
     // ELIMINAR artículo
     const { mutateAsync: deleteArticle } = useMutation({
         mutationFn: async (articleId: string) => {
-            const articleToDelete = articles.find(a => a.id === articleId);
-            if (!articleToDelete) throw new Error("Artículo no encontrado");
+            console.log('Deleting article:', articleId);
             
-            const { data: salesData, error: salesError } = await supabase.from('sales').select('id').eq('item_id', articleId).limit(1);
-            if (salesError) throw new Error(salesError.message);
+            const articleToDelete = articles.find(a => a.id === articleId);
+            if (!articleToDelete) {
+                throw new Error("Artículo no encontrado");
+            }
+            
+            // Verificar si tiene ventas asociadas
+            const { data: salesData, error: salesError } = await supabase
+                .from('sales')
+                .select('id')
+                .eq('item_id', articleId)
+                .limit(1);
+            
+            if (salesError) {
+                console.error('Error checking sales:', salesError);
+                throw new Error(salesError.message);
+            }
+            
             if (salesData && salesData.length > 0) {
                 throw new Error('No se puede eliminar un artículo que tiene ventas asociadas');
             }
 
-            const { error: deleteError } = await supabase.from('items').delete().eq('id', articleId);
-            if (deleteError) throw new Error(deleteError.message);
+            // Eliminar artículo de la base de datos
+            const { error: deleteError } = await supabase
+                .from('items')
+                .delete()
+                .eq('id', articleId);
+            
+            if (deleteError) {
+                console.error('Error deleting article:', deleteError);
+                throw new Error(deleteError.message);
+            }
 
-            await deleteArticleImage(articleToDelete.imageUrl);
+            // Eliminar imagen del storage
+            if (articleToDelete.imageUrl) {
+                await deleteArticleImage(articleToDelete.imageUrl);
+            }
+            
+            console.log('Article deleted successfully');
         },
-        onSuccess: invalidateQueries,
+        onSuccess: () => {
+            console.log('Article deleted, invalidating queries...');
+            invalidateQueries();
+        },
+        onError: (error) => {
+            console.error('Error deleting article:', error);
+        }
     });
 
     // CREAR venta
     const { mutateAsync: addSale } = useMutation({
         mutationFn: async (saleData: SaleFormData) => {
+            console.log('Adding sale:', saleData);
+            
             const article = articles.find(a => a.id === saleData.articleId);
             if (!article) throw new Error('Artículo no encontrado');
             if (article.stock < saleData.quantity) throw new Error('Stock insuficiente');
             
             const newStock = article.stock - saleData.quantity;
+            const totalPrice = article.price * saleData.quantity;
 
-            // Nota: Idealmente, esto debería ser una transacción (RPC en Supabase)
-            const { error: saleError } = await supabase.from('sales').insert({
-                item_id: saleData.articleId,
-                article_name: article.name,
-                quantity: saleData.quantity,
-                unit_price: article.price,
-                total_price: article.price * saleData.quantity,
-                buyer_name: saleData.buyerName,
-                payment_method: saleData.paymentMethod,
-                amount_paid: saleData.paymentMethod === 'sinabono' ? 0 : saleData.amountPaid,
-                bank_name: saleData.paymentMethod === 'transferencia' ? saleData.bankName : null,
-                sale_date: new Date().toISOString(),
-            });
+            try {
+                // Insertar venta
+                const { data: saleResult, error: saleError } = await supabase.from('sales').insert({
+                    item_id: saleData.articleId,
+                    article_name: article.name,
+                    quantity: saleData.quantity,
+                    unit_price: article.price,
+                    total_price: totalPrice,
+                    buyer_name: saleData.buyerName,
+                    payment_method: saleData.paymentMethod,
+                    amount_paid: saleData.paymentMethod === 'sinabono' ? 0 : saleData.amountPaid,
+                    bank_name: saleData.paymentMethod === 'transferencia' ? saleData.bankName : null,
+                    sale_date: new Date().toISOString(),
+                }).select().single();
 
-            if (saleError) throw new Error(saleError.message);
-            
-            const { error: stockError } = await supabase.from('items').update({ stock: newStock }).eq('id', article.id);
-            if (stockError) {
-                // Intentar revertir la venta sería complejo aquí sin transacciones.
-                console.error("Error al actualizar stock, la venta se creó pero el stock no se actualizó.");
-                throw new Error(stockError.message);
+                if (saleError) {
+                    console.error('Error inserting sale:', saleError);
+                    throw new Error(saleError.message);
+                }
+                
+                // Actualizar stock
+                const { error: stockError } = await supabase
+                    .from('items')
+                    .update({ stock: newStock })
+                    .eq('id', article.id);
+                
+                if (stockError) {
+                    console.error('Error updating stock:', stockError);
+                    // Intentar revertir la venta
+                    await supabase.from('sales').delete().eq('id', saleResult.id);
+                    throw new Error('Error al actualizar el stock');
+                }
+                
+                console.log('Sale added successfully:', saleResult);
+                return saleResult;
+            } catch (error) {
+                console.error('Error in addSale:', error);
+                throw error;
             }
         },
-        onSuccess: invalidateQueries,
+        onSuccess: () => {
+            console.log('Sale added, invalidating queries...');
+            invalidateQueries();
+        },
+        onError: (error) => {
+            console.error('Error adding sale:', error);
+        }
     });
     
     // ACTUALIZAR venta
     const { mutateAsync: updateSale } = useMutation({
-      mutationFn: async (updatedSale: EditSaleData) => {
-        // La lógica de actualización de ventas es compleja y requiere manejo de stock.
-        // Por simplicidad en esta migración inicial, la dejamos pendiente.
-        // Se puede implementar con una función RPC en Supabase para asegurar atomicidad.
-        console.log("La actualización de ventas se implementará en un siguiente paso.", updatedSale);
-        // Simulación para evitar error de no implementado y permitir que la UI funcione
-        await new Promise(resolve => setTimeout(resolve, 500));
-        // throw new Error("La función de actualizar venta aún no está conectada a Supabase.");
-      },
-      onSuccess: invalidateQueries,
+        mutationFn: async (updatedSale: EditSaleData) => {
+            console.log('Updating sale:', updatedSale);
+            
+            const originalSale = sales.find(s => s.id === updatedSale.id);
+            if (!originalSale) throw new Error('Venta no encontrada');
+            
+            const newArticle = articles.find(a => a.id === updatedSale.articleId);
+            if (!newArticle) throw new Error('Artículo no encontrado');
+            
+            const oldArticle = articles.find(a => a.id === originalSale.articleId);
+            if (!oldArticle) throw new Error('Artículo original no encontrado');
+
+            try {
+                // Calcular cambios de stock
+                let stockChanges: Array<{id: string, newStock: number}> = [];
+                
+                if (originalSale.articleId !== updatedSale.articleId) {
+                    // Cambio de artículo: restaurar stock del antiguo, reducir del nuevo
+                    stockChanges.push({
+                        id: originalSale.articleId,
+                        newStock: oldArticle.stock + originalSale.quantity
+                    });
+                    stockChanges.push({
+                        id: updatedSale.articleId,
+                        newStock: newArticle.stock - updatedSale.quantity
+                    });
+                } else {
+                    // Mismo artículo: ajustar diferencia de cantidad
+                    const stockDifference = originalSale.quantity - updatedSale.quantity;
+                    stockChanges.push({
+                        id: updatedSale.articleId,
+                        newStock: newArticle.stock + stockDifference
+                    });
+                }
+
+                // Verificar stock suficiente
+                for (const change of stockChanges) {
+                    if (change.newStock < 0) {
+                        throw new Error('Stock insuficiente para esta operación');
+                    }
+                }
+
+                const totalPrice = newArticle.price * updatedSale.quantity;
+
+                // Actualizar venta
+                const { data, error: saleError } = await supabase.from('sales').update({
+                    item_id: updatedSale.articleId,
+                    article_name: newArticle.name,
+                    quantity: updatedSale.quantity,
+                    unit_price: newArticle.price,
+                    total_price: totalPrice,
+                    buyer_name: updatedSale.buyerName,
+                    payment_method: updatedSale.paymentMethod,
+                    amount_paid: updatedSale.paymentMethod === 'sinabono' ? 0 : updatedSale.amountPaid,
+                    bank_name: updatedSale.paymentMethod === 'transferencia' ? updatedSale.bankName : null,
+                }).eq('id', updatedSale.id).select().single();
+
+                if (saleError) {
+                    console.error('Error updating sale:', saleError);
+                    throw new Error(saleError.message);
+                }
+
+                // Actualizar stocks
+                for (const change of stockChanges) {
+                    const { error: stockError } = await supabase
+                        .from('items')
+                        .update({ stock: change.newStock })
+                        .eq('id', change.id);
+                    
+                    if (stockError) {
+                        console.error('Error updating stock:', stockError);
+                        throw new Error('Error al actualizar el stock');
+                    }
+                }
+                
+                console.log('Sale updated successfully:', data);
+                return data;
+            } catch (error) {
+                console.error('Error in updateSale:', error);
+                throw error;
+            }
+        },
+        onSuccess: () => {
+            console.log('Sale updated, invalidating queries...');
+            invalidateQueries();
+        },
+        onError: (error) => {
+            console.error('Error updating sale:', error);
+        }
     });
 
     // ELIMINAR venta
     const { mutateAsync: deleteSale } = useMutation({
         mutationFn: async (saleId: string) => {
+            console.log('Deleting sale:', saleId);
+            
             const saleToDelete = sales.find(s => s.id === saleId);
             if (!saleToDelete) throw new Error("Venta no encontrada");
             
@@ -255,16 +463,42 @@ export const useInventory = () => {
             
             const newStock = article.stock + saleToDelete.quantity;
 
-            const { error: deleteError } = await supabase.from('sales').delete().eq('id', saleId);
-            if (deleteError) throw new Error(deleteError.message);
+            try {
+                // Eliminar venta
+                const { error: deleteError } = await supabase
+                    .from('sales')
+                    .delete()
+                    .eq('id', saleId);
+                
+                if (deleteError) {
+                    console.error('Error deleting sale:', deleteError);
+                    throw new Error(deleteError.message);
+                }
 
-            const { error: stockError } = await supabase.from('items').update({ stock: newStock }).eq('id', article.id);
-            if (stockError) {
-                console.error("Error al restaurar stock.");
-                throw new Error(stockError.message);
+                // Restaurar stock
+                const { error: stockError } = await supabase
+                    .from('items')
+                    .update({ stock: newStock })
+                    .eq('id', article.id);
+                
+                if (stockError) {
+                    console.error('Error restoring stock:', stockError);
+                    throw new Error('Error al restaurar el stock');
+                }
+                
+                console.log('Sale deleted successfully');
+            } catch (error) {
+                console.error('Error in deleteSale:', error);
+                throw error;
             }
         },
-        onSuccess: invalidateQueries,
+        onSuccess: () => {
+            console.log('Sale deleted, invalidating queries...');
+            invalidateQueries();
+        },
+        onError: (error) => {
+            console.error('Error deleting sale:', error);
+        }
     });
 
     return {

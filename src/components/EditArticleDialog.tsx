@@ -17,7 +17,7 @@ interface EditArticleDialogProps {
   article: Article | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: EditArticleData) => void;
+  onSubmit: (data: EditArticleData) => Promise<void>;
 }
 
 type EditArticleFormValues = {
@@ -34,7 +34,7 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
   onOpenChange,
   onSubmit,
 }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<EditArticleFormValues>();
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<EditArticleFormValues>();
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -48,26 +48,36 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
     }
   }, [article, reset]);
 
-  const handleFormSubmit = (data: EditArticleFormValues) => {
+  const handleFormSubmit = async (data: EditArticleFormValues) => {
     if (!article) return;
     try {
       const imageFile = data.imageUrl?.[0];
       const newImageUrl = imageFile ? URL.createObjectURL(imageFile) : article.imageUrl;
       
-      onSubmit({
+      console.log('Updating article:', {
+        id: article.id,
+        name: data.name,
+        price: data.price,
+        stock: data.stock,
+        hasNewImage: !!imageFile
+      });
+      
+      await onSubmit({
         ...data,
         id: article.id,
         imageUrl: newImageUrl,
       });
+      
       onOpenChange(false);
       toast({
         title: "Artículo actualizado",
         description: "El artículo se ha actualizado correctamente.",
       });
     } catch (error) {
+      console.error('Error updating article:', error);
       toast({
         title: "Error",
-        description: "Hubo un problema al actualizar el artículo.",
+        description: error instanceof Error ? error.message : "Hubo un problema al actualizar el artículo.",
         variant: "destructive",
       });
     }
@@ -134,7 +144,17 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
           <div className="space-y-2">
             <Label htmlFor="imageUrl" className="text-sm font-medium">Imagen del Artículo</Label>
             {article.imageUrl && (
-                <img src={article.imageUrl} alt={article.name} className="w-full h-32 object-cover rounded-md mt-1 mb-2" />
+                <div className="relative">
+                  <img 
+                    src={article.imageUrl} 
+                    alt={article.name} 
+                    className="w-full h-32 object-cover rounded-md mt-1 mb-2"
+                    onError={(e) => {
+                      console.error('Error loading image in edit dialog:', article.imageUrl);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
             )}
             <Input
               id="imageUrl"
@@ -152,14 +172,15 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1">
-              Actualizar
+            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              {isSubmitting ? 'Actualizando...' : 'Actualizar'}
             </Button>
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
               className="flex-1"
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
