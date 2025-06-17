@@ -8,14 +8,16 @@ import { EditArticleDialog } from '@/components/EditArticleDialog';
 import { EditSaleDialog } from '@/components/EditSaleDialog';
 import { Edit, Trash2, ChevronDown } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
+import { formatCurrencyLocalized } from '@/lib/localization';
 
 interface InventoryListsProps {
   articles: Article[];
   sales: Sale[];
-  onUpdateArticle: (data: EditArticleData) => void;
-  onDeleteArticle: (id: string) => void;
-  onUpdateSale: (data: EditSaleData) => void;
-  onDeleteSale: (id: string) => void;
+  onUpdateArticle: (data: EditArticleData) => Promise<void>;
+  onDeleteArticle: (id: string) => Promise<void>;
+  onUpdateSale: (data: EditSaleData) => Promise<void>;
+  onDeleteSale: (id: string) => Promise<void>;
 }
 
 export const InventoryLists: React.FC<InventoryListsProps> = ({ 
@@ -30,6 +32,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [articlesOpen, setArticlesOpen] = useState(false);
   const [salesOpen, setSalesOpen] = useState(false);
+  const { t } = useTranslation();
 
   const lowStockThreshold = localStorage.getItem("inventory_low_stock_threshold") 
     ? JSON.parse(localStorage.getItem("inventory_low_stock_threshold")!) 
@@ -45,12 +48,12 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
     });
   };
 
-  const handleDeleteArticle = (article: Article) => {
-    onDeleteArticle(article.id);
+  const handleDeleteArticle = async (article: Article) => {
+    await onDeleteArticle(article.id);
   };
 
-  const handleDeleteSale = (sale: Sale) => {
-    onDeleteSale(sale.id);
+  const handleDeleteSale = async (sale: Sale) => {
+    await onDeleteSale(sale.id);
   };
 
   return (
@@ -60,7 +63,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
           <Collapsible open={articlesOpen} onOpenChange={setArticlesOpen}>
             <CardHeader className="pb-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full hover:bg-muted/50 p-2 rounded-md transition-colors">
-                <CardTitle className="text-lg sm:text-xl text-left">Inventario de Artículos</CardTitle>
+                <CardTitle className="text-lg sm:text-xl text-left">{t('article_inventory')}</CardTitle>
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${articlesOpen ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
             </CardHeader>
@@ -68,7 +71,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
               <CardContent className="p-4 sm:p-6 pt-0">
                 {articles.length === 0 ? (
                   <p className="text-muted-foreground text-center py-4 text-sm">
-                    No hay artículos registrados
+                    {t('no_articles_registered')}
                   </p>
                 ) : (
                   <div className="space-y-4">
@@ -98,9 +101,19 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                             </Button>
                           </div>
                         </div>
-                        <img src={article.imageUrl} alt={article.name} className="w-full h-40 object-cover rounded-md mb-3" />
+                        <div className="w-full h-40 mb-3 overflow-hidden rounded-md">
+                          <img 
+                            src={article.imageUrl} 
+                            alt={article.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.error('Error loading image:', article.imageUrl);
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
+                          />
+                        </div>
                         <div className="flex justify-between items-center">
-                          <span className="font-bold text-base sm:text-lg text-primary">{formatCurrency(article.price)}</span>
+                          <span className="font-bold text-base sm:text-lg text-primary">{formatCurrencyLocalized(article.price, 'USD', 'es')}</span>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(article.createdAt)}
                           </span>
@@ -118,7 +131,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
           <Collapsible open={salesOpen} onOpenChange={setSalesOpen}>
             <CardHeader className="pb-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full hover:bg-muted/50 p-2 rounded-md transition-colors">
-                <CardTitle className="text-lg sm:text-xl text-left">Historial de Ventas</CardTitle>
+                <CardTitle className="text-lg sm:text-xl text-left">{t('sales_history')}</CardTitle>
                 <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${salesOpen ? 'rotate-180' : ''}`} />
               </CollapsibleTrigger>
             </CardHeader>
@@ -126,7 +139,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
               <CardContent className="p-4 sm:p-6 pt-0">
                 {sales.length === 0 ? (
                   <p className="text-muted-foreground text-center py-4 text-sm">
-                    No hay ventas registradas
+                    {t('no_sales_recorded')}
                   </p>
                 ) : (
                   <div className="space-y-4">
@@ -136,7 +149,7 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                           <h4 className="font-semibold text-sm sm:text-base truncate flex-1">{sale.articleName}</h4>
                           <div className="flex items-center gap-1.5">
                             <Badge variant="outline" className="border-green-600/50 text-xs font-bold text-green-700 whitespace-nowrap">
-                              {formatCurrency(sale.amountPaid)}
+                              {formatCurrencyLocalized(sale.amountPaid, 'USD', 'es')}
                             </Badge>
                             <Button
                               size="icon"
@@ -157,15 +170,15 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                           </div>
                         </div>
                         <div className="text-xs sm:text-sm text-muted-foreground space-y-1.5">
-                          <p className="truncate">Comprador: <span className="font-medium text-foreground">{sale.buyerName}</span></p>
+                          <p className="truncate">{t('buyer')}: <span className="font-medium text-foreground">{sale.buyerName}</span></p>
                           <div className="flex justify-between items-center">
-                            <span>Cantidad: {sale.quantity} × {formatCurrency(sale.unitPrice)}</span>
+                            <span>{t('quantity')}: {sale.quantity} × {formatCurrencyLocalized(sale.unitPrice, 'USD', 'es')}</span>
                             <span className="text-xs">{formatDate(sale.saleDate)}</span>
                           </div>
                           {sale.totalPrice > sale.amountPaid && (
                             <div className="text-xs text-orange-600 font-medium border-t pt-1.5 mt-1.5 flex justify-between">
-                               <span>Total: {formatCurrency(sale.totalPrice)}</span>
-                               <span>Pendiente: {formatCurrency(sale.totalPrice - sale.amountPaid)}</span>
+                               <span>{t('total')}: {formatCurrencyLocalized(sale.totalPrice, 'USD', 'es')}</span>
+                               <span>{t('pending')}: {formatCurrencyLocalized(sale.totalPrice - sale.amountPaid, 'USD', 'es')}</span>
                             </div>
                           )}
                         </div>
