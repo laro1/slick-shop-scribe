@@ -50,16 +50,24 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
   };
 
   const handleDeleteArticle = async (article: Article) => {
-    await onDeleteArticle(article.id);
+    try {
+      await onDeleteArticle(article.id);
+    } catch (error) {
+      console.error('Error deleting article:', error);
+    }
   };
 
   const handleDeleteSale = async (sale: Sale) => {
-    await onDeleteSale(sale.id);
+    try {
+      await onDeleteSale(sale.id);
+    } catch (error) {
+      console.error('Error deleting sale:', error);
+    }
   };
 
   return (
     <>
-      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="flex flex-col gap-4 sm:gap-6">
         <Card>
           <Collapsible open={articlesOpen} onOpenChange={setArticlesOpen}>
             <CardHeader className="pb-4">
@@ -197,7 +205,14 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
         article={editingArticle}
         open={!!editingArticle}
         onOpenChange={(open) => !open && setEditingArticle(null)}
-        onSubmit={onUpdateArticle}
+        onSubmit={async (data) => {
+          try {
+            await onUpdateArticle(data);
+            setEditingArticle(null);
+          } catch (error) {
+            console.error('Error updating article:', error);
+          }
+        }}
       />
 
       <EditSaleDialog
@@ -205,7 +220,14 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
         articles={articles}
         open={!!editingSale}
         onOpenChange={(open) => !open && setEditingSale(null)}
-        onSubmit={onUpdateSale}
+        onSubmit={async (data) => {
+          try {
+            await onUpdateSale(data);
+            setEditingSale(null);
+          } catch (error) {
+            console.error('Error updating sale:', error);
+          }
+        }}
       />
     </>
   );

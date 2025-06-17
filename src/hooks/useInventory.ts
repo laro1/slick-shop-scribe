@@ -141,9 +141,12 @@ export const useInventory = () => {
     });
 
     // Invalidar queries para refrescar datos
-    const invalidateQueries = () => {
-        queryClient.invalidateQueries({ queryKey: ['articles'] });
-        queryClient.invalidateQueries({ queryKey: ['sales'] });
+    const invalidateQueries = async () => {
+        console.log('Invalidating queries to refresh data...');
+        await queryClient.invalidateQueries({ queryKey: ['articles'] });
+        await queryClient.invalidateQueries({ queryKey: ['sales'] });
+        await queryClient.refetchQueries({ queryKey: ['articles'] });
+        await queryClient.refetchQueries({ queryKey: ['sales'] });
     };
 
     // CREAR artículo
@@ -185,9 +188,9 @@ export const useInventory = () => {
                 throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             console.log('Article added, invalidating queries...');
-            invalidateQueries();
+            await invalidateQueries();
         },
         onError: (error) => {
             console.error('Error adding article:', error);
@@ -234,9 +237,9 @@ export const useInventory = () => {
                 throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             console.log('Article updated, invalidating queries...');
-            invalidateQueries();
+            await invalidateQueries();
         },
         onError: (error) => {
             console.error('Error updating article:', error);
@@ -287,9 +290,9 @@ export const useInventory = () => {
             
             console.log('Article deleted successfully');
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             console.log('Article deleted, invalidating queries...');
-            invalidateQueries();
+            await invalidateQueries();
         },
         onError: (error) => {
             console.error('Error deleting article:', error);
@@ -348,9 +351,9 @@ export const useInventory = () => {
                 throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             console.log('Sale added, invalidating queries...');
-            invalidateQueries();
+            await invalidateQueries();
         },
         onError: (error) => {
             console.error('Error adding sale:', error);
@@ -441,9 +444,9 @@ export const useInventory = () => {
                 throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             console.log('Sale updated, invalidating queries...');
-            invalidateQueries();
+            await invalidateQueries();
         },
         onError: (error) => {
             console.error('Error updating sale:', error);
@@ -492,9 +495,9 @@ export const useInventory = () => {
                 throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             console.log('Sale deleted, invalidating queries...');
-            invalidateQueries();
+            await invalidateQueries();
         },
         onError: (error) => {
             console.error('Error deleting sale:', error);
