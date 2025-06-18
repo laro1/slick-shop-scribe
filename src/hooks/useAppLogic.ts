@@ -104,53 +104,93 @@ export const useAppLogic = () => {
     toast.success(t('admin_logged_out'));
   }, [t]);
 
-  // Funciones de gestión de usuarios
-  const handleUpdateUser = useCallback(async (userData: User) => {
+  // Funciones de gestión de usuarios - Adaptadas para las firmas esperadas
+  const handleUpdateUser = useCallback(async (userId: string, updatedData: Partial<Omit<User, 'id' | 'pin'>>) => {
     try {
-      console.log('Updating user:', userData);
-      await updateUserMutation(userData);
-      if (activeUser && activeUser.id === userData.id) {
-        setActiveUser(userData);
+      console.log('Updating user:', userId, updatedData);
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        throw new Error('Usuario no encontrado');
+      }
+      
+      const updatedUser = { ...user, ...updatedData };
+      await updateUserMutation(updatedUser);
+      
+      if (activeUser && activeUser.id === userId) {
+        setActiveUser(updatedUser);
       }
       toast.success(t('user_updated_successfully'));
     } catch (error) {
       console.error('Error updating user:', error);
       toast.error(t('error_updating_user'));
     }
-  }, [updateUserMutation, activeUser, t]);
+  }, [updateUserMutation, users, activeUser, t]);
 
-  const handleEditUser = useCallback(async (userData: User) => {
+  const handleEditUser = useCallback(async (userId: string, pin: string, data: Partial<Omit<User, 'id' | 'pin'>>): Promise<boolean> => {
     try {
-      console.log('Editing user:', userData);
-      await updateUserMutation(userData);
+      console.log('Editing user:', userId, data);
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        throw new Error('Usuario no encontrado');
+      }
+      
+      // Verificar PIN
+      if (user.pin !== pin) {
+        toast.error(t('incorrect_pin'));
+        return false;
+      }
+      
+      const updatedUser = { ...user, ...data };
+      await updateUserMutation(updatedUser);
       toast.success(t('user_edited_successfully'));
+      return true;
     } catch (error) {
       console.error('Error editing user:', error);
       toast.error(t('error_editing_user'));
+      return false;
     }
-  }, [updateUserMutation, t]);
+  }, [updateUserMutation, users, t]);
 
-  const handleDeleteUser = useCallback(async (userId: string) => {
+  const handleDeleteUser = useCallback((userId: string, pin: string): boolean => {
     try {
       console.log('Deleting user:', userId);
-      await deleteUserMutation(userId);
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        toast.error('Usuario no encontrado');
+        return false;
+      }
+      
+      // Verificar PIN
+      if (user.pin !== pin) {
+        toast.error(t('incorrect_pin'));
+        return false;
+      }
+      
+      deleteUserMutation(userId);
       toast.success(t('user_deleted_successfully'));
+      return true;
     } catch (error) {
       console.error('Error deleting user:', error);
       toast.error(t('error_deleting_user'));
+      return false;
     }
-  }, [deleteUserMutation, t]);
+  }, [deleteUserMutation, users, t]);
 
-  const handleToggleUserStatus = useCallback(async (userId: string, isActive: boolean) => {
+  const handleToggleUserStatus = useCallback(async (userId: string) => {
     try {
-      console.log('Toggling user status:', userId, isActive);
-      await toggleUserStatusMutation({ userId, isActive });
+      console.log('Toggling user status:', userId);
+      const user = users.find(u => u.id === userId);
+      if (!user) {
+        throw new Error('Usuario no encontrado');
+      }
+      
+      await toggleUserStatusMutation({ userId, isActive: !user.isActive });
       toast.success(t('user_status_updated'));
     } catch (error) {
       console.error('Error toggling user status:', error);
       toast.error(t('error_updating_user_status'));
     }
-  }, [toggleUserStatusMutation, t]);
+  }, [toggleUserStatusMutation, users, t]);
 
   // Funciones de configuración
   const handleAddCategory = useCallback((category: string) => {
