@@ -1,4 +1,5 @@
 
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
@@ -98,9 +99,9 @@ export const useInventory = () => {
     const queryClient = useQueryClient();
 
     // LEER artículos
-    const { data: articles = [], isLoading: articlesLoading, refetch: refetchArticles } = useQuery<Article[]>({
+    const { data: articles = [], isLoading: articlesLoading, refetch: refetchArticles } = useQuery({
         queryKey: ['articles'],
-        queryFn: async () => {
+        queryFn: async (): Promise<Article[]> => {
             console.log('Fetching articles from Supabase...');
             
             const { data, error } = await supabase
@@ -130,9 +131,9 @@ export const useInventory = () => {
     });
 
     // LEER ventas
-    const { data: sales = [], isLoading: salesLoading, refetch: refetchSales } = useQuery<Sale[]>({
+    const { data: sales = [], isLoading: salesLoading, refetch: refetchSales } = useQuery({
         queryKey: ['sales'],
-        queryFn: async () => {
+        queryFn: async (): Promise<Sale[]> => {
             console.log('Fetching sales from Supabase...');
             
             const { data, error } = await supabase
@@ -156,7 +157,7 @@ export const useInventory = () => {
                 totalPrice: Number(sale.total_price),
                 buyerName: sale.buyer_name,
                 saleDate: new Date(sale.sale_date),
-                paymentMethod: sale.payment_method,
+                paymentMethod: sale.payment_method as 'efectivo' | 'transferencia' | 'sinabono',
                 bankName: sale.bank_name || undefined,
                 amountPaid: Number(sale.amount_paid),
             }));
@@ -245,7 +246,7 @@ export const useInventory = () => {
                     newImageUrl = await uploadArticleImage(imageFile);
                     
                     // Borrar la imagen antigua si es diferente a la nueva
-                    const originalArticle = articles.find(a => a.id === updatedArticle.id);
+                    const originalArticle = (articles as Article[]).find(a => a.id === updatedArticle.id);
                     if (originalArticle && originalArticle.imageUrl && originalArticle.imageUrl !== newImageUrl) {
                         await deleteArticleImage(originalArticle.imageUrl);
                     }
@@ -289,7 +290,7 @@ export const useInventory = () => {
         mutationFn: async (articleId: string) => {
             console.log('Deleting article from Supabase:', articleId);
             
-            const articleToDelete = articles.find(a => a.id === articleId);
+            const articleToDelete = (articles as Article[]).find(a => a.id === articleId);
             if (!articleToDelete) {
                 throw new Error("Artículo no encontrado");
             }
@@ -342,7 +343,7 @@ export const useInventory = () => {
         mutationFn: async (saleData: SaleFormData) => {
             console.log('Adding sale to Supabase:', saleData);
             
-            const article = articles.find(a => a.id === saleData.articleId);
+            const article = (articles as Article[]).find(a => a.id === saleData.articleId);
             if (!article) throw new Error('Artículo no encontrado');
             if (article.stock < saleData.quantity) throw new Error('Stock insuficiente');
             
@@ -407,13 +408,13 @@ export const useInventory = () => {
         mutationFn: async (updatedSale: EditSaleData) => {
             console.log('Updating sale in Supabase:', updatedSale);
             
-            const originalSale = sales.find(s => s.id === updatedSale.id);
+            const originalSale = (sales as Sale[]).find(s => s.id === updatedSale.id);
             if (!originalSale) throw new Error('Venta no encontrada');
             
-            const newArticle = articles.find(a => a.id === updatedSale.articleId);
+            const newArticle = (articles as Article[]).find(a => a.id === updatedSale.articleId);
             if (!newArticle) throw new Error('Artículo no encontrado');
             
-            const oldArticle = articles.find(a => a.id === originalSale.articleId);
+            const oldArticle = (articles as Article[]).find(a => a.id === originalSale.articleId);
             if (!oldArticle) throw new Error('Artículo original no encontrado');
 
             try {
@@ -505,10 +506,10 @@ export const useInventory = () => {
         mutationFn: async (saleId: string) => {
             console.log('Deleting sale from Supabase:', saleId);
             
-            const saleToDelete = sales.find(s => s.id === saleId);
+            const saleToDelete = (sales as Sale[]).find(s => s.id === saleId);
             if (!saleToDelete) throw new Error("Venta no encontrada");
             
-            const article = articles.find(a => a.id === saleToDelete.articleId);
+            const article = (articles as Article[]).find(a => a.id === saleToDelete.articleId);
             if (!article) throw new Error("Artículo asociado a la venta no encontrado");
             
             const newStock = article.stock + saleToDelete.quantity;
@@ -552,8 +553,8 @@ export const useInventory = () => {
     });
 
     return {
-        articles,
-        sales,
+        articles: articles as Article[],
+        sales: sales as Sale[],
         isLoading: articlesLoading || salesLoading,
         addArticle,
         updateArticle,
@@ -564,3 +565,4 @@ export const useInventory = () => {
         refreshData,
     };
 };
+
