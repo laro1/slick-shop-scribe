@@ -1,36 +1,35 @@
 
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
 
-// --- Interfaces para la forma de los datos de Supabase ---
+// --- Interfaces para la forma exacta de los datos de Supabase ---
 interface SupabaseArticleRow {
     id: string;
     name: string;
-    image_url: string;
+    image_url: string | null;
     price: number;
     stock: number;
     created_at: string;
+    description: string | null;
 }
 
 interface SupabaseSaleRow {
     id: string;
     item_id: string;
-    article_name: string;
+    article_name: string | null;
     quantity: number;
-    unit_price: number;
+    unit_price: number | null;
     total_price: number;
     buyer_name: string;
-    sale_date: string;
-    payment_method: 'efectivo' | 'transferencia' | 'sinabono';
+    sale_date: string | null;
+    payment_method: string | null;
     bank_name: string | null;
-    amount_paid: number;
+    amount_paid: number | null;
 }
 
 // --- Funciones auxiliares para Supabase Storage ---
 
-// Sube una imagen a Supabase Storage y devuelve la URL pública.
 const uploadArticleImage = async (imageFile: File): Promise<string> => {
     const fileName = `${crypto.randomUUID()}-${imageFile.name}`;
     
@@ -59,14 +58,12 @@ const uploadArticleImage = async (imageFile: File): Promise<string> => {
     }
 };
 
-// Elimina una imagen de Supabase Storage.
 const deleteArticleImage = async (imageUrl: string) => {
     try {
         if (!imageUrl || !imageUrl.includes('supabase')) {
             return;
         }
         
-        // Extraer el nombre del archivo de la URL
         const urlParts = imageUrl.split('/');
         const fileName = urlParts[urlParts.length - 1];
         
@@ -86,7 +83,6 @@ const deleteArticleImage = async (imageUrl: string) => {
     }
 };
 
-// Convierte una URL de tipo "blob:" de nuevo a un objeto File para poder subirlo.
 const fileFromBlobUrl = async (blobUrl: string): Promise<File> => {
     const response = await fetch(blobUrl);
     const blob = await response.blob();
@@ -98,7 +94,7 @@ const fileFromBlobUrl = async (blobUrl: string): Promise<File> => {
 export const useInventory = () => {
     const queryClient = useQueryClient();
 
-    // LEER artículos
+    // LEER artículos - mapeo exacto con la estructura de Supabase
     const { data: articles = [], isLoading: articlesLoading, refetch: refetchArticles } = useQuery({
         queryKey: ['articles'],
         queryFn: async (): Promise<Article[]> => {
@@ -106,7 +102,7 @@ export const useInventory = () => {
             
             const { data, error } = await supabase
                 .from('items')
-                .select('id, name, image_url, price, stock, created_at')
+                .select('id, name, image_url, price, stock, created_at, description')
                 .order('created_at', { ascending: false });
             
             if (error) {
@@ -114,23 +110,31 @@ export const useInventory = () => {
                 throw new Error(`Error al obtener artículos: ${error.message}`);
             }
             
-            console.log('Articles fetched successfully:', data?.length || 0, 'items');
+            console.log('Raw articles data from Supabase:', data);
             
-            return (data || []).map(item => ({
+            if (!data) {
+                console.log('No articles data returned');
+                return [];
+            }
+            
+            const mappedArticles = data.map((item: SupabaseArticleRow) => ({
                 id: item.id,
                 name: item.name,
-                imageUrl: item.image_url || '',
+                imageUrl: item.image_url || '/placeholder.svg',
                 price: Number(item.price),
                 stock: Number(item.stock),
                 createdAt: new Date(item.created_at),
-            }));
+            } as Article));
+            
+            console.log('Articles mapped successfully:', mappedArticles.length, 'items');
+            return mappedArticles;
         },
         staleTime: 0,
         refetchOnMount: true,
         refetchOnWindowFocus: true,
     });
 
-    // LEER ventas
+    // LEER ventas - mapeo exacto con la estructura de Supabase
     const { data: sales = [], isLoading: salesLoading, refetch: refetchSales } = useQuery({
         queryKey: ['sales'],
         queryFn: async (): Promise<Sale[]> => {
@@ -146,21 +150,37 @@ export const useInventory = () => {
                 throw new Error(`Error al obtener ventas: ${error.message}`);
             }
             
-            console.log('Sales fetched successfully:', data?.length || 0, 'items');
+            console.log('Raw sales data from Supabase:', data);
             
-            return (data || []).map(sale => ({
-                id: sale.id,
-                articleId: sale.item_id,
-                articleName: sale.article_name,
-                quantity: Number(sale.quantity),
-                unitPrice: Number(sale.unit_price),
-                totalPrice: Number(sale.total_price),
-                buyerName: sale.buyer_name,
-                saleDate: new Date(sale.sale_date),
-                paymentMethod: sale.payment_method as 'efectivo' | 'transferencia' | 'sinabono',
-                bankName: sale.bank_name || undefined,
-                amountPaid: Number(sale.amount_paid),
-            }));
+            if (!data) {
+                console.log('No sales data returned');
+                return [];
+            }
+            
+            const mappedSales = data.map((sale: SupabaseSaleRow) => {
+                // Validar y normalizar payment_method
+                let paymentMethod: 'efectivo' | 'transferencia' | 'sinabono' = 'efectivo';
+                if (sale.payment_method === 'transferencia' || sale.payment_method === 'sinabono') {
+                    paymentMethod = sale.payment_method;
+                }
+                
+                return {
+                    id: sale.id,
+                    articleId: sale.item_id,
+                    articleName: sale.article_name || 'Artículo desconocido',
+                    quantity: Number(sale.quantity),
+                    unitPrice: Number(sale.unit_price || 0),
+                    totalPrice: Number(sale.total_price),
+                    buyerName: sale.buyer_name,
+                    saleDate: new Date(sale.sale_date || new Date()),
+                    paymentMethod: paymentMethod,
+                    bankName: sale.bank_name || undefined,
+                    amountPaid: Number(sale.amount_paid || 0),
+                } as Sale;
+            });
+            
+            console.log('Sales mapped successfully:', mappedSales.length, 'items');
+            return mappedSales;
         },
         staleTime: 0,
         refetchOnMount: true,
@@ -181,7 +201,7 @@ export const useInventory = () => {
         console.log('Data refreshed successfully');
     };
 
-    // CREAR artículo
+    // CREAR artículo - mapeo exacto con estructura de Supabase
     const { mutateAsync: addArticle } = useMutation({
         mutationFn: async (articleData: ArticleFormData) => {
             console.log('Adding article to Supabase:', articleData);
@@ -189,11 +209,11 @@ export const useInventory = () => {
             let publicUrl = '';
             
             try {
-                // Convertir blob URL a File y subir imagen
+                // Subir imagen
                 const imageFile = await fileFromBlobUrl(articleData.imageUrl);
                 publicUrl = await uploadArticleImage(imageFile);
 
-                // Insertar artículo en la base de datos
+                // Insertar artículo con la estructura exacta de Supabase
                 const { data, error } = await supabase
                     .from('items')
                     .insert({
@@ -201,13 +221,13 @@ export const useInventory = () => {
                         price: articleData.price,
                         stock: articleData.stock,
                         image_url: publicUrl,
+                        description: null, // Campo que existe en Supabase
                     })
                     .select()
                     .single();
 
                 if (error) {
                     console.error('Error inserting article:', error);
-                    // Intentar borrar la imagen si falla la inserción
                     await deleteArticleImage(publicUrl);
                     throw new Error(`Error al crear artículo: ${error.message}`);
                 }
@@ -216,7 +236,6 @@ export const useInventory = () => {
                 return data;
             } catch (error) {
                 console.error('Error in addArticle:', error);
-                // Limpiar imagen si algo falla
                 if (publicUrl) {
                     await deleteArticleImage(publicUrl);
                 }
@@ -240,12 +259,10 @@ export const useInventory = () => {
             let newImageUrl = updatedArticle.imageUrl;
             
             try {
-                // Si la URL es un blob, es una nueva imagen para subir
                 if (updatedArticle.imageUrl.startsWith('blob:')) {
                     const imageFile = await fileFromBlobUrl(updatedArticle.imageUrl);
                     newImageUrl = await uploadArticleImage(imageFile);
                     
-                    // Borrar la imagen antigua si es diferente a la nueva
                     const originalArticle = (articles as Article[]).find(a => a.id === updatedArticle.id);
                     if (originalArticle && originalArticle.imageUrl && originalArticle.imageUrl !== newImageUrl) {
                         await deleteArticleImage(originalArticle.imageUrl);
@@ -311,7 +328,6 @@ export const useInventory = () => {
                 throw new Error('No se puede eliminar un artículo que tiene ventas asociadas');
             }
 
-            // Eliminar artículo de la base de datos
             const { error: deleteError } = await supabase
                 .from('items')
                 .delete()
@@ -322,7 +338,6 @@ export const useInventory = () => {
                 throw new Error(`Error al eliminar artículo: ${deleteError.message}`);
             }
 
-            // Eliminar imagen del storage
             if (articleToDelete.imageUrl) {
                 await deleteArticleImage(articleToDelete.imageUrl);
             }
@@ -338,7 +353,7 @@ export const useInventory = () => {
         }
     });
 
-    // CREAR venta
+    // CREAR venta - mapeo exacto con estructura de Supabase
     const { mutateAsync: addSale } = useMutation({
         mutationFn: async (saleData: SaleFormData) => {
             console.log('Adding sale to Supabase:', saleData);
@@ -351,7 +366,7 @@ export const useInventory = () => {
             const totalPrice = article.price * saleData.quantity;
 
             try {
-                // Insertar venta
+                // Insertar venta con estructura exacta de Supabase
                 const { data: saleResult, error: saleError } = await supabase
                     .from('sales')
                     .insert({
@@ -382,7 +397,6 @@ export const useInventory = () => {
                 
                 if (stockError) {
                     console.error('Error updating stock:', stockError);
-                    // Intentar revertir la venta
                     await supabase.from('sales').delete().eq('id', saleResult.id);
                     throw new Error(`Error al actualizar el stock: ${stockError.message}`);
                 }
@@ -418,11 +432,9 @@ export const useInventory = () => {
             if (!oldArticle) throw new Error('Artículo original no encontrado');
 
             try {
-                // Calcular cambios de stock
                 let stockChanges: Array<{id: string, newStock: number}> = [];
                 
                 if (originalSale.articleId !== updatedSale.articleId) {
-                    // Cambio de artículo: restaurar stock del antiguo, reducir del nuevo
                     stockChanges.push({
                         id: originalSale.articleId,
                         newStock: oldArticle.stock + originalSale.quantity
@@ -432,7 +444,6 @@ export const useInventory = () => {
                         newStock: newArticle.stock - updatedSale.quantity
                     });
                 } else {
-                    // Mismo artículo: ajustar diferencia de cantidad
                     const stockDifference = originalSale.quantity - updatedSale.quantity;
                     stockChanges.push({
                         id: updatedSale.articleId,
@@ -440,7 +451,6 @@ export const useInventory = () => {
                     });
                 }
 
-                // Verificar stock suficiente
                 for (const change of stockChanges) {
                     if (change.newStock < 0) {
                         throw new Error('Stock insuficiente para esta operación');
@@ -449,7 +459,6 @@ export const useInventory = () => {
 
                 const totalPrice = newArticle.price * updatedSale.quantity;
 
-                // Actualizar venta
                 const { data, error: saleError } = await supabase
                     .from('sales')
                     .update({
@@ -472,7 +481,6 @@ export const useInventory = () => {
                     throw new Error(`Error al actualizar venta: ${saleError.message}`);
                 }
 
-                // Actualizar stocks
                 for (const change of stockChanges) {
                     const { error: stockError } = await supabase
                         .from('items')
@@ -515,7 +523,6 @@ export const useInventory = () => {
             const newStock = article.stock + saleToDelete.quantity;
 
             try {
-                // Eliminar venta
                 const { error: deleteError } = await supabase
                     .from('sales')
                     .delete()
@@ -526,7 +533,6 @@ export const useInventory = () => {
                     throw new Error(`Error al eliminar venta: ${deleteError.message}`);
                 }
 
-                // Restaurar stock
                 const { error: stockError } = await supabase
                     .from('items')
                     .update({ stock: newStock })
@@ -565,4 +571,3 @@ export const useInventory = () => {
         refreshData,
     };
 };
-
