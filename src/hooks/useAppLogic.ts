@@ -25,7 +25,7 @@ export const useAppLogic = () => {
     toggleUserStatus: toggleUserStatusMutation,
   } = useSupabaseUsers();
 
-  const { adminPin, isLoading: isAdminPinLoading } = useAdmin();
+  const { adminPin, isAdminPinLoading } = useAdmin();
   
   const {
     articles,
