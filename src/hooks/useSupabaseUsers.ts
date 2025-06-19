@@ -136,14 +136,15 @@ export const useSupabaseUsers = () => {
     }
   });
 
-  // Actualizar usuario
+  // ACTUALIZAR usuario - CORREGIDO
   const { mutateAsync: updateUser } = useMutation({
     mutationFn: async (userData: User) => {
-      console.log('Updating user in Supabase:', userData);
+      console.log('=== INICIANDO ACTUALIZACIÓN DE USUARIO ===');
+      console.log('Datos recibidos para actualizar:', userData);
       
-      const { data, error } = await supabase
-        .from('users')
-        .update({
+      try {
+        console.log('Actualizando usuario en Supabase con datos:', {
+          id: userData.id,
           name: userData.name,
           business_name: userData.businessName,
           pin: userData.pin,
@@ -152,27 +153,53 @@ export const useSupabaseUsers = () => {
           is_active: userData.isActive,
           currency: userData.currency || null,
           language: userData.language || null,
-        })
-        .eq('id', userData.id)
-        .select()
-        .single();
+        });
 
-      if (error) {
-        console.error('Error updating user:', error);
-        throw new Error(`Error al actualizar usuario: ${error.message}`);
+        const { data, error } = await supabase
+          .from('users')
+          .update({
+            name: userData.name,
+            business_name: userData.businessName,
+            pin: userData.pin,
+            logo_url: userData.logoUrl || null,
+            role: userData.role,
+            is_active: userData.isActive,
+            currency: userData.currency || null,
+            language: userData.language || null,
+          })
+          .eq('id', userData.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error actualizando usuario en Supabase:', error);
+          console.error('Detalles del error:', error.details, error.hint, error.message);
+          
+          if (error.code === 'PGRST301') {
+            throw new Error('Sin permisos para actualizar usuarios. Verifica las políticas RLS.');
+          } else {
+            throw new Error(`Error al actualizar usuario: ${error.message}`);
+          }
+        }
+        
+        console.log('Usuario actualizado exitosamente en Supabase:', data);
+        toast.success('Usuario actualizado correctamente');
+        return data;
+      } catch (error) {
+        console.error('Error en updateUser:', error);
+        toast.error('Error al actualizar usuario');
+        throw error;
       }
-      
-      console.log('User updated successfully:', data);
-      return data;
     },
-    onSuccess: () => {
-      console.log('User updated, refreshing data...');
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      refetch();
+    onSuccess: async () => {
+      console.log('Usuario actualizado, refrescando datos...');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['users'] }),
+        refetch()
+      ]);
     },
     onError: (error) => {
-      console.error('Error updating user:', error);
-      toast.error('Error al actualizar usuario');
+      console.error('Error en mutación updateUser:', error);
     }
   });
 

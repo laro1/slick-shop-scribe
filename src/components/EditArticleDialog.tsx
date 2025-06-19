@@ -39,6 +39,7 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
 
   React.useEffect(() => {
     if (article) {
+      console.log('Inicializando formulario con artículo:', article);
       reset({
         id: article.id,
         name: article.name,
@@ -50,23 +51,26 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
 
   const handleFormSubmit = async (data: EditArticleFormValues) => {
     if (!article) return;
+    
+    console.log('=== ENVIANDO DATOS DEL FORMULARIO DE EDICIÓN ===');
+    console.log('Datos del formulario:', data);
+    console.log('Artículo original:', article);
+    
     try {
       const imageFile = data.imageUrl?.[0];
       const newImageUrl = imageFile ? URL.createObjectURL(imageFile) : article.imageUrl;
       
-      console.log('Updating article:', {
+      const updateData: EditArticleData = {
         id: article.id,
         name: data.name,
-        price: data.price,
-        stock: data.stock,
-        hasNewImage: !!imageFile
-      });
-      
-      await onSubmit({
-        ...data,
-        id: article.id,
+        price: Number(data.price),
+        stock: Number(data.stock),
         imageUrl: newImageUrl,
-      });
+      };
+      
+      console.log('Datos preparados para enviar a la mutación:', updateData);
+      
+      await onSubmit(updateData);
       
       onOpenChange(false);
       toast({
@@ -74,7 +78,7 @@ export const EditArticleDialog: React.FC<EditArticleDialogProps> = ({
         description: "El artículo se ha actualizado correctamente.",
       });
     } catch (error) {
-      console.error('Error updating article:', error);
+      console.error('Error en handleFormSubmit:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Hubo un problema al actualizar el artículo.",

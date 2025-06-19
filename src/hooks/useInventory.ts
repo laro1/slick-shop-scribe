@@ -306,12 +306,15 @@ export const useInventory = () => {
     // ACTUALIZAR artículo
     const { mutateAsync: updateArticle } = useMutation({
         mutationFn: async (updatedArticle: EditArticleData) => {
-            console.log('Updating article in Supabase:', updatedArticle);
+            console.log('=== INICIANDO ACTUALIZACIÓN DE ARTÍCULO ===');
+            console.log('Datos recibidos para actualizar:', updatedArticle);
             
             let newImageUrl = updatedArticle.imageUrl;
             
             try {
+                // Manejar actualización de imagen si es necesario
                 if (updatedArticle.imageUrl.startsWith('blob:')) {
+                    console.log('Subiendo nueva imagen...');
                     const imageFile = await fileFromBlobUrl(updatedArticle.imageUrl);
                     newImageUrl = await uploadArticleImage(imageFile);
                     
@@ -321,12 +324,20 @@ export const useInventory = () => {
                     }
                 }
                 
+                console.log('Actualizando artículo en Supabase con datos:', {
+                    id: updatedArticle.id,
+                    name: updatedArticle.name,
+                    price: Number(updatedArticle.price),
+                    stock: Number(updatedArticle.stock),
+                    image_url: newImageUrl,
+                });
+
                 const { data, error } = await supabase
                     .from('items')
                     .update({
                         name: updatedArticle.name,
-                        price: updatedArticle.price,
-                        stock: updatedArticle.stock,
+                        price: Number(updatedArticle.price),
+                        stock: Number(updatedArticle.stock),
                         image_url: newImageUrl,
                     })
                     .eq('id', updatedArticle.id)
@@ -334,23 +345,26 @@ export const useInventory = () => {
                     .single();
 
                 if (error) {
-                    console.error('Error updating article:', error);
+                    console.error('Error actualizando artículo en Supabase:', error);
+                    console.error('Detalles del error:', error.details, error.hint, error.message);
                     throw new Error(`Error al actualizar artículo: ${error.message}`);
                 }
                 
-                console.log('Article updated successfully:', data);
+                console.log('Artículo actualizado exitosamente en Supabase:', data);
+                toast.success('Artículo actualizado correctamente');
                 return data;
             } catch (error) {
-                console.error('Error in updateArticle:', error);
+                console.error('Error en updateArticle:', error);
+                toast.error('Error al actualizar el artículo');
                 throw error;
             }
         },
         onSuccess: async () => {
-            console.log('Article updated, refreshing data...');
+            console.log('Artículo actualizado, refrescando datos...');
             await refreshData();
         },
         onError: (error) => {
-            console.error('Error updating article:', error);
+            console.error('Error en mutación updateArticle:', error);
         }
     });
 
@@ -472,21 +486,36 @@ export const useInventory = () => {
     // ACTUALIZAR venta
     const { mutateAsync: updateSale } = useMutation({
         mutationFn: async (updatedSale: EditSaleData) => {
-            console.log('Updating sale in Supabase:', updatedSale);
+            console.log('=== INICIANDO ACTUALIZACIÓN DE VENTA ===');
+            console.log('Datos recibidos para actualizar:', updatedSale);
             
             const originalSale = (sales as Sale[]).find(s => s.id === updatedSale.id);
-            if (!originalSale) throw new Error('Venta no encontrada');
+            if (!originalSale) {
+                const error = 'Venta no encontrada';
+                console.error(error);
+                throw new Error(error);
+            }
             
             const newArticle = (articles as Article[]).find(a => a.id === updatedSale.articleId);
-            if (!newArticle) throw new Error('Artículo no encontrado');
+            if (!newArticle) {
+                const error = 'Artículo no encontrado';
+                console.error(error);
+                throw new Error(error);
+            }
             
             const oldArticle = (articles as Article[]).find(a => a.id === originalSale.articleId);
-            if (!oldArticle) throw new Error('Artículo original no encontrado');
+            if (!oldArticle) {
+                const error = 'Artículo original no encontrado';
+                console.error(error);
+                throw new Error(error);
+            }
 
             try {
+                // Calcular cambios de stock
                 let stockChanges: Array<{id: string, newStock: number}> = [];
                 
                 if (originalSale.articleId !== updatedSale.articleId) {
+                    // Cambio de artículo: devolver stock al artículo original y descontar del nuevo
                     stockChanges.push({
                         id: originalSale.articleId,
                         newStock: oldArticle.stock + originalSale.quantity
@@ -496,6 +525,7 @@ export const useInventory = () => {
                         newStock: newArticle.stock - updatedSale.quantity
                     });
                 } else {
+                    // Mismo artículo: ajustar stock por diferencia de cantidad
                     const stockDifference = originalSale.quantity - updatedSale.quantity;
                     stockChanges.push({
                         id: updatedSale.articleId,
@@ -503,25 +533,42 @@ export const useInventory = () => {
                     });
                 }
 
+                // Validar que no habrá stock negativo
                 for (const change of stockChanges) {
                     if (change.newStock < 0) {
-                        throw new Error('Stock insuficiente para esta operación');
+                        const error = 'Stock insuficiente para esta operación';
+                        console.error(error, 'Stock resultante:', change.newStock);
+                        throw new Error(error);
                     }
                 }
 
                 const totalPrice = newArticle.price * updatedSale.quantity;
 
+                console.log('Actualizando venta en Supabase con datos:', {
+                    id: updatedSale.id,
+                    item_id: updatedSale.articleId,
+                    article_name: newArticle.name,
+                    quantity: Number(updatedSale.quantity),
+                    unit_price: Number(newArticle.price),
+                    total_price: Number(totalPrice),
+                    buyer_name: updatedSale.buyerName,
+                    payment_method: updatedSale.paymentMethod,
+                    amount_paid: Number(updatedSale.paymentMethod === 'sinabono' ? 0 : updatedSale.amountPaid),
+                    bank_name: updatedSale.paymentMethod === 'transferencia' ? updatedSale.bankName : null,
+                });
+
+                // Actualizar la venta
                 const { data, error: saleError } = await supabase
                     .from('sales')
                     .update({
                         item_id: updatedSale.articleId,
                         article_name: newArticle.name,
-                        quantity: updatedSale.quantity,
-                        unit_price: newArticle.price,
-                        total_price: totalPrice,
+                        quantity: Number(updatedSale.quantity),
+                        unit_price: Number(newArticle.price),
+                        total_price: Number(totalPrice),
                         buyer_name: updatedSale.buyerName,
                         payment_method: updatedSale.paymentMethod,
-                        amount_paid: updatedSale.paymentMethod === 'sinabono' ? 0 : updatedSale.amountPaid,
+                        amount_paid: Number(updatedSale.paymentMethod === 'sinabono' ? 0 : updatedSale.amountPaid),
                         bank_name: updatedSale.paymentMethod === 'transferencia' ? updatedSale.bankName : null,
                     })
                     .eq('id', updatedSale.id)
@@ -529,35 +576,42 @@ export const useInventory = () => {
                     .single();
 
                 if (saleError) {
-                    console.error('Error updating sale:', saleError);
+                    console.error('Error actualizando venta en Supabase:', saleError);
+                    console.error('Detalles del error:', saleError.details, saleError.hint, saleError.message);
                     throw new Error(`Error al actualizar venta: ${saleError.message}`);
                 }
 
+                console.log('Venta actualizada exitosamente, actualizando stocks...');
+
+                // Actualizar stocks
                 for (const change of stockChanges) {
+                    console.log(`Actualizando stock del artículo ${change.id} a ${change.newStock}`);
                     const { error: stockError } = await supabase
                         .from('items')
                         .update({ stock: change.newStock })
                         .eq('id', change.id);
                     
                     if (stockError) {
-                        console.error('Error updating stock:', stockError);
+                        console.error('Error actualizando stock:', stockError);
                         throw new Error(`Error al actualizar el stock: ${stockError.message}`);
                     }
                 }
                 
-                console.log('Sale updated successfully:', data);
+                console.log('Venta y stocks actualizados exitosamente:', data);
+                toast.success('Venta actualizada correctamente');
                 return data;
             } catch (error) {
-                console.error('Error in updateSale:', error);
+                console.error('Error en updateSale:', error);
+                toast.error('Error al actualizar la venta');
                 throw error;
             }
         },
         onSuccess: async () => {
-            console.log('Sale updated, refreshing data...');
+            console.log('Venta actualizada, refrescando datos...');
             await refreshData();
         },
         onError: (error) => {
-            console.error('Error updating sale:', error);
+            console.error('Error en mutación updateSale:', error);
         }
     });
 
