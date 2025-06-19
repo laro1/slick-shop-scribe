@@ -15,7 +15,7 @@ export type Database = {
           pin: string
         }
         Insert: {
-          id?: number
+          id: number
           pin: string
         }
         Update: {

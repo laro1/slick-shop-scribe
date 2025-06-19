@@ -1,7 +1,7 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
+import { toast } from 'sonner';
 
 // --- Interfaces para la forma exacta de los datos de Supabase ---
 interface SupabaseArticleRow {
@@ -99,36 +99,58 @@ export const useInventory = () => {
         queryKey: ['articles'],
         queryFn: async (): Promise<Article[]> => {
             console.log('Fetching articles from Supabase...');
+            console.log('Supabase URL:', supabase.supabaseUrl);
             
-            const { data, error } = await supabase
-                .from('items')
-                .select('id, name, image_url, price, stock, created_at, description')
-                .order('created_at', { ascending: false });
-            
-            if (error) {
-                console.error('Error fetching articles:', error);
-                throw new Error(`Error al obtener artículos: ${error.message}`);
+            try {
+                // Verificar conexión primero
+                const { data: connectionTest, error: connectionError } = await supabase
+                    .from('items')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (connectionError) {
+                    console.error('Items table connection test failed:', connectionError);
+                    throw new Error(`Error de conexión con items: ${connectionError.message}`);
+                }
+                
+                console.log('Items table connection successful, total items:', connectionTest);
+                
+                const { data, error } = await supabase
+                    .from('items')
+                    .select('id, name, image_url, price, stock, created_at, description')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error('Error fetching articles:', error);
+                    toast.error(`Error al obtener artículos: ${error.message}`);
+                    throw new Error(`Error al obtener artículos: ${error.message}`);
+                }
+                
+                console.log('Raw articles data from Supabase:', data);
+                
+                if (!data) {
+                    console.log('No articles data returned');
+                    return [];
+                }
+                
+                const mappedArticles = data.map((item: SupabaseArticleRow) => ({
+                    id: item.id,
+                    name: item.name,
+                    imageUrl: item.image_url || '/placeholder.svg',
+                    price: Number(item.price),
+                    stock: Number(item.stock),
+                    createdAt: new Date(item.created_at),
+                } as Article));
+                
+                console.log('Articles mapped successfully:', mappedArticles.length, 'items');
+                return mappedArticles;
+            } catch (error) {
+                console.error('Error in articles query:', error);
+                toast.error('No se pudo cargar el inventario');
+                throw error;
             }
-            
-            console.log('Raw articles data from Supabase:', data);
-            
-            if (!data) {
-                console.log('No articles data returned');
-                return [];
-            }
-            
-            const mappedArticles = data.map((item: SupabaseArticleRow) => ({
-                id: item.id,
-                name: item.name,
-                imageUrl: item.image_url || '/placeholder.svg',
-                price: Number(item.price),
-                stock: Number(item.stock),
-                createdAt: new Date(item.created_at),
-            } as Article));
-            
-            console.log('Articles mapped successfully:', mappedArticles.length, 'items');
-            return mappedArticles;
         },
+        retry: 3,
+        retryDelay: 1000,
         staleTime: 0,
         refetchOnMount: true,
         refetchOnWindowFocus: true,
@@ -139,49 +161,71 @@ export const useInventory = () => {
         queryKey: ['sales'],
         queryFn: async (): Promise<Sale[]> => {
             console.log('Fetching sales from Supabase...');
+            console.log('Supabase URL:', supabase.supabaseUrl);
             
-            const { data, error } = await supabase
-                .from('sales')
-                .select('id, item_id, article_name, quantity, unit_price, total_price, buyer_name, sale_date, payment_method, bank_name, amount_paid')
-                .order('sale_date', { ascending: false });
-            
-            if (error) {
-                console.error('Error fetching sales:', error);
-                throw new Error(`Error al obtener ventas: ${error.message}`);
-            }
-            
-            console.log('Raw sales data from Supabase:', data);
-            
-            if (!data) {
-                console.log('No sales data returned');
-                return [];
-            }
-            
-            const mappedSales = data.map((sale: SupabaseSaleRow) => {
-                // Validar y normalizar payment_method
-                let paymentMethod: 'efectivo' | 'transferencia' | 'sinabono' = 'efectivo';
-                if (sale.payment_method === 'transferencia' || sale.payment_method === 'sinabono') {
-                    paymentMethod = sale.payment_method;
+            try {
+                // Verificar conexión primero
+                const { data: connectionTest, error: connectionError } = await supabase
+                    .from('sales')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (connectionError) {
+                    console.error('Sales table connection test failed:', connectionError);
+                    throw new Error(`Error de conexión con sales: ${connectionError.message}`);
                 }
                 
-                return {
-                    id: sale.id,
-                    articleId: sale.item_id,
-                    articleName: sale.article_name || 'Artículo desconocido',
-                    quantity: Number(sale.quantity),
-                    unitPrice: Number(sale.unit_price || 0),
-                    totalPrice: Number(sale.total_price),
-                    buyerName: sale.buyer_name,
-                    saleDate: new Date(sale.sale_date || new Date()),
-                    paymentMethod: paymentMethod,
-                    bankName: sale.bank_name || undefined,
-                    amountPaid: Number(sale.amount_paid || 0),
-                } as Sale;
-            });
-            
-            console.log('Sales mapped successfully:', mappedSales.length, 'items');
-            return mappedSales;
+                console.log('Sales table connection successful, total sales:', connectionTest);
+                
+                const { data, error } = await supabase
+                    .from('sales')
+                    .select('id, item_id, article_name, quantity, unit_price, total_price, buyer_name, sale_date, payment_method, bank_name, amount_paid')
+                    .order('sale_date', { ascending: false });
+                
+                if (error) {
+                    console.error('Error fetching sales:', error);
+                    toast.error(`Error al obtener ventas: ${error.message}`);
+                    throw new Error(`Error al obtener ventas: ${error.message}`);
+                }
+                
+                console.log('Raw sales data from Supabase:', data);
+                
+                if (!data) {
+                    console.log('No sales data returned');
+                    return [];
+                }
+                
+                const mappedSales = data.map((sale: SupabaseSaleRow) => {
+                    // Validar y normalizar payment_method
+                    let paymentMethod: 'efectivo' | 'transferencia' | 'sinabono' = 'efectivo';
+                    if (sale.payment_method === 'transferencia' || sale.payment_method === 'sinabono') {
+                        paymentMethod = sale.payment_method;
+                    }
+                    
+                    return {
+                        id: sale.id,
+                        articleId: sale.item_id,
+                        articleName: sale.article_name || 'Artículo desconocido',
+                        quantity: Number(sale.quantity),
+                        unitPrice: Number(sale.unit_price || 0),
+                        totalPrice: Number(sale.total_price),
+                        buyerName: sale.buyer_name,
+                        saleDate: new Date(sale.sale_date || new Date()),
+                        paymentMethod: paymentMethod,
+                        bankName: sale.bank_name || undefined,
+                        amountPaid: Number(sale.amount_paid || 0),
+                    } as Sale;
+                });
+                
+                console.log('Sales mapped successfully:', mappedSales.length, 'items');
+                return mappedSales;
+            } catch (error) {
+                console.error('Error in sales query:', error);
+                toast.error('No se pudo cargar las ventas');
+                throw error;
+            }
         },
+        retry: 3,
+        retryDelay: 1000,
         staleTime: 0,
         refetchOnMount: true,
         refetchOnWindowFocus: true,

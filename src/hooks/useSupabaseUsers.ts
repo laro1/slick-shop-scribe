@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@/types/user';
+import { toast } from 'sonner';
 
 // Interfaz para mapear los datos de Supabase
 interface SupabaseUserRow {
@@ -25,39 +26,61 @@ export const useSupabaseUsers = () => {
     queryKey: ['users'],
     queryFn: async (): Promise<User[]> => {
       console.log('Fetching users from Supabase...');
+      console.log('Supabase URL:', supabase.supabaseUrl);
       
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching users:', error);
-        throw new Error(`Error al obtener usuarios: ${error.message}`);
+      try {
+        // Primero verificar la conexión con una consulta simple
+        const { data: connectionTest, error: connectionError } = await supabase
+          .from('users')
+          .select('count', { count: 'exact', head: true });
+        
+        if (connectionError) {
+          console.error('Connection test failed:', connectionError);
+          throw new Error(`Error de conexión: ${connectionError.message}`);
+        }
+        
+        console.log('Connection test successful, total users:', connectionTest);
+        
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error('Error fetching users:', error);
+          toast.error(`Error al obtener usuarios: ${error.message}`);
+          throw new Error(`Error al obtener usuarios: ${error.message}`);
+        }
+        
+        console.log('Raw users data from Supabase:', data);
+        
+        if (!data) {
+          console.log('No users data returned');
+          return [];
+        }
+        
+        const mappedUsers = data.map((user: SupabaseUserRow) => ({
+          id: user.id,
+          name: user.name,
+          businessName: user.business_name,
+          pin: user.pin,
+          logoUrl: user.logo_url || undefined,
+          role: user.role,
+          isActive: user.is_active,
+          currency: user.currency || undefined,
+          language: user.language || undefined,
+        } as User));
+        
+        console.log('Users mapped successfully:', mappedUsers.length, 'users');
+        return mappedUsers;
+      } catch (error) {
+        console.error('Error in users query:', error);
+        toast.error('No se pudo conectar con la base de datos');
+        throw error;
       }
-      
-      console.log('Raw users data from Supabase:', data);
-      
-      if (!data) {
-        console.log('No users data returned');
-        return [];
-      }
-      
-      const mappedUsers = data.map((user: SupabaseUserRow) => ({
-        id: user.id,
-        name: user.name,
-        businessName: user.business_name,
-        pin: user.pin,
-        logoUrl: user.logo_url || undefined,
-        role: user.role,
-        isActive: user.is_active,
-        currency: user.currency || undefined,
-        language: user.language || undefined,
-      } as User));
-      
-      console.log('Users mapped successfully:', mappedUsers.length, 'users');
-      return mappedUsers;
     },
+    retry: 3,
+    retryDelay: 1000,
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
@@ -98,6 +121,7 @@ export const useSupabaseUsers = () => {
     },
     onError: (error) => {
       console.error('Error creating user:', error);
+      toast.error('Error al crear usuario');
     }
   });
 
@@ -137,6 +161,7 @@ export const useSupabaseUsers = () => {
     },
     onError: (error) => {
       console.error('Error updating user:', error);
+      toast.error('Error al actualizar usuario');
     }
   });
 
@@ -164,6 +189,7 @@ export const useSupabaseUsers = () => {
     },
     onError: (error) => {
       console.error('Error deleting user:', error);
+      toast.error('Error al eliminar usuario');
     }
   });
 
@@ -194,6 +220,7 @@ export const useSupabaseUsers = () => {
     },
     onError: (error) => {
       console.error('Error toggling user status:', error);
+      toast.error('Error al cambiar estado del usuario');
     }
   });
 
