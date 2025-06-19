@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
@@ -101,20 +100,9 @@ export const useInventory = () => {
         queryFn: async (): Promise<Article[]> => {
             console.log('Fetching articles from Supabase...');
             console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
+            console.log('Checking RLS policies for items table...');
             
             try {
-                // Verificar conexión primero
-                const { data: connectionTest, error: connectionError } = await supabase
-                    .from('items')
-                    .select('count', { count: 'exact', head: true });
-                
-                if (connectionError) {
-                    console.error('Items table connection test failed:', connectionError);
-                    throw new Error(`Error de conexión con items: ${connectionError.message}`);
-                }
-                
-                console.log('Items table connection successful, total items:', connectionTest);
-                
                 const { data, error } = await supabase
                     .from('items')
                     .select('id, name, image_url, price, stock, created_at, description')
@@ -122,13 +110,22 @@ export const useInventory = () => {
                 
                 if (error) {
                     console.error('Error fetching articles:', error);
-                    toast.error(`Error al obtener artículos: ${error.message}`);
-                    throw new Error(`Error al obtener artículos: ${error.message}`);
+                    console.error('Error details:', error.details, error.hint, error.message);
+                    
+                    if (error.code === 'PGRST301') {
+                        toast.error('Sin permisos para acceder al inventario. Verifica las políticas RLS.');
+                    } else if (error.code === 'PGRST116') {
+                        console.log('No articles found in database');
+                        return [];
+                    } else {
+                        toast.error(`Error de base de datos: ${error.message}`);
+                    }
+                    return [];
                 }
                 
                 console.log('Raw articles data from Supabase:', data);
                 
-                if (!data) {
+                if (!data || data.length === 0) {
                     console.log('No articles data returned');
                     return [];
                 }
@@ -147,10 +144,16 @@ export const useInventory = () => {
             } catch (error) {
                 console.error('Error in articles query:', error);
                 toast.error('No se pudo cargar el inventario');
-                throw error;
+                return [];
             }
         },
-        retry: 3,
+        retry: (failureCount, error: any) => {
+            // No reintentar si es un error de permisos RLS
+            if (error?.code === 'PGRST301') {
+                return false;
+            }
+            return failureCount < 2;
+        },
         retryDelay: 1000,
         staleTime: 0,
         refetchOnMount: true,
@@ -163,20 +166,9 @@ export const useInventory = () => {
         queryFn: async (): Promise<Sale[]> => {
             console.log('Fetching sales from Supabase...');
             console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
+            console.log('Checking RLS policies for sales table...');
             
             try {
-                // Verificar conexión primero
-                const { data: connectionTest, error: connectionError } = await supabase
-                    .from('sales')
-                    .select('count', { count: 'exact', head: true });
-                
-                if (connectionError) {
-                    console.error('Sales table connection test failed:', connectionError);
-                    throw new Error(`Error de conexión con sales: ${connectionError.message}`);
-                }
-                
-                console.log('Sales table connection successful, total sales:', connectionTest);
-                
                 const { data, error } = await supabase
                     .from('sales')
                     .select('id, item_id, article_name, quantity, unit_price, total_price, buyer_name, sale_date, payment_method, bank_name, amount_paid')
@@ -184,13 +176,22 @@ export const useInventory = () => {
                 
                 if (error) {
                     console.error('Error fetching sales:', error);
-                    toast.error(`Error al obtener ventas: ${error.message}`);
-                    throw new Error(`Error al obtener ventas: ${error.message}`);
+                    console.error('Error details:', error.details, error.hint, error.message);
+                    
+                    if (error.code === 'PGRST301') {
+                        toast.error('Sin permisos para acceder a las ventas. Verifica las políticas RLS.');
+                    } else if (error.code === 'PGRST116') {
+                        console.log('No sales found in database');
+                        return [];
+                    } else {
+                        toast.error(`Error de base de datos: ${error.message}`);
+                    }
+                    return [];
                 }
                 
                 console.log('Raw sales data from Supabase:', data);
                 
-                if (!data) {
+                if (!data || data.length === 0) {
                     console.log('No sales data returned');
                     return [];
                 }
@@ -222,10 +223,16 @@ export const useInventory = () => {
             } catch (error) {
                 console.error('Error in sales query:', error);
                 toast.error('No se pudo cargar las ventas');
-                throw error;
+                return [];
             }
         },
-        retry: 3,
+        retry: (failureCount, error: any) => {
+            // No reintentar si es un error de permisos RLS
+            if (error?.code === 'PGRST301') {
+                return false;
+            }
+            return failureCount < 2;
+        },
         retryDelay: 1000,
         staleTime: 0,
         refetchOnMount: true,

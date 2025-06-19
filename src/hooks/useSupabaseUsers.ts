@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@/types/user';
@@ -27,20 +26,10 @@ export const useSupabaseUsers = () => {
     queryFn: async (): Promise<User[]> => {
       console.log('Fetching users from Supabase...');
       console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
+      console.log('Checking RLS policies for users table...');
       
       try {
-        // Primero verificar la conexión con una consulta simple
-        const { data: connectionTest, error: connectionError } = await supabase
-          .from('users')
-          .select('count', { count: 'exact', head: true });
-        
-        if (connectionError) {
-          console.error('Connection test failed:', connectionError);
-          throw new Error(`Error de conexión: ${connectionError.message}`);
-        }
-        
-        console.log('Connection test successful, total users:', connectionTest);
-        
+        // Verificar acceso a la tabla de usuarios con políticas RLS
         const { data, error } = await supabase
           .from('users')
           .select('*')
@@ -48,13 +37,22 @@ export const useSupabaseUsers = () => {
         
         if (error) {
           console.error('Error fetching users:', error);
-          toast.error(`Error al obtener usuarios: ${error.message}`);
-          throw new Error(`Error al obtener usuarios: ${error.message}`);
+          console.error('Error details:', error.details, error.hint, error.message);
+          
+          if (error.code === 'PGRST301') {
+            toast.error('Sin permisos para acceder a los usuarios. Verifica las políticas RLS.');
+          } else if (error.code === 'PGRST116') {
+            console.log('No users found in database');
+            return [];
+          } else {
+            toast.error(`Error de base de datos: ${error.message}`);
+          }
+          return [];
         }
         
         console.log('Raw users data from Supabase:', data);
         
-        if (!data) {
+        if (!data || data.length === 0) {
           console.log('No users data returned');
           return [];
         }
@@ -75,11 +73,17 @@ export const useSupabaseUsers = () => {
         return mappedUsers;
       } catch (error) {
         console.error('Error in users query:', error);
-        toast.error('No se pudo conectar con la base de datos');
-        throw error;
+        toast.error('No se pudo conectar con la base de datos de usuarios');
+        return [];
       }
     },
-    retry: 3,
+    retry: (failureCount, error: any) => {
+      // No reintentar si es un error de permisos RLS
+      if (error?.code === 'PGRST301') {
+        return false;
+      }
+      return failureCount < 2;
+    },
     retryDelay: 1000,
     staleTime: 0,
     refetchOnMount: true,
@@ -108,7 +112,13 @@ export const useSupabaseUsers = () => {
 
       if (error) {
         console.error('Error creating user:', error);
-        throw new Error(`Error al crear usuario: ${error.message}`);
+        console.error('Error details:', error.details, error.hint, error.message);
+        
+        if (error.code === 'PGRST301') {
+          throw new Error('Sin permisos para crear usuarios. Verifica las políticas RLS.');
+        } else {
+          throw new Error(`Error al crear usuario: ${error.message}`);
+        }
       }
       
       console.log('User created successfully:', data);
@@ -118,10 +128,11 @@ export const useSupabaseUsers = () => {
       console.log('User created, refreshing data...');
       queryClient.invalidateQueries({ queryKey: ['users'] });
       refetch();
+      toast.success('Usuario creado exitosamente');
     },
     onError: (error) => {
       console.error('Error creating user:', error);
-      toast.error('Error al crear usuario');
+      toast.error(error.message || 'Error al crear usuario');
     }
   });
 

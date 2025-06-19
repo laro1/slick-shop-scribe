@@ -7,20 +7,9 @@ const fetchAdminPin = async (): Promise<string | null> => {
   try {
     console.log('Fetching admin pin from Supabase...');
     console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
+    console.log('Checking RLS policies for admin_config table...');
     
-    // Primero verificar si la tabla existe
-    const { data: tableCheck, error: tableError } = await supabase
-      .from('admin_config')
-      .select('count', { count: 'exact', head: true });
-    
-    if (tableError) {
-      console.error('Admin config table check failed:', tableError);
-      toast.error('No se pudo acceder a la configuración de administrador.');
-      return null;
-    }
-    
-    console.log('Admin config table exists, record count:', tableCheck);
-    
+    // Verificar la configuración de admin directamente usando SELECT público
     const { data, error } = await supabase
       .from('admin_config')
       .select('pin')
@@ -29,8 +18,8 @@ const fetchAdminPin = async (): Promise<string | null> => {
 
     if (error) {
       if (error.code === 'PGRST116') {
-        console.log('No admin config found, creating default...');
-        // Crear configuración por defecto
+        console.log('No admin config found, trying to create default...');
+        // Intentar crear configuración por defecto
         const { data: newData, error: insertError } = await supabase
           .from('admin_config')
           .insert({ id: 1, pin: '0000' })
@@ -39,15 +28,22 @@ const fetchAdminPin = async (): Promise<string | null> => {
         
         if (insertError) {
           console.error('Error creating default admin config:', insertError);
+          toast.error('No se pudo crear la configuración de administrador.');
           return null;
         }
         
-        console.log('Default admin config created');
+        console.log('Default admin config created successfully');
         return newData?.pin ?? null;
       }
       
       console.error('Error fetching admin pin:', error);
-      toast.error('No se pudo cargar la configuración de administrador.');
+      console.error('Error details:', error.details, error.hint, error.message);
+      
+      if (error.code === 'PGRST301') {
+        toast.error('Sin permisos para acceder a la configuración de administrador.');
+      } else {
+        toast.error(`Error de base de datos: ${error.message}`);
+      }
       return null;
     }
     
@@ -64,7 +60,13 @@ export const useAdmin = () => {
   const { data: adminPin, isLoading: isAdminPinLoading, error } = useQuery({
     queryKey: ['admin_config'],
     queryFn: fetchAdminPin,
-    retry: 3,
+    retry: (failureCount, error: any) => {
+      // No reintentar si es un error de permisos RLS
+      if (error?.code === 'PGRST301') {
+        return false;
+      }
+      return failureCount < 2;
+    },
     retryDelay: 1000,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
