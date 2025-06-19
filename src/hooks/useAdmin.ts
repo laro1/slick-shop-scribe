@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 const fetchAdminPin = async (): Promise<string | null> => {
   try {
     console.log('Fetching admin pin from Supabase...');
-    console.log('Supabase URL:', supabase.supabaseUrl);
+    console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
     
     // Primero verificar si la tabla existe
     const { data: tableCheck, error: tableError } = await supabase

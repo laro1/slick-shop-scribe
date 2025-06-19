@@ -26,7 +26,7 @@ export const useSupabaseUsers = () => {
     queryKey: ['users'],
     queryFn: async (): Promise<User[]> => {
       console.log('Fetching users from Supabase...');
-      console.log('Supabase URL:', supabase.supabaseUrl);
+      console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
       
       try {
         // Primero verificar la conexión con una consulta simple

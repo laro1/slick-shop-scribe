@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Article, Sale, ArticleFormData, SaleFormData, EditArticleData, EditSaleData } from '@/types/inventory';
@@ -99,7 +100,7 @@ export const useInventory = () => {
         queryKey: ['articles'],
         queryFn: async (): Promise<Article[]> => {
             console.log('Fetching articles from Supabase...');
-            console.log('Supabase URL:', supabase.supabaseUrl);
+            console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
             
             try {
                 // Verificar conexión primero
@@ -161,7 +162,7 @@ export const useInventory = () => {
         queryKey: ['sales'],
         queryFn: async (): Promise<Sale[]> => {
             console.log('Fetching sales from Supabase...');
-            console.log('Supabase URL:', supabase.supabaseUrl);
+            console.log('Supabase URL: https://lfcanknjipqulsbgjmmg.supabase.co');
             
             try {
                 // Verificar conexión primero
