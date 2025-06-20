@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInventory } from './useInventory';
@@ -12,8 +11,17 @@ export const useAppLogic = () => {
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [colorTheme, setColorTheme] = useState('blue');
+  
+  // Inicializar temas desde localStorage
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
+  const [colorTheme, setColorTheme] = useState(() => {
+    const saved = localStorage.getItem('colorTheme');
+    return saved || 'default';
+  });
 
   // Hooks de datos
   const { 
@@ -218,12 +226,17 @@ export const useAppLogic = () => {
     toast.success(t('session_timeout_updated'));
   }, [t]);
 
+  // Funciones de tema con persistencia
   const handleSetDarkMode = useCallback((dark: boolean) => {
+    console.log('Setting dark mode:', dark);
     setDarkMode(dark);
+    localStorage.setItem('darkMode', JSON.stringify(dark));
   }, []);
 
   const handleSetColorTheme = useCallback((theme: string) => {
+    console.log('Setting color theme:', theme);
     setColorTheme(theme);
+    localStorage.setItem('colorTheme', theme);
   }, []);
 
   // Actions del inventario

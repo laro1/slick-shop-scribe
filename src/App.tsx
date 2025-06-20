@@ -1,9 +1,9 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { UserAuth } from "./pages/UserAuth";
@@ -50,6 +50,26 @@ const AppContent = () => {
     handleSetDarkMode,
     handleSetColorTheme,
   } = useAppLogic();
+
+  // Aplicar clases de tema al document
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // Limpiar clases existentes
+    root.classList.remove('dark', 'theme-red', 'theme-mint', 'theme-gray');
+    
+    // Aplicar modo oscuro
+    if (darkMode) {
+      root.classList.add('dark');
+    }
+    
+    // Aplicar tema de color
+    if (colorTheme && colorTheme !== 'default') {
+      root.classList.add(`theme-${colorTheme}`);
+    }
+    
+    console.log('Tema aplicado:', { darkMode, colorTheme, classes: root.className });
+  }, [darkMode, colorTheme]);
 
   if (showSplash) {
     return <SplashScreen />;

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +21,7 @@ interface ThemeSwitcherProps {
 }
 
 const themes = [
-    { name: 'default', label: 'Predeterminado', color: 'hsl(211 100% 50%)' },
+    { name: 'default', label: 'Azul', color: 'hsl(211 100% 50%)' },
     { name: 'red', label: 'Rojo', color: 'hsl(0 65% 55%)' },
     { name: 'mint', label: 'Menta', color: 'hsl(160 40% 55%)' },
     { name: 'gray', label: 'Gris', color: 'hsl(210 10% 50%)' },
