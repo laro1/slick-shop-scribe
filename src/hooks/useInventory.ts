@@ -10,6 +10,8 @@ interface SupabaseArticleRow {
     image_url: string | null;
     price: number;
     stock: number;
+    initial_stock: number;
+    initial_price: number;
     created_at: string;
     description: string | null;
 }
@@ -105,7 +107,7 @@ export const useInventory = () => {
             try {
                 const { data, error } = await supabase
                     .from('items')
-                    .select('id, name, image_url, price, stock, created_at, description')
+                    .select('id, name, image_url, price, stock, initial_stock, initial_price, created_at, description')
                     .order('created_at', { ascending: false });
                 
                 if (error) {
@@ -136,6 +138,8 @@ export const useInventory = () => {
                     imageUrl: item.image_url || '/placeholder.svg',
                     price: Number(item.price),
                     stock: Number(item.stock),
+                    initialStock: Number(item.initial_stock),
+                    initialPrice: Number(item.initial_price),
                     createdAt: new Date(item.created_at),
                 } as Article));
                 
@@ -272,6 +276,8 @@ export const useInventory = () => {
                         name: articleData.name,
                         price: articleData.price,
                         stock: articleData.stock,
+                        initial_stock: articleData.stock,
+                        initial_price: articleData.price,
                         image_url: publicUrl,
                         description: null, // Campo que existe en Supabase
                     })

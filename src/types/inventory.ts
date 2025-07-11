@@ -4,6 +4,8 @@ export interface Article {
   imageUrl: string;
   price: number;
   stock: number;
+  initialStock: number;
+  initialPrice: number;
   createdAt: Date;
 }
 

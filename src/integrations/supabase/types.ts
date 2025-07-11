@@ -35,6 +35,8 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          initial_price: number
+          initial_stock: number
           name: string
           price: number
           stock: number
@@ -44,6 +46,8 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          initial_price?: number
+          initial_stock?: number
           name: string
           price: number
           stock?: number
@@ -53,6 +57,8 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          initial_price?: number
+          initial_stock?: number
           name?: string
           price?: number
           stock?: number

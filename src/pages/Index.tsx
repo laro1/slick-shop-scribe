@@ -63,6 +63,7 @@ const Index: React.FC<IndexProps> = ({
   const { t } = useTranslation();
 
   const totalInventoryValue = articles.reduce((sum, article) => sum + (article.price * article.stock), 0);
+  const totalOriginalInventoryValue = articles.reduce((sum, article) => sum + (article.initialPrice * article.initialStock), 0);
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.totalPrice, 0);
   const lowStockItems = articles.filter(article => article.stock <= 5).length;
 
@@ -158,7 +159,7 @@ const Index: React.FC<IndexProps> = ({
                   </div>
 
                   {/* Statistics Cards */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                     <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
                       <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
                         <div className="p-3 bg-primary/10 rounded-full">
@@ -196,6 +197,16 @@ const Index: React.FC<IndexProps> = ({
                         </div>
                         <div className="text-xl font-bold">{formatCurrencyLocalized(totalSalesValue, currentUser.currency, currentUser.language)}</div>
                         <p className="text-sm font-medium text-muted-foreground">{t('total_revenue')}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                      <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                          <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{formatCurrencyLocalized(totalOriginalInventoryValue, currentUser.currency, currentUser.language)}</div>
+                        <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Valor Original Inventario</p>
                       </CardContent>
                     </Card>
                   </div>
