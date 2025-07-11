@@ -63,8 +63,8 @@ const Index: React.FC<IndexProps> = ({
   const { t } = useTranslation();
 
   const totalInventoryValue = articles.reduce((sum, article) => sum + (article.price * article.stock), 0);
-  const totalOriginalInventoryValue = articles.reduce((sum, article) => sum + (article.initialPrice * article.initialStock), 0);
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.totalPrice, 0);
+  const totalOriginalInventoryValue = totalSalesValue; // Usar el valor total de ventas como valor original
   const lowStockItems = articles.filter(article => article.stock <= 5).length;
 
   const pageTitles: { [key: string]: string } = {
