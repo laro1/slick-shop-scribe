@@ -159,54 +159,24 @@ const Index: React.FC<IndexProps> = ({
                   </div>
 
                   {/* Statistics Cards */}
-                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
-                      <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-primary/10 rounded-full">
-                          <Package className="h-6 w-6 text-primary" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <Card className="p-6 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                      <CardContent className="p-0 flex flex-col items-center justify-center gap-3">
+                        <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                          <Package className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <div className="text-2xl font-bold">{articles.length}</div>
-                        <p className="text-sm font-medium text-muted-foreground">{t('total_articles')}</p>
+                        <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{formatCurrencyLocalized(totalOriginalInventoryValue, currentUser.currency, currentUser.language)}</div>
+                        <p className="text-base font-medium text-blue-600 dark:text-blue-400">Valor Original Inventario</p>
                       </CardContent>
                     </Card>
 
-                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
-                       <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-primary/10 rounded-full">
-                          <ShoppingCart className="h-6 w-6 text-primary" />
+                    <Card className="p-6 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
+                      <CardContent className="p-0 flex flex-col items-center justify-center gap-3">
+                        <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded-full">
+                          <BarChart3 className="h-8 w-8 text-green-600 dark:text-green-400" />
                         </div>
-                        <div className="text-2xl font-bold">{sales.length}</div>
-                        <p className="text-sm font-medium text-muted-foreground">{t('total_sales')}</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
-                       <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-primary/10 rounded-full">
-                          <BarChart3 className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="text-xl font-bold">{formatCurrencyLocalized(totalInventoryValue, currentUser.currency, currentUser.language)}</div>
-                        <p className="text-sm font-medium text-muted-foreground">{t('inventory_value')}</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1">
-                      <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-primary/10 rounded-full">
-                          <FileSpreadsheet className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="text-xl font-bold">{formatCurrencyLocalized(totalSalesValue, currentUser.currency, currentUser.language)}</div>
-                        <p className="text-sm font-medium text-muted-foreground">{t('total_revenue')}</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="p-4 text-center transition-all duration-200 hover:shadow-xl hover:-translate-y-1 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-                      <CardContent className="p-0 flex flex-col items-center justify-center gap-2">
-                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                          <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div className="text-xl font-bold text-blue-700 dark:text-blue-300">{formatCurrencyLocalized(totalOriginalInventoryValue, currentUser.currency, currentUser.language)}</div>
-                        <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Valor Original Inventario</p>
+                        <div className="text-2xl font-bold text-green-700 dark:text-green-300">{formatCurrencyLocalized(totalInventoryValue, currentUser.currency, currentUser.language)}</div>
+                        <p className="text-base font-medium text-green-600 dark:text-green-400">Valor Inventario Vendido</p>
                       </CardContent>
                     </Card>
                   </div>
