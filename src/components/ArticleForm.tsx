@@ -30,27 +30,18 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
   const handleFormSubmit = async (data: ArticleFormValues) => {
     const imageFile = data.imageUrl?.[0];
     try {
-      if (!imageFile) {
-        toast({
-          title: t('error'),
-          description: t('image_selection_error'),
-          variant: "destructive",
-        });
-        return;
-      }
-
       console.log('Submitting article data:', {
         name: data.name,
         price: data.price,
         stock: data.stock,
-        imageFile: imageFile.name
+        imageFile: imageFile?.name || 'No image selected'
       });
 
       await onSubmit({
         name: data.name,
         price: data.price,
         stock: data.stock,
-        imageUrl: URL.createObjectURL(imageFile),
+        imageUrl: imageFile ? URL.createObjectURL(imageFile) : '',
       });
 
       reset();
@@ -135,7 +126,7 @@ export const ArticleForm: React.FC<ArticleFormProps> = ({ onSubmit }) => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  {...register('imageUrl', { required: t('image_required') })}
+                  {...register('imageUrl')}
                 />
                 <Label
                     htmlFor="imageUrl"
