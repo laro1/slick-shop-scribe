@@ -83,12 +83,12 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                     {t('no_articles_registered')}
                   </p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {articles.map((article) => (
-                      <div key={article.id} className="p-3 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
-                        <div className="flex gap-3">
+                      <div key={article.id} className="p-2 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
+                        <div className="flex gap-2">
                           {/* Image */}
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden rounded-md bg-muted flex items-center justify-center">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 overflow-hidden rounded-md bg-muted flex items-center justify-center">
                             <img 
                               src={article.imageUrl} 
                               alt={article.name} 
@@ -102,44 +102,41 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
 
                           {/* Content */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <h4 className="font-semibold text-sm sm:text-base truncate">{article.name}</h4>
-                              <div className="flex items-center gap-1 flex-shrink-0">
+                            <div className="flex items-start justify-between gap-1 mb-1">
+                              <h4 className="font-semibold text-xs sm:text-sm truncate leading-tight">{article.name}</h4>
+                              <div className="flex items-center gap-0.5 flex-shrink-0">
                                 <Badge 
                                   variant={article.stock > lowStockThreshold ? "default" : article.stock > 0 ? "secondary" : "destructive"} 
-                                  className="text-xs"
+                                  className="text-xs px-1 py-0"
                                 >
                                   {article.stock}
                                 </Badge>
                                 <Button
                                   size="icon"
                                   variant="ghost"
-                                  className="h-6 w-6"
+                                  className="h-5 w-5"
                                   onClick={() => setEditingArticle(article)}
                                 >
-                                  <Edit className="h-3 w-3" />
+                                  <Edit className="h-2.5 w-2.5" />
                                 </Button>
                                 <Button
                                   size="icon"
                                   variant="ghost"
-                                  className="h-6 w-6 text-destructive hover:text-destructive"
+                                  className="h-5 w-5 text-destructive hover:text-destructive"
                                   onClick={() => handleDeleteArticle(article)}
                                 >
-                                  <Trash2 className="h-3 w-3" />
+                                  <Trash2 className="h-2.5 w-2.5" />
                                 </Button>
                               </div>
                             </div>
 
-                            <div className="space-y-1">
+                            <div className="space-y-0.5">
                               <div className="flex justify-between items-center">
-                                <span className="font-bold text-sm sm:text-base text-primary">
+                                <span className="font-bold text-xs sm:text-sm text-primary">
                                   {formatCurrencyLocalized(article.price, 'USD', 'es')}
                                 </span>
-                                <span className="text-xs text-muted-foreground">
-                                  Stock: {article.stock}
-                                </span>
                               </div>
-                              <span className="text-xs text-muted-foreground block">
+                              <span className="text-xs text-muted-foreground block leading-tight">
                                 {formatDate(article.createdAt)}
                               </span>
                             </div>
@@ -169,93 +166,70 @@ export const InventoryLists: React.FC<InventoryListsProps> = ({
                     {t('no_sales_recorded')}
                   </p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {sales.slice().reverse().map((sale) => (
-                      <div key={sale.id} className="p-3 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
-                        <div className="space-y-3">
+                      <div key={sale.id} className="p-2 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-primary/30">
+                        <div className="space-y-2">
                           {/* Header with title and actions */}
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start justify-between gap-1">
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-sm sm:text-base truncate">{sale.articleName}</h4>
+                              <h4 className="font-semibold text-xs sm:text-sm truncate leading-tight">{sale.articleName}</h4>
                             </div>
-                            <div className="flex items-center gap-1 flex-shrink-0">
-                              <Badge variant="outline" className="border-green-600/50 text-xs font-bold text-green-700">
+                            <div className="flex items-center gap-0.5 flex-shrink-0">
+                              <Badge variant="outline" className="border-green-600/50 text-xs font-bold text-green-700 px-1 py-0">
                                 {formatCurrencyLocalized(sale.amountPaid, 'USD', 'es')}
                               </Badge>
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-6 w-6"
+                                className="h-5 w-5"
                                 onClick={() => setEditingSale(sale)}
                               >
-                                <Edit className="h-3 w-3" />
+                                <Edit className="h-2.5 w-2.5" />
                               </Button>
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-6 w-6 text-destructive hover:text-destructive"
+                                className="h-5 w-5 text-destructive hover:text-destructive"
                                 onClick={() => handleDeleteSale(sale)}
                               >
-                                <Trash2 className="h-3 w-3" />
+                                <Trash2 className="h-2.5 w-2.5" />
                               </Button>
                             </div>
                           </div>
 
-                          {/* Sale details - Información completa restaurada */}
-                          <div className="space-y-2">
+                          {/* Sale details - Información compacta para móvil */}
+                          <div className="space-y-1">
                             {/* Comprador y fecha */}
-                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1">
-                              <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-                                <span className="font-medium">{t('buyer')}:</span>
-                                <span className="text-foreground">{sale.buyerName}</span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">{formatDate(sale.saleDate)}</span>
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-muted-foreground">{t('buyer')}: <span className="text-foreground font-medium">{sale.buyerName}</span></span>
+                              <span className="text-muted-foreground">{formatDate(sale.saleDate)}</span>
                             </div>
                             
-                            {/* Cantidad y precios */}
-                            <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-                              <div className="space-y-1">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">{t('quantity')}:</span>
-                                  <span className="font-medium">{sale.quantity}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Precio unit:</span>
-                                  <span className="font-medium">{formatCurrencyLocalized(sale.unitPrice, 'USD', 'es')}</span>
-                                </div>
+                            {/* Cantidad, precio y método de pago en una línea */}
+                            <div className="flex justify-between items-center text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground">Cant: <span className="font-medium">{sale.quantity}</span></span>
+                                <span className="text-muted-foreground">Unit: <span className="font-medium">{formatCurrencyLocalized(sale.unitPrice, 'USD', 'es')}</span></span>
                               </div>
-                              <div className="space-y-1">
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Total:</span>
-                                  <span className="font-bold text-primary">{formatCurrencyLocalized(sale.totalPrice, 'USD', 'es')}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Pagado:</span>
-                                  <span className="font-medium text-green-600">{formatCurrencyLocalized(sale.amountPaid, 'USD', 'es')}</span>
-                                </div>
-                              </div>
+                              <Badge variant="secondary" className="text-xs px-1 py-0">
+                                {sale.paymentMethod === 'efectivo' ? 'Efectivo' : 
+                                 sale.paymentMethod === 'transferencia' ? 'Transfer.' : 'Sin Abono'}
+                              </Badge>
                             </div>
 
-                            {/* Método de pago */}
-                            <div className="flex justify-between items-center text-xs sm:text-sm">
-                              <span className="text-muted-foreground">Método de pago:</span>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="secondary" className="text-xs">
-                                  {sale.paymentMethod === 'efectivo' ? 'Efectivo' : 
-                                   sale.paymentMethod === 'transferencia' ? 'Transferencia' : 'Sin Abono'}
-                                </Badge>
-                                {sale.paymentMethod === 'transferencia' && sale.bankName && (
-                                  <span className="text-xs text-muted-foreground">({sale.bankName})</span>
-                                )}
-                              </div>
+                            {/* Total y pagado */}
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-muted-foreground">Total: <span className="font-bold text-primary">{formatCurrencyLocalized(sale.totalPrice, 'USD', 'es')}</span></span>
+                              <span className="text-muted-foreground">Pagado: <span className="font-medium text-green-600">{formatCurrencyLocalized(sale.amountPaid, 'USD', 'es')}</span></span>
                             </div>
                             
                             {/* Saldo pendiente */}
                             {sale.totalPrice > sale.amountPaid && (
-                              <div className="border-t pt-2 mt-2">
-                                <div className="flex justify-between items-center text-orange-600 font-medium">
-                                  <span className="text-xs sm:text-sm">{t('pending')}:</span>
-                                  <span className="text-sm font-bold">{formatCurrencyLocalized(sale.totalPrice - sale.amountPaid, 'USD', 'es')}</span>
+                              <div className="border-t pt-1 mt-1">
+                                <div className="flex justify-between items-center text-orange-600 font-medium text-xs">
+                                  <span>{t('pending')}:</span>
+                                  <span className="font-bold">{formatCurrencyLocalized(sale.totalPrice - sale.amountPaid, 'USD', 'es')}</span>
                                 </div>
                               </div>
                             )}
