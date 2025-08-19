@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useInventory } from './useInventory';
-import { useSupabaseUsers } from './useSupabaseUsers';
-import { useAdmin } from './useAdmin';
+import { useLocalInventory } from './useLocalInventory';
+import { useLocalUsers } from './useLocalUsers';
+import { useLocalAdmin } from './useLocalAdmin';
 import type { User } from '@/types/user';
 import { toast } from 'sonner';
 
@@ -31,9 +31,9 @@ export const useAppLogic = () => {
     updateUser: updateUserMutation,
     deleteUser: deleteUserMutation,
     toggleUserStatus: toggleUserStatusMutation,
-  } = useSupabaseUsers();
+  } = useLocalUsers();
 
-  const { adminPin, isAdminPinLoading } = useAdmin();
+  const { adminPin, isAdminPinLoading } = useLocalAdmin();
   
   const {
     articles,
@@ -46,7 +46,7 @@ export const useAppLogic = () => {
     updateSale,
     deleteSale,
     refreshData,
-  } = useInventory();
+  } = useLocalInventory();
 
   // Estados para configuraciones del admin
   const [productCategories, setProductCategories] = useState<string[]>([]);
